@@ -1,0 +1,12 @@
+[
+  {"id": 9000000001, "issuer_name": "C=US, O=Example CA, CN=Example R1", "name_value": "rockstar-gta6-pc-download.test\n*.rockstar-gta6-pc-download.test", "entry_timestamp": "2026-11-21T06:00:00.000", "not_before": "2026-11-21T05:00:00"},
+  {"id": 9000000002, "issuer_name": "C=US, O=Example CA, CN=Example R1", "name_value": "gta6-free-key-generator.test", "entry_timestamp": "2026-11-20T22:10:00.000", "not_before": "2026-11-20T21:00:00"},
+  {"id": 9000000003, "issuer_name": "C=US, O=Example CA, CN=Example R1", "name_value": "steamcommunity-gta6-gift.test", "entry_timestamp": "2026-11-21T01:30:00.000", "not_before": "2026-11-21T01:00:00"},
+  {"id": 9000000004, "issuer_name": "C=US, O=Example CA, CN=Example R1", "name_value": "gta6-photo-mode-fans.test", "entry_timestamp": "2026-11-20T12:00:00.000", "not_before": "2026-11-20T11:00:00"},
+  {"id": 9000000005, "issuer_name": "C=US, O=Example CA, CN=Example R1", "name_value": "gtavi-android-apk.test", "entry_timestamp": "2026-11-21T03:00:00.000", "not_before": "2026-11-21T02:00:00"},
+  {"id": 9000000006, "issuer_name": "C=US, O=Example CA, CN=Example R1", "name_value": "mail.example.com", "entry_timestamp": "2026-11-21T03:00:00.000", "not_before": "2026-11-21T02:00:00"},
+  {"id": 9000000007, "issuer_name": "C=US, O=Example CA, CN=Example R1", "name_value": "gta6-ps4-free-download.test", "entry_timestamp": "2026-11-19T09:00:00.000", "not_before": "2026-11-19T08:00:00"},
+  {"id": 9000000008, "issuer_name": "C=US, O=Example CA, CN=Example R1", "name_value": "old-gta6-fan-wiki.test", "entry_timestamp": "2026-10-01T09:00:00.000", "not_before": "2026-10-01T08:00:00"},
+  {"id": 9000000009, "issuer_name": "C=US, O=Example CA, CN=Example R1", "name_value": "not a domain", "entry_timestamp": "2026-11-21T03:00:00.000", "not_before": "2026-11-21T02:00:00"},
+  {"id": 9000000010, "issuer_name": "C=US, O=Example CA, CN=Example R1", "name_value": "bad-ts.test", "entry_timestamp": "garbage", "not_before": "garbage"}
+]

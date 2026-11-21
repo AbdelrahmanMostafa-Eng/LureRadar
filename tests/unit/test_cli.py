@@ -108,3 +108,16 @@ def test_offline_check_never_touches_the_network(monkeypatch: pytest.MonkeyPatch
     ):
         result = runner.invoke(app, ["check", target])
         assert result.exit_code in (0, 10, 20, 30), result.output
+
+
+def test_doctor_offline_and_fixture_modes() -> None:
+    result = runner.invoke(app, ["doctor", "--offline"])
+    assert result.exit_code == 0 and "Environment" in result.output and "skipped" in result.output
+    fixtures = Path(__file__).parents[1] / "fixtures" / "sources"
+    data = json.loads(
+        runner.invoke(app, ["doctor", "--json", "--offline", "--fixtures", str(fixtures)]).output
+    )
+    statuses = {row["name"]: row["status"] for row in data["sources"]}
+    assert statuses["crtsh"] == "degraded" and statuses["urlhaus"] == "degraded"
+    env = {row["name"]: row["status"] for row in data["environment"]}
+    assert env["packs"] == "ok" and env["dns"] == "skipped"

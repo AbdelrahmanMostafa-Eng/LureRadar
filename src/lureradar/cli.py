@@ -89,13 +89,9 @@ def check(
         engine = Engine(pack_ids=pack or None, snapshot=snap)
         enricher = None
         if live:
-            import importlib
+            from lureradar.enrich.live import LiveEnricher
 
-            try:
-                live_mod = importlib.import_module("lureradar.enrich.live")
-            except ImportError as exc:
-                raise _fail("--live enrichment is not available in this build") from exc
-            enricher = live_mod.LiveEnricher.from_env()
+            enricher = LiveEnricher.from_env()
             if not json_out:
                 _console(stderr=True).print(
                     f"[{theme.MUTED}]--live: contacting the target and enrichment services "
@@ -207,6 +203,51 @@ def pack_new(
         f"[{theme.RADAR}]created[/] {path}/pack.yaml  → edit it, then run "
         f"[bold]lureradar pack validate {path}[/]"
     )
+
+
+# -------------------------------------------------------------------- doctor
+@app.command()
+def doctor(
+    json_out: Annotated[bool, typer.Option("--json")] = False,
+    offline: Annotated[bool, typer.Option("--offline", help="Skip all network checks.")] = False,
+    fixtures: Annotated[
+        Path | None, typer.Option(help="Report source health in fixture mode instead.")
+    ] = None,
+) -> None:
+    """Check the environment and the live health of every data source."""
+    from lureradar.doctor import run_doctor
+
+    report = run_doctor(offline=offline, fixtures=fixtures)
+    if json_out:
+        _dump_json(report)
+        return
+    from rich.markup import escape
+    from rich.table import Table
+
+    colors = {
+        "ok": theme.RADAR,
+        "degraded": theme.AMBER,
+        "requires_key": theme.INFO,
+        "disabled": theme.MUTED,
+        "down": theme.DANGER,
+        "skipped": theme.MUTED,
+        "warn": theme.AMBER,
+    }
+    console = _console()
+    for title, rows in (("Environment", report["environment"]), ("Sources", report["sources"])):
+        table = Table(title=title, title_style=f"bold {theme.TEXT}", expand=False)
+        table.add_column("check")
+        table.add_column("status")
+        table.add_column("detail", style=theme.MUTED, overflow="fold")
+        for row in rows:
+            status = row["status"]
+            table.add_row(
+                escape(row["name"]),
+                f"[{colors.get(status, theme.TEXT)}]{status}[/]",
+                escape(row["detail"]),
+            )
+        console.print(table)
+    console.print(f"[{theme.MUTED}]checked at {report['checked_at']}[/]")
 
 
 # ------------------------------------------------------------------- version

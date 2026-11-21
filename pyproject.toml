@@ -50,6 +50,8 @@ dependencies = [
 [project.optional-dependencies]
 # PNG rendering for `lureradar report` cards (SVG/HTML work without it).
 render = ["resvg-py>=0.2", "pillow>=11"]
+# Certificate Transparency streaming for `lureradar watch`.
+watch = ["websockets>=13"]
 
 [project.scripts]
 lureradar = "lureradar.cli:main"
@@ -131,7 +133,7 @@ mypy_path = "src"
 files = ["src/lureradar"]
 
 [[tool.mypy.overrides]]
-module = ["confusable_homoglyphs.*", "resvg_py", "selectolax.*"]
+module = ["confusable_homoglyphs.*", "resvg_py", "selectolax.*", "websockets.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

@@ -1,0 +1,2 @@
+{"message_type": "certificate_update", "data": {"seen": 1795327200.0, "leaf_cert": {"all_domains": ["gta6-beta-keys.test", "*.gta6-beta-keys.test"], "issuer": {"O": "Example CA"}}}}
+{"message_type": "heartbeat", "timestamp": 1795327201.0}

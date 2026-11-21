@@ -1,0 +1,5 @@
+https://rockstargames-account-verify.test/login
+https://gta6-pc-early-access.test/claim
+http://bank-login.example/secure/
+https://parcel-delivery.example.net/track
+not a url

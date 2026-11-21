@@ -1,0 +1,5 @@
+{"query_status": "ok", "urls": [
+  {"id": "1", "url": "http://gta6-crack-download.test/GTA6_Setup.exe", "url_status": "online", "host": "gta6-crack-download.test", "date_added": "2026-11-21 04:00:00 UTC", "threat": "malware_download", "tags": ["exe"]},
+  {"id": "2", "url": "http://203.0.113.7/payload.bin", "url_status": "offline", "host": "203.0.113.7", "date_added": "2026-11-21 02:00:00 UTC", "threat": "malware_download", "tags": []},
+  {"id": "3", "url": "http://old.example.org/x", "url_status": "offline", "host": "old.example.org", "date_added": "2026-09-01 02:00:00 UTC", "threat": "malware_download", "tags": []}
+]}

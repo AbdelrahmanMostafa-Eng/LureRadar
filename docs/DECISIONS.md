@@ -104,3 +104,33 @@ Workflow actions are pinned to the commit of their latest release (resolved
 with `git ls-remote` on 2026-11-21) with the version in a trailing comment.
 Dependabot (`github-actions` ecosystem) keeps them current. All workflows set
 least-privilege `permissions:`.
+
+## ADR-010: Verification when the build host has no egress
+
+Direct fetches from the build sandbox, and a web-fetch agent used as a
+second path, both failed for every threat-intel and publisher host. Stuck
+protocol applied: no retries. Facts and official statements (PC Watch
+timeline) were verified through **live search-index lookups** of the
+official domains (rockstargames.com, take2games.com), with that method
+recorded next to each entry. Source adapters were built against fixtures;
+`feed-refresh.yml` runs `lureradar doctor` on GitHub runners to produce the
+live verification.
+
+## ADR-011: SSRF policy details
+
+Besides private/loopback/link-local/CGNAT/multicast/reserved ranges, the
+guard refuses 6to4 and Teredo addresses outright, unwraps IPv4-mapped and
+NAT64 forms, refuses `inet_aton`-style numeric hosts (`0x7f000001`,
+`127.1`), internal suffixes (`.local`, `.internal`, `.home.arpa`,
+`localhost`), credentials in URLs, and ports other than 80/443/8080/8443.
+If *any* DNS answer is non-public the host is refused, and the connection is
+pinned to a vetted IP with SNI preserved. The fetcher ignores proxy
+environment variables (`trust_env=False`) so the vetted address is the one
+actually contacted; live mode therefore needs direct egress.
+
+## ADR-012: `--live` only contacts keyed reputation services
+
+`check --live` contacts the target (DNS, TLS, one bounded HTTP fetch), RDAP,
+and only the reputation services the user configured with a key. It never
+downloads third-party feeds on the user's behalf. The verdict lists every
+service contacted (`Enrichment.contacted`).

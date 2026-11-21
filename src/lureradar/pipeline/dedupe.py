@@ -23,8 +23,14 @@ class Merged:
     hosts: set[str] = field(default_factory=set)
 
 
-def merge(candidates: Iterable[Candidate]) -> tuple[dict[str, Merged], int]:
-    """Return ``({registrable: Merged}, invalid_count)``."""
+def merge(
+    candidates: Iterable[Candidate], now: datetime | None = None
+) -> tuple[dict[str, Merged], int]:
+    """Return ``({registrable: Merged}, invalid_count)``.
+
+    ``now`` clamps sighting times: feeds without timestamps (OpenPhish) are
+    stamped by the adapter's clock, and a pinned run clock keeps runs reproducible.
+    """
     out: dict[str, Merged] = {}
     invalid = 0
     for cand in candidates:
@@ -38,10 +44,11 @@ def merge(candidates: Iterable[Candidate]) -> tuple[dict[str, Merged], int]:
             continue
         key = target.registrable_domain
         url = target.url if target.kind is TargetKind.URL else None
+        seen = min(cand.first_seen, now) if now is not None else cand.first_seen
         m = out.get(key)
         if m is None:
-            m = out[key] = Merged(domain=key, url=url, first_seen=cand.first_seen)
-        m.first_seen = min(m.first_seen, cand.first_seen)
+            m = out[key] = Merged(domain=key, url=url, first_seen=seen)
+        m.first_seen = min(m.first_seen, seen)
         m.url = m.url or url
         m.sources.add(cand.source)
         m.hosts.add(target.host)

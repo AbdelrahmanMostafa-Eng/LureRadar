@@ -171,3 +171,19 @@ so a page redesign cannot masquerade as "not announced". New fact statuses
 (`announced_undated`, `announced_dated`, `released`) make the backing platform
 count as released: `claims_unreleased_platform` drops to 0 for PC and the
 official PC storefronts in `pc_watch.yaml` join the allowlist.
+
+## ADR-016: Calibration keeps the brief's weights; the benchmark fixed bugs instead
+
+`make bench` measures the frozen weights on 522 real benign domains, 50 hard
+negatives, 30 benign article URLs, 1,298 synthetic lures (11 pattern
+families) and 600 synthetic messages. Result: 0 benign false positives at
+LIKELY+ *and* SUSPICIOUS+, with or without allowlists, and a 45-point margin
+under the LIKELY threshold. We deliberately did **not** raise weights to
+improve offline recall: the synthetic lures come from our own generators, so
+fitting to them would overfit and erode the precision margin that protects
+real users. Instead the benchmark surfaced two real bugs (multi-word platform
+terms like "Switch 2" never matched; a brand token counted again as an
+intent), both fixed with regression tests. Offline recall at LIKELY+ is
+therefore low by design and reported as such; the newly-registered
+simulation shows how live signals lift it. The benchmark exits non-zero if a
+benign domain, hard negative or benign message reaches LIKELY.

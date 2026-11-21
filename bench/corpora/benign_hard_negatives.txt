@@ -1,0 +1,54 @@
+# Hard negatives: SYNTHETIC names (reserved .test TLD) that a legitimate fan,
+# news or community site could plausibly use. They contain campaign keywords
+# (and sometimes generic intent words like "pc" or "beta") but no lure offer.
+# A good detector keeps them below LIKELY; most should stay CLEAR.
+gta6-news.test
+gta6-map.test
+gtavi-photo-mode.test
+gta6-fans.test
+gta6-wiki.test
+vice-city-2026-tracker.test
+gta6-trailer-breakdown.test
+gta6-soundtrack.test
+gta6-release-countdown.test
+gta6-pc-port-news.test
+gta6-pc-specs.test
+gta6-mods-community.test
+gta6-cheats-guide.test
+gta6-money-guide.test
+gta6-beta-testers-club.test
+gta6-leonida-guide.test
+gtavi-characters.test
+gta6-radio-stations.test
+gta6-easter-eggs.test
+gta6-speedrun.test
+grand-theft-auto-vi-fans.test
+gta6-online-crew-finder.test
+gta6-hub.test
+gta6-daily.test
+gta6-insider-news.test
+gta6-podcast.test
+gta6-artwork.test
+gta6-cosplay.test
+gta6-forum.test
+gta6-ps5-performance.test
+gta6-xbox-series-guide.test
+gta6-patch-notes.test
+gta6-heist-guide.test
+gta6-car-list.test
+gta6-weapon-stats.test
+gta6-collectibles.test
+gta6-trophy-guide.test
+gta6-achievements.test
+gtavi-lore.test
+gta6-memes.test
+gta6-reviews-roundup.test
+gta6-price-tracker.test
+gta6-preorder-deals.test
+gta6-ultimate-edition-review.test
+gta6-community-events.test
+gta6-photography-contest.test
+gta6-rp-servers-news.test
+gta6-steam-deck-rumors.test
+gta6-pc-release-date-tracker.test
+gta6-android-rumor-debunked.test

@@ -1,0 +1,469 @@
+{
+  "article_url_fpr_suspicious": 0.0,
+  "benign_fpr_likely": 0.0,
+  "benign_fpr_likely_without_allowlists": 0.0,
+  "benign_fpr_suspicious": 0.0,
+  "benign_fpr_suspicious_without_allowlists": 0.0,
+  "benign_suspicious_examples_without_allowlists": [],
+  "calibration": {
+    "benign_histogram": {
+      "0-9": 520,
+      "10-19": 0,
+      "20-29": 2,
+      "30-39": 0,
+      "40-49": 0,
+      "50-59": 0,
+      "60-69": 0,
+      "70-79": 0,
+      "80-89": 0,
+      "90-99": 0
+    },
+    "likely_threshold_margin": 45,
+    "lowest_zero_fpr_threshold": 26,
+    "lure_histogram": {
+      "0-9": 6,
+      "10-19": 0,
+      "20-29": 342,
+      "30-39": 196,
+      "40-49": 82,
+      "50-59": 360,
+      "60-69": 0,
+      "70-79": 49,
+      "80-89": 24,
+      "90-99": 0
+    },
+    "max_benign_score_without_allowlists": 25,
+    "sweep": [
+      {
+        "false_positives": 2,
+        "fpr": 0.0038314176245210726,
+        "recall": 0.9943342776203966,
+        "threshold": 20,
+        "true_positives": 1053
+      },
+      {
+        "false_positives": 2,
+        "fpr": 0.0038314176245210726,
+        "recall": 0.9527856468366384,
+        "threshold": 25,
+        "true_positives": 1009
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.6713881019830028,
+        "threshold": 30,
+        "true_positives": 711
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.48630783758262514,
+        "threshold": 35,
+        "true_positives": 515
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.48630783758262514,
+        "threshold": 40,
+        "true_positives": 515
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.47780925401322,
+        "threshold": 45,
+        "true_positives": 506
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.408876298394712,
+        "threshold": 50,
+        "true_positives": 433
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.1964117091595845,
+        "threshold": 55,
+        "true_positives": 208
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.06893295561850803,
+        "threshold": 60,
+        "true_positives": 73
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.06893295561850803,
+        "threshold": 65,
+        "true_positives": 73
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.06893295561850803,
+        "threshold": 70,
+        "true_positives": 73
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.06043437204910293,
+        "threshold": 75,
+        "true_positives": 64
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.0226628895184136,
+        "threshold": 80,
+        "true_positives": 24
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.0,
+        "threshold": 85,
+        "true_positives": 0
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.0,
+        "threshold": 90,
+        "true_positives": 0
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.0,
+        "threshold": 95,
+        "true_positives": 0
+      },
+      {
+        "false_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.0,
+        "threshold": 100,
+        "true_positives": 0
+      }
+    ]
+  },
+  "confusion_offline": {
+    "benign": {
+      "clear": 602,
+      "confirmed": 0,
+      "likely": 0,
+      "suspicious": 0
+    },
+    "lure": {
+      "clear": 783,
+      "confirmed": 0,
+      "likely": 73,
+      "suspicious": 442
+    }
+  },
+  "corpus": {
+    "benign_article_urls": 30,
+    "benign_hard_negatives": 50,
+    "benign_real_domains": 522,
+    "synthetic_lures": 1298,
+    "synthetic_lures_in_scope": 1059,
+    "text_messages": 600
+  },
+  "established_benign_without_allowlists_fpr_likely": 0.0,
+  "generated_with": {
+    "now": "2026-11-21T12:00:00+00:00",
+    "seed": 2026
+  },
+  "hard_negative_fpr_likely": 0.0,
+  "hard_negative_fpr_suspicious": 0.0,
+  "newly_registered_lures": {
+    "likely_plus": 0.4089,
+    "suspicious_plus": 0.9943
+  },
+  "offline": {
+    "likely": {
+      "f1": 0.1065,
+      "fn": 1225,
+      "fp": 0,
+      "fpr": 0.0,
+      "precision": 1.0,
+      "recall": 0.0562,
+      "tn": 602,
+      "tp": 73
+    },
+    "suspicious": {
+      "f1": 0.5681,
+      "fn": 783,
+      "fp": 0,
+      "fpr": 0.0,
+      "precision": 1.0,
+      "recall": 0.3968,
+      "tn": 602,
+      "tp": 515
+    }
+  },
+  "offline_in_scope": {
+    "likely": {
+      "f1": 0.129,
+      "fn": 986,
+      "fp": 0,
+      "fpr": 0.0,
+      "precision": 1.0,
+      "recall": 0.0689,
+      "tn": 602,
+      "tp": 73
+    },
+    "suspicious": {
+      "f1": 0.6544,
+      "fn": 544,
+      "fp": 0,
+      "fpr": 0.0,
+      "precision": 1.0,
+      "recall": 0.4863,
+      "tn": 602,
+      "tp": 515
+    }
+  },
+  "patterns": {
+    "benign_article_url": {
+      "example": "https://www.ign.com/articles/gta-6-pc-release-date",
+      "in_scope": true,
+      "label": "benign",
+      "likely_plus": 0.0,
+      "n": 30,
+      "suspicious_plus": 0.0,
+      "tiers": {
+        "clear": 30,
+        "confirmed": 0,
+        "likely": 0,
+        "suspicious": 0
+      }
+    },
+    "benign_hard_negative": {
+      "example": "gta6-news.test",
+      "in_scope": true,
+      "label": "benign",
+      "likely_plus": 0.0,
+      "n": 50,
+      "suspicious_plus": 0.0,
+      "tiers": {
+        "clear": 50,
+        "confirmed": 0,
+        "likely": 0,
+        "suspicious": 0
+      }
+    },
+    "benign_real_domain": {
+      "example": "google.com",
+      "in_scope": true,
+      "label": "benign",
+      "likely_plus": 0.0,
+      "n": 522,
+      "suspicious_plus": 0.0,
+      "tiers": {
+        "clear": 522,
+        "confirmed": 0,
+        "likely": 0,
+        "suspicious": 0
+      }
+    },
+    "blind_spot_no_campaign_keyword": {
+      "example": "free-games-keys-44.top",
+      "in_scope": false,
+      "label": "lure",
+      "likely_plus": 0.0,
+      "n": 120,
+      "suspicious_plus": 0.0,
+      "tiers": {
+        "clear": 120,
+        "confirmed": 0,
+        "likely": 0,
+        "suspicious": 0
+      }
+    },
+    "blind_spot_unlisted_keyword": {
+      "example": "lucia-jason-xbox-one-generator.site",
+      "in_scope": false,
+      "label": "lure",
+      "likely_plus": 0.0,
+      "n": 119,
+      "suspicious_plus": 0.0,
+      "tiers": {
+        "clear": 119,
+        "confirmed": 0,
+        "likely": 0,
+        "suspicious": 0
+      }
+    },
+    "combosquat_brand_only": {
+      "example": "take2-claim.org",
+      "in_scope": true,
+      "label": "lure",
+      "likely_plus": 0.0,
+      "n": 114,
+      "suspicious_plus": 0.0,
+      "tiers": {
+        "clear": 114,
+        "confirmed": 0,
+        "likely": 0,
+        "suspicious": 0
+      }
+    },
+    "combosquat_campaign": {
+      "example": "gta6-xbox-claim.fun",
+      "in_scope": true,
+      "label": "lure",
+      "likely_plus": 0.0924,
+      "n": 119,
+      "suspicious_plus": 0.3866,
+      "tiers": {
+        "clear": 73,
+        "confirmed": 0,
+        "likely": 11,
+        "suspicious": 35
+      }
+    },
+    "homoglyph_idn": {
+      "example": "xn--playsttion-4qi.com",
+      "in_scope": true,
+      "label": "lure",
+      "likely_plus": 0.1455,
+      "n": 110,
+      "suspicious_plus": 1.0,
+      "tiers": {
+        "clear": 0,
+        "confirmed": 0,
+        "likely": 16,
+        "suspicious": 94
+      }
+    },
+    "keyword_intent": {
+      "example": "gta6-early-access.com",
+      "in_scope": true,
+      "label": "lure",
+      "likely_plus": 0.0,
+      "n": 120,
+      "suspicious_plus": 0.0,
+      "tiers": {
+        "clear": 120,
+        "confirmed": 0,
+        "likely": 0,
+        "suspicious": 0
+      }
+    },
+    "keyword_stuffing": {
+      "example": "bestgta6ps4crack.online",
+      "in_scope": true,
+      "label": "lure",
+      "likely_plus": 0.084,
+      "n": 119,
+      "suspicious_plus": 1.0,
+      "tiers": {
+        "clear": 0,
+        "confirmed": 0,
+        "likely": 10,
+        "suspicious": 109
+      }
+    },
+    "shared_host_subdomain": {
+      "example": "gta6-iphone-leak-54.netlify.app",
+      "in_scope": true,
+      "label": "lure",
+      "likely_plus": 0.1667,
+      "n": 120,
+      "suspicious_plus": 1.0,
+      "tiers": {
+        "clear": 0,
+        "confirmed": 0,
+        "likely": 20,
+        "suspicious": 100
+      }
+    },
+    "typosquat": {
+      "example": "steampowercd.com",
+      "in_scope": true,
+      "label": "lure",
+      "likely_plus": 0.0,
+      "n": 117,
+      "suspicious_plus": 0.0,
+      "tiers": {
+        "clear": 117,
+        "confirmed": 0,
+        "likely": 0,
+        "suspicious": 0
+      }
+    },
+    "unreleased_platform": {
+      "example": "gta6-repack-apk.io",
+      "in_scope": true,
+      "label": "lure",
+      "likely_plus": 0.1333,
+      "n": 120,
+      "suspicious_plus": 1.0,
+      "tiers": {
+        "clear": 0,
+        "confirmed": 0,
+        "likely": 16,
+        "suspicious": 104
+      }
+    },
+    "url_path_only": {
+      "example": "https://getfile-6266.live/gta6/xbox-one-installer/setup.exe",
+      "in_scope": true,
+      "label": "lure",
+      "likely_plus": 0.0,
+      "n": 120,
+      "suspicious_plus": 0.0,
+      "tiers": {
+        "clear": 120,
+        "confirmed": 0,
+        "likely": 0,
+        "suspicious": 0
+      }
+    }
+  },
+  "text": {
+    "confusion": {
+      "benign": {
+        "clear": 300,
+        "confirmed": 0,
+        "likely": 0,
+        "suspicious": 0
+      },
+      "lure": {
+        "clear": 0,
+        "confirmed": 139,
+        "likely": 106,
+        "suspicious": 55
+      }
+    },
+    "likely": {
+      "f1": 0.8991,
+      "fn": 55,
+      "fp": 0,
+      "fpr": 0.0,
+      "precision": 1.0,
+      "recall": 0.8167,
+      "tn": 300,
+      "tp": 245
+    },
+    "suspicious": {
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "fpr": 0.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tn": 300,
+      "tp": 300
+    }
+  }
+}

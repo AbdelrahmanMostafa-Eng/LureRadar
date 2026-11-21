@@ -217,3 +217,11 @@ def test_allow_state() -> None:
 
 def test_compact() -> None:
     assert compact("Early-Access 2026") == "earlyaccess2026"
+
+
+def test_multiword_platform_terms_match_in_text_and_hosts() -> None:
+    """Regression found by the benchmark: 'Switch 2' (7 chars compact) never matched."""
+    hits = analyse("Free download for GTA VI Switch 2", IDX)
+    assert "nintendo" in hits.unreleased
+    assert "nintendo" in analyse("gta6-switch-2-download", IDX).unreleased
+    assert "last_gen" in analyse("GTA 6 Xbox One free download", IDX).unreleased

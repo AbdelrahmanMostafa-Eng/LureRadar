@@ -1,0 +1,33 @@
+# Benign article-style URLs: real, well-known domains with SYNTHETIC paths
+# about GTA VI (including PC/download questions). Paths were written for the
+# benchmark; they are not claimed to exist.
+https://www.ign.com/articles/gta-6-pc-release-date
+https://www.gamespot.com/articles/is-there-a-gta-6-pc-download/
+https://www.pcgamer.com/games/gta-6-pc-version-when/
+https://www.polygon.com/gta-6-guide/free-download-scams
+https://www.eurogamer.net/gta-6-pc-port-rumours
+https://www.digitaltrends.com/gaming/gta-6-pc-release-date/
+https://www.gamereactor.eu/gta-6-pc-download-is-fake/
+https://www.techradar.com/gaming/gta-6-free-download-scam-warning
+https://www.tomsguide.com/gaming/gta-6-pc-beta-keys-are-fake
+https://www.howtogeek.com/gta-6-apk-is-malware/
+https://www.nme.com/news/gaming-news/gta-6-pc-leak-debunked
+https://www.dexerto.com/gta/gta-6-steam-page/
+https://www.reddit.com/r/GTA6/comments/abc123/is_the_pc_download_real/
+https://www.youtube.com/watch?v=dQw4w9WgXcQ
+https://www.bbc.co.uk/news/technology-gta-6-scams
+https://www.theverge.com/games/gta-6-pc-version-rumor
+https://www.wired.com/story/gta-6-launch-scams/
+https://www.malwarebytes.com/blog/news/gta-6-fake-downloads
+https://www.kaspersky.com/blog/gta-6-scams/
+https://www.screenrant.com/gta-6-pc-release-window-explained/
+https://www.gamerant.com/gta-6-pc-port-when/
+https://www.thegamer.com/gta-6-cheats-list/
+https://www.windowscentral.com/gaming/gta-6-xbox-series-x-performance
+https://www.pcgamesn.com/gta-6/pc-system-requirements
+https://www.vg247.com/gta-6-money-guide
+https://www.rockpapershotgun.com/gta-6-pc-what-we-know
+https://www.forbes.com/sites/gta-6-pc-release-date-analysis
+https://www.cnet.com/tech/gaming/gta-6-free-download-warning/
+https://www.androidauthority.com/gta-6-android-apk-fake/
+https://www.macrumors.com/guide/gta-6-mac-ios/

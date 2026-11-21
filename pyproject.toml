@@ -119,7 +119,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S", "PLR", "T20", "N802", "DTZ", "PTH", "PERF", "TRY", "E501"]
-"bench/**" = ["T20", "S311", "PTH"]
+"bench/**" = ["T20", "S311", "PTH", "E501"]
 "scripts/**" = ["T20", "S603", "S607", "S311"]
 "src/lureradar/cli.py" = ["B008", "PLR0913", "PLR0917"]
 

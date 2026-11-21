@@ -97,12 +97,14 @@ class Engine:
         pack_ids: Sequence[str] | None = None,
         snapshot: FeedSnapshot | None = None,
         now: datetime | None = None,
+        allowlists: bool = True,
     ) -> None:
         loaded = list(packs) if packs is not None else load_packs(pack_ids)
         self.packs = loaded
         self.indexes: tuple[CampaignIndex, ...] = build_indexes(loaded)
         self.snapshot = snapshot
         self._now = now
+        self.allowlists = allowlists
 
     @property
     def now(self) -> datetime:
@@ -113,7 +115,7 @@ class Engine:
         """Score a parsed URL/domain target."""
         if target.kind is TargetKind.TEXT:
             raise ValueError("use check()/assess_text() for text targets")
-        allow = allow_state(target, self.indexes)
+        allow = allow_state(target, self.indexes, allowlists=self.allowlists)
         ctx = Context(
             target=target,
             indexes=self.indexes,

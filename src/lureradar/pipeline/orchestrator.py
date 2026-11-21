@@ -169,7 +169,7 @@ def run_scan(cfg: ScanConfig) -> dict[str, Any]:
     report: dict[str, Any] = {"started_at": isoformat(started)}
     try:
         candidates, report["sources"] = collect(cfg, settings, since)
-        merged, invalid = merge(candidates)
+        merged, invalid = merge(candidates, started)
         report["collected"] = len(candidates)
         report["invalid"] = invalid
         report["unique_domains"] = len(merged)

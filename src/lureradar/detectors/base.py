@@ -91,6 +91,7 @@ class CampaignIndex:
     brand_tokens: dict[str, str]  # compact token -> brand name
     official_domains: frozenset[str]
     vocabulary: frozenset[str]
+    multiword: frozenset[str] = frozenset()  # compact forms of terms written with spaces/hyphens
 
     @property
     def id(self) -> str:
@@ -130,7 +131,12 @@ class CampaignIndex:
             | set(brand_tokens)
             | {compact(k) for k in pack.keywords}
         )
+        multi = {compact(t) for t in pack.intents if re.search(r"[^a-z0-9]", t)}
+        if pack.facts:
+            for platform in pack.facts.platforms.values():
+                multi |= {compact(t) for t in platform.terms if re.search(r"[^a-z0-9]", t)}
         return cls(
+            multiword=frozenset(m for m in multi if len(m) >= 5),
             pack=pack,
             keywords=tuple(_keyword_pattern(k) for k in pack.keywords),
             intents=intents,
@@ -189,18 +195,26 @@ def shorteners() -> frozenset[str]:
     return _shared_lists()["shorteners"]
 
 
-def allow_state(target: ParsedTarget, indexes: Sequence[CampaignIndex]) -> AllowState:
+def allow_state(
+    target: ParsedTarget, indexes: Sequence[CampaignIndex], *, allowlists: bool = True
+) -> AllowState:
+    """Allowlist status. ``allowlists=False`` keeps only brands' official domains
+    (used by the benchmark to measure the heuristics' intrinsic precision)."""
     reg = target.registrable_domain
     if not reg or target.is_ip:
         return AllowState()
-    base = base_allowlist()
-    outlets = set(base.outlets)
-    platforms = set(base.platforms)
+    outlets: set[str] = set()
+    platforms: set[str] = set()
+    if allowlists:
+        base = base_allowlist()
+        outlets.update(base.outlets)
+        platforms.update(base.platforms)
     for idx in indexes:
-        outlets.update(idx.pack.allowlist.outlets)
         outlets.update(idx.official_domains)
         outlets.update(idx.pack.release_storefronts)
-        platforms.update(idx.pack.allowlist.platforms)
+        if allowlists:
+            outlets.update(idx.pack.allowlist.outlets)
+            platforms.update(idx.pack.allowlist.platforms)
     if reg in outlets:
         return AllowState(outlet=True, matched=reg, reason="established legitimate outlet")
     if reg in platforms:

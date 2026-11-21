@@ -138,12 +138,18 @@ def analyse(text: str, index: CampaignIndex) -> TermHits:
     # multi-word terms ("epic games", "pc version") are matched on the compact text too
     compact_text = re.sub(r"[^a-z0-9]", "", text.lower())
     intents = [w for w in words if w in index.intents]
-    intents += [i for i in index.intents if len(i) >= 8 and i in compact_text and i not in intents]
+
+    def long_enough(term: str) -> bool:
+        return len(term) >= 8 or term in index.multiword
+
+    intents += [
+        i for i in index.intents if long_enough(i) and i in compact_text and i not in intents
+    ]
     brands = [w for w in words if w in index.brand_tokens]
     unreleased: dict[str, tuple[str, ...]] = {}
     for platform, terms in index.unreleased.items():
         hit = [t for t in words if t in terms]
-        hit += [t for t in terms if len(t) >= 8 and t in compact_text and t not in hit]
+        hit += [t for t in terms if long_enough(t) and t in compact_text and t not in hit]
         if hit:
             unreleased[platform] = tuple(dict.fromkeys(hit))
     return TermHits(
@@ -201,7 +207,10 @@ def detect_keyword_intent_combo(ctx: Context) -> list[Signal]:
             ("hostname", host_hits(ctx, index), weights.KEYWORD_INTENT_COMBO_HOST),
             ("URL path", path_hits(ctx, index), weights.KEYWORD_INTENT_COMBO_PATH),
         ):
-            if not (hits.keywords and hits.intents):
+            # a brand token ("steam", "epic") is evidence for brand_impersonation;
+            # counting it again as an intent would double-count one word
+            intents = [i for i in hits.intents if i not in index.brand_tokens]
+            if not (hits.keywords and intents):
                 continue
             if best is not None and best.weight >= weight:
                 continue
@@ -210,8 +219,7 @@ def detect_keyword_intent_combo(ctx: Context) -> list[Signal]:
                 weight=weight,
                 category="lexical",
                 explanation=(
-                    f"Keyword {_fmt(hits.keywords[:2])} + intent {_fmt(hits.intents[:4])} "
-                    f"in the {where}"
+                    f"Keyword {_fmt(hits.keywords[:2])} + intent {_fmt(intents[:4])} in the {where}"
                 ),
                 evidence=(defang(ctx.target.host) if where == "hostname" else ctx.target.path,),
             )

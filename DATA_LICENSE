@@ -1,0 +1,24 @@
+LureRadar feed data - CC0 1.0 Universal (Public Domain Dedication)
+
+The feed data published by the LureRadar project (the files under /feeds/ on
+the project website and the "feeds" assets attached to GitHub releases:
+latest.json, hosts.txt, domains.txt, adguard.txt, rpz.zone, stix.json,
+indicators.csv, stats.json and their signatures) is dedicated to the public
+domain under the Creative Commons CC0 1.0 Universal Public Domain Dedication.
+
+To the extent possible under law, the LureRadar contributors have waived all
+copyright and related or neighboring rights to this data. You can copy,
+modify, distribute and use the data, even for commercial purposes, all without
+asking permission.
+
+Full legal code: https://creativecommons.org/publicdomain/zero/1.0/legalcode
+SPDX-License-Identifier: CC0-1.0
+
+Notes
+- The feeds contain LureRadar's own derived indicators and scores. Raw data
+  from third-party sources is not redistributed (see docs/SOURCES.md).
+- Detections are automated and may contain false positives. The data is
+  provided "as is", without warranty of any kind. Every entry links to a
+  dispute form.
+- The LureRadar source code is licensed separately under the MIT License
+  (see LICENSE).

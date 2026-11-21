@@ -1,0 +1,162 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lureradar"
+dynamic = ["version"]
+description = "Open threat radar for hyped-launch scams: fake downloads, key-gen traps and phishing, starting with GTA 6."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE", "DATA_LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "LureRadar contributors" }]
+keywords = [
+  "threat-intelligence", "phishing", "scam-detection", "blocklist", "typosquatting",
+  "certificate-transparency", "osint", "pi-hole", "ublock-origin", "security",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: System Administrators",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Security",
+  "Topic :: Internet :: Name Service (DNS)",
+  "Typing :: Typed",
+]
+dependencies = [
+  "typer>=0.15",
+  "rich>=13.9",
+  "httpx>=0.28",
+  "pydantic>=2.9",
+  "tldextract>=5.1",
+  "idna>=3.10",
+  "rapidfuzz>=3.10",
+  "confusable-homoglyphs>=3.3",
+  "dnspython>=2.7",
+  "selectolax>=1.0",
+  "pyyaml>=6.0.2",
+  "jinja2>=3.1.4",
+  "orjson>=3.10",
+  "cryptography>=43",
+]
+
+[project.optional-dependencies]
+# PNG rendering for `lureradar report` cards (SVG/HTML work without it).
+render = ["resvg-py>=0.2", "pillow>=11"]
+
+[project.scripts]
+lureradar = "lureradar.cli:main"
+
+[project.urls]
+Homepage = "https://abdelrahmanmostafa-eng.github.io/LureRadar/"
+Documentation = "https://abdelrahmanmostafa-eng.github.io/LureRadar/docs/"
+Repository = "https://github.com/AbdelrahmanMostafa-Eng/LureRadar"
+Issues = "https://github.com/AbdelrahmanMostafa-Eng/LureRadar/issues"
+Changelog = "https://github.com/AbdelrahmanMostafa-Eng/LureRadar/blob/main/CHANGELOG.md"
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3",
+  "pytest-cov>=6.0",
+  "hypothesis>=6.120",
+  "mypy>=1.13",
+  "ruff>=0.8",
+  "types-pyyaml>=6.0.12",
+  "respx>=0.22",
+  "stix2>=3.0.1",
+  "jsonschema>=4.23",
+  "pre-commit>=4.0",
+  "resvg-py>=0.2",
+  "pillow>=11",
+]
+
+[tool.hatch.version]
+path = "src/lureradar/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lureradar"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"packs" = "lureradar/_packs"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src/lureradar",
+  "packs",
+  "tests",
+  "LICENSE",
+  "DATA_LICENSE",
+  "README.md",
+  "CHANGELOG.md",
+  "TRADEMARKS.md",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests", "bench", "scripts"]
+extend-exclude = ["web", "extension"]
+
+[tool.ruff.lint]
+select = [
+  "E", "W", "F", "I", "B", "UP", "S", "C4", "SIM", "RUF", "PTH", "N", "PL", "PERF", "TRY", "DTZ", "T20",
+]
+ignore = [
+  "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR2004",
+  "TRY003", "TRY300", "S101", "RUF001", "RUF002", "RUF003",
+  "PLC0415", "PERF401", "PERF403", "SIM905",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "PLR", "T20", "N802", "DTZ", "PTH", "PERF", "TRY"]
+"bench/**" = ["T20", "S311", "PTH"]
+"scripts/**" = ["T20", "S603", "S607", "S311"]
+"src/lureradar/cli.py" = ["B008", "PLR0913", "PLR0917"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+mypy_path = "src"
+files = ["src/lureradar"]
+
+[[tool.mypy.overrides]]
+module = ["confusable_homoglyphs.*", "resvg_py", "selectolax.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
+markers = [
+  "network: test needs live internet access (skipped unless LURERADAR_NETWORK_TESTS=1)",
+  "slow: slower integration/e2e tests",
+]
+filterwarnings = ["error::DeprecationWarning:lureradar.*"]
+
+[tool.coverage.run]
+source = ["lureradar"]
+branch = true
+
+[tool.coverage.paths]
+source = ["src/lureradar", "*/site-packages/lureradar"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+  "@overload",
+  "\\.\\.\\.$",
+]

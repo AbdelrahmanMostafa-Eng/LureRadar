@@ -221,3 +221,33 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- LureRadar ---
+# Generated feeds and pipeline state are published as Pages artifacts and
+# release assets, never committed (history bloat). See docs/DECISIONS.md.
+build/
+site/feeds/
+*.db
+*.db-journal
+.lureradar/
+coverage.xml
+# Node / web
+node_modules/
+web/dist/
+web/.astro/
+web/public/feeds/
+web/public/data/generated/
+extension/dist/
+# Secrets: only .env.example is tracked
+.env
+.env.*
+!.env.example
+*.key
+*.minisign.key
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+# Benchmark scratch
+bench/.cache/

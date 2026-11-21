@@ -1,0 +1,27 @@
+# Impersonation targets: official-looking names only (never logos or art).
+# Domains in `official` are always treated as legitimate.
+brands:
+  - name: rockstargames
+    display: "Rockstar Games"
+    aliases: [rockstar, rockstargame, rockstarsupport]
+    official: [rockstargames.com, rockstarnorth.com]
+  - name: taketwo
+    display: "Take-Two"
+    aliases: [take2, take2games, taketwointeractive]
+    official: [take2games.com]
+  - name: steam
+    display: "Steam"
+    aliases: [steampowered, steamcommunity, steamgames]
+    official: [steampowered.com, steamcommunity.com, steamstatic.com, steamgames.com]
+  - name: epicgames
+    display: "Epic Games"
+    aliases: [epicgame, epicstore, epicgamesstore]
+    official: [epicgames.com, unrealengine.com]
+  - name: playstation
+    display: "PlayStation"
+    aliases: [psn, playstationnetwork, playstationstore]
+    official: [playstation.com, playstation.net, sony.com, sonyentertainmentnetwork.com]
+  - name: xbox
+    display: "Xbox"
+    aliases: [xboxlive, xboxstore]
+    official: [xbox.com, xboxlive.com, microsoft.com, live.com]

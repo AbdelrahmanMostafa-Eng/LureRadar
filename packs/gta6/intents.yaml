@@ -1,0 +1,47 @@
+# Intent terms: what a lure promises. Combined with a campaign keyword in the
+# hostname they produce keyword_intent_combo; terms that are also platform
+# terms in facts.yaml (pc, steam, apk...) feed claims_unreleased_platform.
+intents:
+  - download
+  - free
+  - key
+  - keys
+  - keygen
+  - crack
+  - cracked
+  - apk
+  - ios
+  - android
+  - pc
+  - steam
+  - epic
+  - torrent
+  - mod-menu
+  - modmenu
+  - generator
+  - early-access
+  - beta
+  - leak
+  - leaked
+  - cd-key
+  - cdkey
+  - activation
+  - no-survey
+  - install
+  - installer
+  - setup
+  - giveaway
+  - unlock
+  - redeem
+  - claim
+  - cheats
+  - hack
+  - money
+  - code
+  - codes
+  - launcher
+  - full-version
+  - repack
+  - giftcard
+  - mobile
+  - windows

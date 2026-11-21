@@ -1,0 +1,104 @@
+# Synthetic messages for the text-lure analyzer. NONE of these are real victim
+# messages; they were written for testing. Links use reserved names (*.test,
+# example.com) or well-known shorteners with placeholder paths.
+# label: lure -> verdict must be >= min_tier; benign -> verdict must be <= max_tier
+lure:
+  - text: "FREE GTA 6 PC beta keys!! DM me on Telegram, only 20 left"
+    min_tier: likely
+  - text: "GTA 6 PC download link (no survey, 100% working): bit.ly/example-gta6"
+    min_tier: suspicious
+  - text: "Get GTA VI for Android APK here: gta6-apk.test/download - works on all phones"
+    min_tier: suspicious
+  - text: "I work at Rockstar and can give you early access to GTA 6, just send a $50 Steam gift card"
+    min_tier: suspicious
+  - text: "Disable Windows Defender before running GTA6_Setup.exe, it's a false positive"
+    min_tier: likely
+  - text: "GTA 6 PC repack is up, password for the rar: lure123"
+    min_tier: suspicious
+  - text: "Claim your free GTA 6 money (unlimited) - complete a short survey to verify you're human"
+    min_tier: suspicious
+  - text: "Only 50 GTA 6 PC early access invites left! Join our Discord: discord.gg/example"
+    min_tier: likely
+  - text: "Download GTA 6 for iPhone free, no jailbreak needed: gta6-ios.test"
+    min_tier: suspicious
+  - text: "Selling GTA 6 PC keys $5 each, pay with BTC or USDT, DM for details"
+    min_tier: likely
+  - text: "Leaked GTA 6 PC build (full game) - torrent link in my bio"
+    min_tier: suspicious
+  - text: "Official Rockstar giveaway: 1000 free GTA VI codes, claim before midnight!"
+    min_tier: suspicious
+  - text: "Rockstar Support here: your account is suspended, verify your account at rockstar-support.test/login"
+    min_tier: suspicious
+  - text: "gta 6 steam key generator 2026, generate your key instantly at gta6-keygen.test"
+    min_tier: suspicious
+  - text: "GTA6 for PS4 free download, works 100%: gta6-ps4-download.test/free"
+    min_tier: likely
+  - text: "Hey! You won a free GTA 6 copy. Message me on WhatsApp to claim it before it's gone"
+    min_tier: suspicious
+  - text: "Early access GTA 6 PC version available now, first 100 people only. tinyurl.com/example-x"
+    min_tier: likely
+  - text: "GTA 6 mobile beta APK leaked - grab it before Rockstar takes it down: gta6-mobile.test"
+    min_tier: likely
+  - text: "Grand Theft Auto VI Epic Games free key giveaway, pay $2 shipping in crypto"
+    min_tier: likely
+  - text: "Cracked GTA 6 PC, no virus, run the installer as administrator"
+    min_tier: likely
+  - text: "Nintendo Switch 2 GTA 6 download (free) - complete one offer to unlock the download"
+    min_tier: likely
+  - text: "Your Rockstar account will be suspended unless you log in to confirm: rockstargames-verify.test"
+    min_tier: suspicious
+  - text: "GTA 6 PC keys for sale, accepting Amazon gift cards only, add me on telegram @example"
+    min_tier: suspicious
+  - text: "free gta vi download for windows 11 full version, link in bio"
+    min_tier: likely
+  - text: "GTA 6 money generator + mod menu undetected, download GTA6ModMenu.exe"
+    min_tier: suspicious
+benign:
+  - text: "Can't wait for GTA 6 on PC, hope Rockstar announces it soon"
+    max_tier: clear
+  - text: "Is the GTA 6 PC download real? Pretty sure it's a scam, there is no PC version"
+    max_tier: clear
+  - text: "PSA: those 'free GTA 6 keys' on Telegram are scams, don't click"
+    max_tier: clear
+  - text: "Just got GTA 6 on PS5, the map is huge!"
+    max_tier: clear
+  - text: "Where can I buy GTA 6 for Xbox Series X? Is Amazon cheaper than the Microsoft Store?"
+    max_tier: clear
+  - text: "GTA 6 review: a technical marvel https://www.ign.com/articles/gta-6-review"
+    max_tier: clear
+  - text: "Anyone want to play GTA 6 online tonight? Add me on PSN"
+    max_tier: clear
+  - text: "My PC can't run GTA 5 well, guess I'll wait for the GTA 6 PC port reviews"
+    max_tier: clear
+  - text: "GTA 6 trailer 3 breakdown video is up on YouTube"
+    max_tier: clear
+  - text: "Rockstar Games confirmed GTA 6 for November 19, 2026"
+    max_tier: clear
+  - text: "Beware of fake GTA 6 PC download sites, they install malware"
+    max_tier: clear
+  - text: "Got a $20 Steam gift card for my birthday, buying something in the sale"
+    max_tier: clear
+  - text: "The GTA 6 beta was never public, anyone offering beta keys is lying"
+    max_tier: clear
+  - text: "Does GTA 6 have crossplay between PS5 and Xbox?"
+    max_tier: clear
+  - text: "Pre-ordered GTA 6 Ultimate Edition from the PlayStation Store, preload started"
+    max_tier: clear
+  - text: "Free GTA 6 wallpapers in 4K, made by me, no strings attached"
+    max_tier: clear
+  - text: "Steam summer sale: 80% off on GTA 5"
+    max_tier: clear
+  - text: "How do I report a scam account on Discord pretending to be Rockstar support?"
+    max_tier: clear
+  - text: "Our Discord server has a GTA 6 news channel, link on the subreddit"
+    max_tier: clear
+  - text: "My son asked for GTA 6 for Christmas, is it OK for a 12 year old?"
+    max_tier: clear
+  - text: "GTA 6 runs at 30fps on Series S according to the latest analysis"
+    max_tier: clear
+  - text: "Telegram group for GTA 6 photo mode tips, all welcome"
+    max_tier: clear
+  - text: "There is no GTA 6 PC version yet, anyone selling PC keys is running a scam"
+    max_tier: clear
+  - text: "Reminder: GTA 6 is only on PS5 and Xbox Series X|S. Don't download 'PC versions'."
+    max_tier: clear

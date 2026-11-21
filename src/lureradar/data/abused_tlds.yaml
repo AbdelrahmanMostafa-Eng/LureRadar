@@ -1,0 +1,49 @@
+# TLDs that public abuse statistics repeatedly rank among the most abused for
+# phishing/malware. Used by the `abused_tld` signal (+8, never decisive alone).
+#
+# Provenance: compiled from the public rankings below, as recalled from their
+# published editions up to 2025. The build sandbox for v0.1.0 could not reach
+# these sites, so the list is marked `needs_live_reverification: true` and
+# docs/SOURCES.md tracks it. Do not cite this list as a current ranking.
+as_of: 2026-11-21
+needs_live_reverification: true
+sources:
+  - name: "Spamhaus Project - The World's Most Abused TLDs"
+    url: https://www.spamhaus.org/reputation-statistics/cctlds/domains/
+  - name: "Interisle Consulting Group - Phishing Landscape (annual)"
+    url: https://interisle.net/insights
+  - name: "Netcraft / APWG Phishing Activity Trends Reports"
+    url: https://apwg.org/trendsreports/
+tlds:
+  - top
+  - xyz
+  - shop
+  - online
+  - site
+  - icu
+  - buzz
+  - bond
+  - cfd
+  - sbs
+  - click
+  - cyou
+  - rest
+  - monster
+  - quest
+  - lol
+  - support
+  - work
+  - live
+  - vip
+  - club
+  - fun
+  - space
+  - website
+  - store
+  - tk
+  - ml
+  - ga
+  - cf
+  - gq
+  - zip
+  - mov

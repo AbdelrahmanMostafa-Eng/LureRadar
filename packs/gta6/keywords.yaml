@@ -1,0 +1,12 @@
+# Campaign keywords. Matching is separator-insensitive ("gta-6", "gta_6",
+# "GTA 6" all match "gta 6"). Keywords alone never produce a LIKELY verdict.
+keywords:
+  - gta6
+  - gta 6
+  - gta-6
+  - gtavi
+  - gta-vi
+  - gta six
+  - grand theft auto 6
+  - grand theft auto vi
+  - vice city 2026

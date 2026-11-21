@@ -1,0 +1,12 @@
+# Hosting/ASN reputation list for the optional `hosting_reputation` signal.
+# Every entry MUST carry a public source and a date. v0.1.0 ships this list
+# EMPTY on purpose: we found no source we could verify from the build sandbox
+# and refuse to name providers without evidence. See docs/SIGNALS.md.
+as_of: 2026-11-21
+entries: []
+# Example entry format:
+# - asn: 64496            # documentation ASN (RFC 5398)
+#   name: "Example Hosting Ltd"
+#   reason: "listed in <source> as persistently abused"
+#   source: https://example.com/report
+#   as_of: 2026-01-01

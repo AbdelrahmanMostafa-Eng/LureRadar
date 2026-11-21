@@ -1,0 +1,35 @@
+# Public URL shorteners and link-redirect services. Used by text analysis
+# (`text_link_shortener`) and the redirect-chain detector. Shorteners are not
+# malicious by themselves; they only hide the destination.
+as_of: 2026-11-21
+domains:
+  - bit.ly
+  - bitly.com
+  - tinyurl.com
+  - t.ly
+  - cutt.ly
+  - is.gd
+  - v.gd
+  - rb.gy
+  - shorturl.at
+  - ow.ly
+  - buff.ly
+  - rebrand.ly
+  - s.id
+  - tiny.cc
+  - shorte.st
+  - adf.ly
+  - linkvertise.com
+  - link-to.net
+  - ouo.io
+  - exe.io
+  - bc.vc
+  - gg.gg
+  - qrco.de
+  - lnkd.in
+  - goo.su
+  - clck.ru
+  - u.to
+  - shrtco.de
+  - t2m.io
+  - urlz.fr

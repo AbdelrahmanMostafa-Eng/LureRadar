@@ -1,0 +1,19 @@
+# Shared hosting / site builders whose user sites live on subdomains but which
+# are NOT (yet) in the Public Suffix List private section. LureRadar treats
+# them as private suffixes, so `x.weebly.com` is analysed as its own site and
+# the platform itself is never blocklisted.
+# Checked against the PSL snapshot bundled with tldextract 5.4.0 on 2026-11-21.
+as_of: 2026-11-21
+suffixes:
+  - weebly.com
+  - weeblysite.com
+  - 000webhostapp.com
+  - godaddysites.com
+  - mystrikingly.com
+  - ucoz.net
+  - wordpress.com
+  - surge.sh
+  - tiiny.site
+  - site123.me
+  - jimdosite.com
+  - webnode.page

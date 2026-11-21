@@ -1,0 +1,110 @@
+# Legitimate domains for this campaign. `outlets` are hard-cleared (score 0).
+# `platforms` host user content: never blocklisted by domain, but URLs on them
+# are still analysed and capped at SUSPICIOUS. Removing a false positive is a
+# one-line PR here; it takes effect on the next pipeline run.
+outlets:
+  # Publisher, platform holders and official stores
+  - rockstargames.com
+  - rockstarnorth.com
+  - take2games.com
+  - playstation.com
+  - playstation.net
+  - xbox.com
+  - steampowered.com
+  - steamcommunity.com
+  - epicgames.com
+  # Game press and reviews
+  - ign.com
+  - gamespot.com
+  - polygon.com
+  - kotaku.com
+  - eurogamer.net
+  - pcgamer.com
+  - gamesradar.com
+  - rockpapershotgun.com
+  - vg247.com
+  - videogameschronicle.com
+  - gematsu.com
+  - pushsquare.com
+  - purexbox.com
+  - nintendolife.com
+  - destructoid.com
+  - gameinformer.com
+  - gamerant.com
+  - thegamer.com
+  - dualshockers.com
+  - windowscentral.com
+  - pcgamesn.com
+  - pcgamesinsider.biz
+  - gamesindustry.biz
+  - gamedeveloper.com
+  - siliconera.com
+  - shacknews.com
+  - escapistmagazine.com
+  - giantbomb.com
+  - metacritic.com
+  - opencritic.com
+  - theverge.com
+  - engadget.com
+  - wired.com
+  - arstechnica.com
+  - techradar.com
+  - tomsguide.com
+  - tomshardware.com
+  - pcworld.com
+  - dexerto.com
+  - dotesports.com
+  - insider-gaming.com
+  - gamingbolt.com
+  - wccftech.com
+  - stevivor.com
+  - venturebeat.com
+  - vgchartz.com
+  - xboxachievements.com
+  - trueachievements.com
+  - playstationlifestyle.net
+  - psu.com
+  - mp1st.com
+  - gamewatcher.com
+  - gamepressure.com
+  # Wikis and references
+  - fandom.com
+  - wikipedia.org
+  - wikia.com
+  - howlongtobeat.com
+  - gamefaqs.com
+  - strategywiki.org
+  - pcgamingwiki.com
+  - howtogeek.com
+  - mobygames.com
+  # Retailers and price trackers
+  - amazon.com
+  - amazon.co.uk
+  - amazon.de
+  - bestbuy.com
+  - walmart.com
+  - target.com
+  - gamestop.com
+  - argos.co.uk
+  - currys.co.uk
+  - game.co.uk
+  - smythstoys.com
+  - jbhifi.com.au
+  - ebgames.com.au
+  - mediamarkt.de
+  - fnac.com
+  - bol.com
+  - newegg.com
+  - gog.com
+  - humblebundle.com
+  - fanatical.com
+  - greenmangaming.com
+  - isthereanydeal.com
+  - psprices.com
+  - steamdb.info
+  # Long-running fan communities and databases
+  - rockstarintel.com
+  - gtaforums.com
+  - gtaboom.com
+  - gtabase.com
+  - gta5-mods.com

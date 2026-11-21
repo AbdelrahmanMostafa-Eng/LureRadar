@@ -1,0 +1,17 @@
+# Campaign pack: Grand Theft Auto VI launch lures.
+# Mentions of third-party names are nominative only (see TRADEMARKS.md).
+id: gta6
+name: "Grand Theft Auto VI launch lures"
+subject: "GTA VI"
+version: 1
+as_of: 2026-11-21
+description: >-
+  Fake downloads, key generators, "PC beta" offers and store/publisher
+  impersonation around the GTA VI console launch (2026-11-19). Facts that
+  drive rules (for example the PC release status) live in facts.yaml with
+  dates and sources.
+keywords: keywords.yaml
+intents: intents.yaml
+brands: brands.yaml
+allowlist: allowlist.yaml
+facts: facts.yaml

@@ -1,0 +1,95 @@
+# Dated, sourced claims. Rules read `platforms`; prose (README, site) cites
+# these entries with their `as_of` date instead of asserting them undated.
+# Re-verify before every release: `lureradar pack validate` warns when stale.
+as_of: 2026-11-21
+facts:
+  - id: console_release
+    claim: >-
+      Grand Theft Auto VI was scheduled by Rockstar Games for release on
+      2026-11-19 on PlayStation 5 and Xbox Series X|S.
+    status: confirmed
+    value: "2026-11-19"
+    as_of: 2026-11-21
+    sources:
+      - url: https://www.gematsu.com/2025/11/grand-theft-auto-vi-delayed-to-november-19-2026
+        title: "Grand Theft Auto VI delayed to November 19, 2026"
+        publisher: Gematsu
+        accessed: 2026-11-21
+      - url: https://www.pcworld.com/article/3052217/gta-6s-release-date-confirmed-for-real-this-time-seriously.html
+        title: "GTA 6's release date confirmed (for real this time)"
+        publisher: PCWorld
+        accessed: 2026-11-21
+  - id: pc_release
+    claim: >-
+      As of 2026-11-21 Rockstar Games has not officially announced a PC
+      version of Grand Theft Auto VI or a PC release date.
+    status: not_announced
+    as_of: 2026-11-21
+    sources:
+      - url: https://tech.yahoo.com/gaming/articles/gta-6-pc-release-date-150338948.html
+        title: "'GTA 6' PC Release Date: Is 'Grand Theft Auto VI' Coming to PC?"
+        publisher: Yahoo Tech
+        accessed: 2026-11-21
+      - url: https://www.tinyfish.ai/blog/gta-6-pc-release-date
+        title: "GTA 6 PC Release Date: What's Confirmed (November 2026)"
+        accessed: 2026-11-21
+    notes: >-
+      Press reports of a PC window (e.g. an unconfirmed October 2026 report of
+      early 2027) are rumours, tracked separately below. If a PC version is
+      announced and released, set platforms.pc.status to "released".
+  - id: pc_release_rumour
+    claim: >-
+      An unconfirmed press report (October 2026) suggested a PC release in the
+      first quarter of 2027. Rockstar has not confirmed it.
+    status: rumoured
+    as_of: 2026-11-21
+    sources:
+      - url: https://www.tinyfish.ai/blog/gta-6-pc-release-date
+        title: "GTA 6 PC Release Date: What's Confirmed (November 2026)"
+        accessed: 2026-11-21
+  - id: platforms_at_launch
+    claim: >-
+      At launch the only platforms are PlayStation 5 and Xbox Series X|S; no
+      mobile, last-generation console or Nintendo version has been announced.
+    status: confirmed
+    as_of: 2026-11-21
+    sources:
+      - url: https://tech.yahoo.com/gaming/articles/gta-6-pc-release-date-150338948.html
+        title: "'GTA 6' PC Release Date: Is 'Grand Theft Auto VI' Coming to PC?"
+        publisher: Yahoo Tech
+        accessed: 2026-11-21
+      - url: https://www.gematsu.com/2025/11/grand-theft-auto-vi-delayed-to-november-19-2026
+        title: "Grand Theft Auto VI delayed to November 19, 2026"
+        publisher: Gematsu
+        accessed: 2026-11-21
+platforms:
+  ps5:
+    label: "PS5"
+    status: released
+    fact: console_release
+    terms: [ps5, playstation 5]
+  xbox_series:
+    label: "Xbox Series X|S"
+    status: released
+    fact: console_release
+    terms: [xbox series, series x, series s, xsx]
+  pc:
+    label: "PC"
+    status: unreleased
+    fact: pc_release
+    terms: [pc, windows, win10, win11, steam, epic games, epicgames, pc version, pc port, exe, msi]
+  mobile:
+    label: "mobile (Android/iOS)"
+    status: unreleased
+    fact: platforms_at_launch
+    terms: [apk, android, ios, iphone, ipa, mobile]
+  last_gen:
+    label: "PS4/Xbox One"
+    status: unreleased
+    fact: platforms_at_launch
+    terms: [ps4, playstation 4, xbox one]
+  nintendo:
+    label: "Nintendo"
+    status: unreleased
+    fact: platforms_at_launch
+    terms: [nintendo switch, switch 2, switch2]

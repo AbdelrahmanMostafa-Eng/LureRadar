@@ -111,6 +111,9 @@
             "confirmed",
             "not_announced",
             "announced",
+            "announced_undated",
+            "announced_dated",
+            "released",
             "rumoured",
             "denied"
           ],
@@ -335,6 +338,20 @@
     "name": {
       "title": "Name",
       "type": "string"
+    },
+    "pc_watch": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "PC Watch config (validated by lureradar.pcwatch.config)",
+      "title": "Pc Watch"
     },
     "subject": {
       "anyOf": [

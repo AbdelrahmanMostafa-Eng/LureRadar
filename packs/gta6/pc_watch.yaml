@@ -1,0 +1,126 @@
+# PC Watch: "Is GTA 6 coming to PC?" (see docs/PC_WATCH.md)
+#
+# Source policy: ONLY primary, official sources can suggest a status change,
+# and only a maintainer-approved commit to facts.yaml (fact `pc_release`)
+# changes the published status. Press, leakers and non-official social posts
+# never change the status.
+version: 1
+subject: "Grand Theft Auto VI"
+platform: pc
+fact: pc_release            # facts.yaml entry holding the maintainer-approved status
+stale_after_hours: 36       # older successful check => status shown as UNKNOWN
+proximity_chars: 140        # platform term must appear this close to the game name
+game_terms: ["grand theft auto vi", "grand theft auto 6", "gta vi", "gta 6", "gta6"]
+platform_terms:
+  - pc
+  - windows
+  - steam
+  - epic games store
+  - epic games
+  - microsoft store
+  - rockstar games launcher
+  - pc version
+# Allowlisted automatically once facts.yaml records an announcement, so a
+# legitimate PC release is never called a scam (they are official domains already).
+pc_storefronts: [steampowered.com, epicgames.com, rockstargames.com, microsoft.com, xbox.com]
+
+sources:
+  - id: rockstar-newswire
+    name: "Rockstar Games Newswire"
+    kind: publisher
+    url: https://www.rockstargames.com/newswire
+    format: html
+    official_domains: [rockstargames.com]
+    required: true
+    expect_min_items: 1
+    terms_url: https://www.rockstargames.com/legal
+    notes: "No official RSS/Atom feed found; the HTML listing is parsed for article links."
+  - id: take-two-ir
+    name: "Take-Two Interactive press releases"
+    kind: investor_relations
+    url: https://www.take2games.com/ir/news
+    format: html
+    official_domains: [take2games.com]
+    required: true
+    expect_min_items: 1
+    terms_url: https://www.take2games.com/legal
+    notes: "HTML press-release listing."
+  - id: sec-edgar
+    name: "SEC EDGAR filings (Take-Two, CIK 0000946581)"
+    kind: regulatory
+    url: https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000946581&type=8-K&dateb=&owner=include&count=40&output=atom
+    format: atom
+    official_domains: [sec.gov]
+    required: false
+    expect_min_items: 1
+    terms_url: https://www.sec.gov/os/accessing-edgar-data
+    notes: "Atom feed of 8-K filings. SEC asks automated clients for a descriptive User-Agent."
+  - id: steam-store
+    name: "Steam store search"
+    kind: storefront
+    url: https://store.steampowered.com/api/storesearch/?term=grand%20theft%20auto%20vi&l=english&cc=US
+    format: steam_search_json
+    official_domains: [steampowered.com]
+    required: false
+    expect_min_items: 0
+    terms_url: https://store.steampowered.com/subscriber_agreement/
+    notes: "A store listing named exactly like the game counts as evidence."
+  - id: epic-games-store
+    name: "Epic Games Store"
+    kind: storefront
+    url: https://store.epicgames.com/
+    format: unsupported
+    official_domains: [epicgames.com]
+    notes: "No stable public machine-readable endpoint verified; shown as UNKNOWN."
+  - id: microsoft-store
+    name: "Microsoft Store / Xbox PC"
+    kind: storefront
+    url: https://www.xbox.com/
+    format: unsupported
+    official_domains: [xbox.com, microsoft.com]
+    notes: "No stable public machine-readable endpoint verified; shown as UNKNOWN."
+  - id: playstation-store
+    name: "PlayStation Store"
+    kind: storefront
+    url: https://store.playstation.com/
+    format: unsupported
+    official_domains: [playstation.com]
+    notes: "Console store (context only); no stable endpoint verified."
+  - id: rockstar-social
+    name: "Rockstar Games official social accounts"
+    kind: social
+    url: https://www.rockstargames.com/
+    format: unsupported
+    official_domains: [rockstargames.com]
+    notes: "Social APIs need credentials; announcements are mirrored on the Newswire."
+
+# Evidence timeline. Seed ONLY entries verified at build time with a live
+# lookup; paraphrase in our own words, quote at most 15 words.
+timeline:
+  - date: 2025-11-06
+    source: rockstar-newswire
+    title: "Grand Theft Auto VI is Now Set to Launch November 19, 2026"
+    url: https://www.rockstargames.com/newswire/article/ak3ak31a49a221/grand-theft-auto-vi-is-now-set-to-launch-november-19-2026
+    paraphrase: "Rockstar moved the launch to 19 November 2026 and named PlayStation 5 and Xbox Series X|S."
+    meaning: "Console-only announcement; no PC version was named."
+    kind: official
+    verified_on: 2026-11-21
+    verification: "live search-index lookup of the official URL; direct fetch was blocked in the build sandbox"
+  - date: 2026-11-19
+    source: rockstar-newswire
+    title: "Grand Theft Auto VI Now Available"
+    url: https://www.rockstargames.com/newswire/article/39akk424a9oo53/grand-theft-auto-vi-now-available
+    paraphrase: "Rockstar announced the game is available worldwide on PlayStation 5 and Xbox Series X|S."
+    meaning: "Launch confirmed on consoles only; still no PC version."
+    kind: official
+    verified_on: 2026-11-21
+    verification: "live search-index lookup of the official URL; direct fetch was blocked in the build sandbox"
+  - date: 2026-11-19
+    source: take-two-ir
+    title: "Rockstar Games Announces Grand Theft Auto VI Now Available"
+    url: https://www.take2games.com/ir/news/rockstar-games-announces-grand-theft-auto-vi-now-available
+    paraphrase: "Take-Two's press release confirmed the launch on PlayStation 5 and Xbox Series X|S."
+    meaning: "The publisher's investor communication also names consoles only."
+    kind: official
+    verified_on: 2026-11-21
+    verification: "live search-index lookup of the official URL; direct fetch was blocked in the build sandbox"

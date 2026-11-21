@@ -1,0 +1,73 @@
+name: Pages
+
+# The single deployer for https://<owner>.github.io/<repo>/: site + docs +
+# feeds + PC Watch in one artifact. Called by feed-refresh and pc-watch, and
+# on pushes that change the site or docs.
+on:
+  push:
+    branches: [main]
+    paths: ["web/**", "docs/**", "packs/**", "README.md", "src/lureradar/**"]
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          enable-cache: true
+      - name: Install
+        run: uv sync --locked --python 3.12
+      - name: Download latest feeds and PC Watch outputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p build/public/feeds
+          gh release download feeds-latest -D build/public/feeds --clobber || echo "no feeds published yet"
+          gh release download pcwatch-latest -D build/public/feeds --clobber \
+            || uv run lureradar pcwatch status --json > build/public/feeds/pc-watch.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: hashFiles('web/package-lock.json') != ''
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Build site
+        if: hashFiles('web/package-lock.json') != ''
+        run: |
+          uv run python scripts/build_site_data.py --feeds build/public/feeds
+          cd web && npm ci && npm run build
+          mkdir -p dist/feeds && cp -r ../build/public/feeds/. dist/feeds/
+      - name: Feeds-only fallback (no site yet)
+        if: hashFiles('web/package-lock.json') == ''
+        run: |
+          mkdir -p web/dist && cp -r build/public/feeds web/dist/feeds
+          echo '<!doctype html><title>LureRadar</title><a href="feeds/">feeds</a>' > web/dist/index.html
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

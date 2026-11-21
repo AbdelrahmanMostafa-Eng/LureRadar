@@ -1,0 +1,77 @@
+name: PC Watch
+
+# Checks official sources for a GTA VI PC announcement every 4 hours
+# (best-effort cron). Automation NEVER changes the published status: it can
+# only open a review issue, or let the status degrade to UNKNOWN when checks
+# fail or go stale. Flipping facts.yaml requires a maintainer-approved commit.
+on:
+  schedule:
+    - cron: "23 */4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pc-watch
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Check official sources
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write # rolling "pcwatch-latest" release asset
+      issues: write # human-in-the-loop review issue
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          enable-cache: true
+      - name: Install
+        run: uv sync --locked --python 3.12
+      - name: Fetch previous state (keeps last_success / last_changed)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download pcwatch-latest -p pc-watch.json -D build/prev --clobber || true
+      - name: Check
+        run: >-
+          uv run lureradar pcwatch check --previous build/prev/pc-watch.json
+          --out build/pcwatch --issue-body build/pcwatch-issue.md
+      - name: Open a review issue (maintainer decides)
+        if: hashFiles('build/pcwatch-issue.md') != ''
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const title = 'PC Watch: possible PC announcement detected (maintainer review needed)';
+            const body = fs.readFileSync('build/pcwatch-issue.md', 'utf8');
+            const open = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner, repo: context.repo.repo, state: 'open', labels: 'pc-watch',
+            });
+            if (open.some(i => i.title === title)) {
+              core.info('A review issue is already open; not opening another.');
+              return;
+            }
+            await github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['pc-watch'],
+            });
+      - name: Publish PC Watch outputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view pcwatch-latest >/dev/null 2>&1 \
+            || gh release create pcwatch-latest --prerelease --latest=false \
+                 --title "PC Watch (rolling)" --notes "Latest PC Watch state, Atom feed and badge."
+          gh release upload pcwatch-latest build/pcwatch/* --clobber
+
+  pages:
+    needs: check
+    uses: ./.github/workflows/pages.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

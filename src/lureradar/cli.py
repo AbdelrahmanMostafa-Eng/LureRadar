@@ -29,7 +29,11 @@ app = typer.Typer(
 pack_app = typer.Typer(help="List, validate and scaffold campaign packs.", no_args_is_help=True)
 feed_app = typer.Typer(help="Build, diff, verify and pull feeds.", no_args_is_help=True)
 app.add_typer(pack_app, name="pack")
+pcwatch_app = typer.Typer(
+    help="PC Watch: is GTA 6 coming to PC? (official sources only)", no_args_is_help=True
+)
 app.add_typer(feed_app, name="feed")
+app.add_typer(pcwatch_app, name="pcwatch")
 
 EXIT_ERROR = 1
 
@@ -107,6 +111,259 @@ def check(
         width = min(console.width, 100)
         console.print(verdict_card(verdict, explain=explain), width=width)
     raise typer.Exit(verdict.tier.exit_code)
+
+
+# ---------------------------------------------------------------------- scan
+@app.command()
+def scan(
+    out: Annotated[Path | None, typer.Option(help="Write feeds to this directory.")] = None,
+    state: Annotated[Path, typer.Option(help="SQLite state file.")] = Path(".lureradar/state.db"),
+    fixtures: Annotated[
+        bool, typer.Option("--fixtures", help="Use recorded fixtures (offline, reserved domains).")
+    ] = False,
+    fixtures_dir: Annotated[Path | None, typer.Option(help="Fixtures directory.")] = None,
+    no_enrich: Annotated[bool, typer.Option("--no-enrich", help="Skip DNS/RDAP/TLS/HTTP.")] = False,
+    source: Annotated[
+        list[str] | None, typer.Option("--source", "-s", help="Only these sources.")
+    ] = None,
+    since_hours: Annotated[int, typer.Option(help="Look-back window for sources.")] = 72,
+    budget: Annotated[float, typer.Option(help="Time budget in seconds.")] = 1200.0,
+    max_enrich: Annotated[int, typer.Option(help="Cap on enriched candidates per run.")] = 300,
+    pack: Annotated[list[str] | None, typer.Option("--pack", "-p")] = None,
+    fpr_from: Annotated[
+        Path | None, typer.Option(help="bench results JSON for the FPR badge")
+    ] = None,
+    json_out: Annotated[bool, typer.Option("--json", help="Print the run report as JSON.")] = False,
+    log_json: Annotated[
+        bool, typer.Option("--log-json", help="Structured JSON logs on stderr.")
+    ] = False,
+) -> None:
+    """Run the pipeline once: sources -> prefilter -> enrich -> score -> state -> feeds."""
+    from lureradar.export.signing import signing_key_from_env
+    from lureradar.pipeline.orchestrator import ScanConfig, run_scan
+    from lureradar.util import logging as lr_logging
+
+    lr_logging.configure("INFO" if log_json else "WARNING", json_lines=log_json)
+    fx = None
+    if fixtures or fixtures_dir:
+        fx = fixtures_dir or Path(__file__).resolve().parents[2] / "tests" / "fixtures"
+        if not (fx / "sources").is_dir():
+            raise _fail(f"fixtures not found at {fx} (run from the repository)")
+    fpr = None
+    if fpr_from and fpr_from.is_file():
+        fpr = float(orjson.loads(fpr_from.read_bytes()).get("benign_fpr_likely", 0.0))
+    try:
+        cfg = ScanConfig(
+            state_path=state,
+            out_dir=out,
+            fixtures=fx,
+            enrich=not no_enrich,
+            sources=source or None,
+            since_hours=since_hours,
+            budget_s=budget,
+            max_enrich=max_enrich,
+            signer=signing_key_from_env(),
+            fpr=fpr,
+            packs=pack or None,
+        )
+        if fx is not None:
+            from lureradar.util.time import parse_iso
+
+            cfg.now = parse_iso("2026-11-21T12:00:00Z")  # fixtures are recorded at this time
+        report = run_scan(cfg)
+    except LureRadarError as exc:
+        raise _fail(str(exc)) from exc
+    if json_out:
+        _dump_json(report)
+        return
+    console = _console()
+    tiers_line = ", ".join(f"{k}: {v}" for k, v in report.get("tiers", {}).items())
+    console.print(f"[bold {theme.RADAR}]scan complete[/] in {report['seconds']}s")
+    for name, info in report.get("sources", {}).items():
+        color = theme.RADAR if info["status"] == "ok" else theme.AMBER
+        detail = info.get("candidates", info.get("error", ""))
+        console.print(f"  [{color}]{info['status']:7}[/] {name}: {escape_markup(str(detail))}")
+    console.print(
+        f"  collected {report['collected']} → unique {report['unique_domains']} → "
+        f"prefilter dropped {report['prefilter_dropped']} ({report['prefilter_drop_ratio']:.0%}) → "
+        f"enriched {report['enriched']}"
+    )
+    console.print(f"  verdicts: {tiers_line}")
+    if out:
+        console.print(f"  feeds written to [bold]{out}[/]")
+
+
+def escape_markup(text: str) -> str:
+    from rich.markup import escape
+
+    return escape(text)
+
+
+# ---------------------------------------------------------------------- feed
+@feed_app.command("build")
+def feed_build(
+    out: Annotated[Path, typer.Option(help="Output directory.")] = Path("build/feeds"),
+    state: Annotated[Path, typer.Option(help="SQLite state file.")] = Path(".lureradar/state.db"),
+) -> None:
+    """Rebuild every feed file from the pipeline state (no collection)."""
+    from lureradar.export.signing import signing_key_from_env
+    from lureradar.pipeline.publish import publish
+    from lureradar.pipeline.state import State
+    from lureradar.util.time import utcnow
+
+    if not state.is_file():
+        raise _fail(f"{state} not found: run `lureradar scan` first")
+    st = State(state)
+    try:
+        paths = publish(st.all(), out, utcnow(), signer=signing_key_from_env())
+    finally:
+        st.close()
+    _console().print(f"[{theme.RADAR}]wrote[/] {len(paths)} files to {out}")
+
+
+@feed_app.command("diff")
+def feed_diff(
+    old: Annotated[Path, typer.Argument(help="Older latest.json")],
+    new: Annotated[Path, typer.Argument(help="Newer latest.json")],
+    json_out: Annotated[bool, typer.Option("--json")] = False,
+) -> None:
+    """Show indicators added, removed or re-tiered between two feed documents."""
+    from lureradar.export.jsonfeed import load
+    from lureradar.util.defang import defang
+
+    try:
+        a, b = load(old), load(new)
+    except LureRadarError as exc:
+        raise _fail(str(exc)) from exc
+    before = {i.domain: i for i in a.indicators}
+    after = {i.domain: i for i in b.indicators}
+    added = sorted(set(after) - set(before))
+    removed = sorted(set(before) - set(after))
+    changed = sorted(d for d in set(before) & set(after) if before[d].tier != after[d].tier)
+    if json_out:
+        _dump_json({"added": added, "removed": removed, "retiered": changed})
+        return
+    console = _console()
+    for d in added:
+        console.print(f"[{theme.DANGER}]+ {defang(d)}[/] ({after[d].tier.value})")
+    for d in removed:
+        console.print(f"[{theme.RADAR}]- {defang(d)}[/]")
+    for d in changed:
+        console.print(
+            f"[{theme.AMBER}]~ {defang(d)}[/] {before[d].tier.value} → {after[d].tier.value}"
+        )
+    console.print(f"{len(added)} added, {len(removed)} removed, {len(changed)} re-tiered")
+
+
+@feed_app.command("verify")
+def feed_verify(
+    path: Annotated[Path, typer.Argument(help="Feed directory (or latest.json).")],
+    pubkey: Annotated[
+        Path | None, typer.Option(help="minisign public key (default: keys/lureradar-feed.pub).")
+    ] = None,
+    require_signature: Annotated[bool, typer.Option(help="Fail if files are unsigned.")] = False,
+) -> None:
+    """Validate every feed format, checksums and minisign signatures."""
+    from lureradar.export.verify import verify_feed_dir
+
+    directory = path if path.is_dir() else path.parent
+    key = pubkey or Path("keys/lureradar-feed.pub")
+    results = verify_feed_dir(directory, key if key.is_file() else None, require_signature)
+    console = _console()
+    failed = False
+    for name, ok, detail in results:
+        failed = failed or not ok
+        mark = f"[{theme.RADAR}]✓[/]" if ok else f"[{theme.DANGER}]✗[/]"
+        console.print(f"{mark} {name}: {escape_markup(detail)}")
+    if failed:
+        raise typer.Exit(EXIT_ERROR)
+
+
+@feed_app.command("pull")
+def feed_pull(
+    url: Annotated[
+        str | None, typer.Option(help="Feed base URL (default: BASE_URL/feeds/).")
+    ] = None,
+    pubkey: Annotated[Path | None, typer.Option(help="minisign public key to verify with.")] = None,
+) -> None:
+    """Download the latest feed snapshot for offline `check` (verifies the signature)."""
+    from lureradar.pipeline.pull import pull_snapshot
+
+    try:
+        path, note = pull_snapshot(url, pubkey)
+    except LureRadarError as exc:
+        raise _fail(str(exc)) from exc
+    _console().print(f"[{theme.RADAR}]saved[/] {path} ({note})")
+
+
+@feed_app.command("keygen")
+def feed_keygen(
+    out: Annotated[Path, typer.Option(help="Where to write the PUBLIC key.")] = Path(
+        "keys/lureradar-feed.pub"
+    ),
+) -> None:
+    """Create a feed signing key. The secret is printed once and never written to disk."""
+    from lureradar.export.signing import generate
+
+    if out.exists():
+        raise _fail(f"{out} exists; refusing to overwrite a published key")
+    key = generate()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(key.public_file(), encoding="utf-8")
+    console = _console()
+    console.print(
+        f"[{theme.RADAR}]public key[/] written to {out} (key id {key.key_id_hex}); commit it."
+    )
+    console.print(
+        f"[bold {theme.AMBER}]secret key[/] (store as the GitHub Actions secret "
+        "LURERADAR_SIGNING_KEY, then clear your terminal):"
+    )
+    sys.stdout.write(key.secret_b64() + "\n")
+
+
+# -------------------------------------------------------------------- export
+@app.command("export")
+def export_cmd(
+    fmt: Annotated[str, typer.Option("--format", "-f", help="hosts|domains|abp|rpz|json|csv|stix")],
+    input_path: Annotated[
+        Path | None, typer.Option("--input", "-i", help="Feed JSON (default: cached snapshot).")
+    ] = None,
+    min_tier: Annotated[str, typer.Option(help="Minimum tier to include.")] = "likely",
+    output: Annotated[Path | None, typer.Option("--output", "-o", help="Write to a file.")] = None,
+) -> None:
+    """Convert a feed document into a blocklist or interchange format."""
+    from lureradar.export import abp, csvfeed, hosts, jsonfeed, rpz, stix
+    from lureradar.models import Tier
+    from lureradar.pipeline.snapshot import default_snapshot_path
+
+    writers = {
+        "hosts": hosts.to_hosts,
+        "domains": hosts.to_domains,
+        "abp": abp.to_abp,
+        "adguard": abp.to_abp,
+        "rpz": rpz.to_rpz,
+        "csv": csvfeed.to_csv,
+        "stix": stix.to_stix,
+    }
+    try:
+        tier = Tier.parse(min_tier)
+        doc = jsonfeed.load(input_path or default_snapshot_path())
+    except (LureRadarError, ValueError) as exc:
+        raise _fail(str(exc)) from exc
+    if fmt == "json":
+        chosen = [i for i in doc.indicators if i.tier >= tier and i.status == "active"]
+        text = jsonfeed.dumps(
+            doc.model_copy(update={"indicators": chosen, "min_tier": tier})
+        ).decode()
+    elif fmt in writers:
+        text = writers[fmt](doc, tier)
+    else:
+        raise _fail(f"unknown format {fmt!r} (choose from json, {', '.join(writers)})")
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(text, encoding="utf-8")
+    else:
+        sys.stdout.write(text)
 
 
 # ---------------------------------------------------------------------- pack
@@ -203,6 +460,124 @@ def pack_new(
         f"[{theme.RADAR}]created[/] {path}/pack.yaml  → edit it, then run "
         f"[bold]lureradar pack validate {path}[/]"
     )
+
+
+# ------------------------------------------------------------------- pcwatch
+def _pcwatch_context(pack_id: str):  # type: ignore[no-untyped-def]
+    from lureradar.packs.loader import load_packs
+    from lureradar.pcwatch.config import load_config
+
+    try:
+        (pack,) = load_packs([pack_id])
+        return pack, load_config(pack)
+    except LureRadarError as exc:
+        raise _fail(str(exc)) from exc
+
+
+def _print_pcwatch(state, console: Console) -> None:  # type: ignore[no-untyped-def]
+    from rich.panel import Panel
+    from rich.table import Table
+
+    from lureradar.pcwatch.feed import BADGE_COLORS
+    from lureradar.pcwatch.status import honest_sentence
+
+    color = BADGE_COLORS[state.status]
+    body = Table.grid(padding=(0, 2))
+    body.add_row(f"[bold {color}]{state.status.value}[/]", f"[bold]{honest_sentence(state)}[/]")
+    if state.note and state.status.value != "UNKNOWN":
+        body.add_row("", f"[{theme.AMBER}]{escape_markup(state.note)}[/]")
+    body.add_row("last checked", str(state.last_checked or "never"))
+    body.add_row("last success", str(state.last_success or "never"))
+    body.add_row("last changed", str(state.last_changed or "unknown"))
+    for src in state.sources:
+        mark = {"ok": theme.RADAR, "failed": theme.DANGER, "unsupported": theme.MUTED}[src.status]
+        body.add_row(
+            f"[{mark}]{src.status}[/]", f"{src.name}: [{theme.MUTED}]{escape_markup(src.detail)}[/]"
+        )
+    console.print(Panel(body, title=f"PC Watch · {state.subject}", border_style=color))
+    console.print(f"[{theme.MUTED}]{state.disclaimer}[/]")
+
+
+@pcwatch_app.command("status")
+def pcwatch_status(
+    state_file: Annotated[
+        Path | None, typer.Option("--state", help="A published pc-watch.json.")
+    ] = None,
+    pack: Annotated[str, typer.Option("--pack", "-p")] = "gta6",
+    json_out: Annotated[bool, typer.Option("--json")] = False,
+) -> None:
+    """Show the current PC Watch status (UNKNOWN unless a recent check succeeded)."""
+    from lureradar.pcwatch.feed import load_state, to_json
+    from lureradar.pcwatch.status import resolve
+    from lureradar.util.time import utcnow
+
+    pk, config = _pcwatch_context(pack)
+    previous = load_state(state_file) if state_file else None
+    state = resolve(pk, config, None, previous, utcnow())
+    if json_out:
+        sys.stdout.write(to_json(state).decode())
+        return
+    _print_pcwatch(state, _console())
+
+
+@pcwatch_app.command("check")
+def pcwatch_check(
+    pack: Annotated[str, typer.Option("--pack", "-p")] = "gta6",
+    previous: Annotated[
+        Path | None, typer.Option(help="Previous pc-watch.json (keeps history).")
+    ] = None,
+    out: Annotated[Path | None, typer.Option(help="Write pc-watch.json/.atom/badge here.")] = None,
+    fixtures: Annotated[
+        Path | None, typer.Option(help="Read recorded source pages instead.")
+    ] = None,
+    issue_body: Annotated[
+        Path | None, typer.Option(help="Write a maintainer issue body here if review is needed.")
+    ] = None,
+    json_out: Annotated[bool, typer.Option("--json")] = False,
+) -> None:
+    """Check official sources now. Never changes the published status by itself."""
+    from lureradar.pcwatch.feed import load_state, to_json, write_outputs
+    from lureradar.pcwatch.notify import issue_body as make_issue
+    from lureradar.pcwatch.sources import PcWatchChecker
+    from lureradar.pcwatch.status import resolve
+    from lureradar.util.time import utcnow
+
+    pk, config = _pcwatch_context(pack)
+    check = PcWatchChecker(config, fixtures=fixtures).run()
+    state = resolve(pk, config, check, load_state(previous) if previous else None, utcnow())
+    if out:
+        write_outputs(state, out)
+    if issue_body is not None:
+        if state.review_pending:
+            issue_body.write_text(make_issue(state, check), encoding="utf-8")
+        elif issue_body.exists():
+            issue_body.unlink()
+    if json_out:
+        sys.stdout.write(to_json(state).decode())
+        return
+    _print_pcwatch(state, _console())
+
+
+@pcwatch_app.command("history")
+def pcwatch_history(
+    pack: Annotated[str, typer.Option("--pack", "-p")] = "gta6",
+    json_out: Annotated[bool, typer.Option("--json")] = False,
+) -> None:
+    """Print the verified evidence timeline (official statements only)."""
+    from lureradar.pcwatch.timeline import ordered
+
+    _pk, config = _pcwatch_context(pack)
+    entries = ordered(config)
+    if json_out:
+        _dump_json([e.model_dump(mode="json") for e in entries])
+        return
+    console = _console()
+    for e in entries:
+        console.print(f"[bold {theme.INFO}]{e.date}[/]  [bold]{escape_markup(e.title)}[/]")
+        console.print(f"            {escape_markup(e.paraphrase)}")
+        console.print(f"            [{theme.MUTED}]{escape_markup(e.meaning)} · {e.url}[/]")
+        verified = f"verified {e.verified_on}: {escape_markup(e.verification)}"
+        console.print(f"            [{theme.MUTED}]{verified}[/]")
 
 
 # -------------------------------------------------------------------- doctor

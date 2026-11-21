@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from datetime import date
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
@@ -98,11 +98,25 @@ class Fact(BaseModel):
 
     id: str
     claim: str
-    status: Literal["confirmed", "not_announced", "announced", "rumoured", "denied"]
+    status: Literal[
+        "confirmed",
+        "not_announced",
+        "announced",
+        "announced_undated",
+        "announced_dated",
+        "released",
+        "rumoured",
+        "denied",
+    ]
     value: str | None = None
     as_of: date
     sources: list[Source] = Field(min_length=1)
     notes: str | None = None
+
+
+#: Fact statuses meaning "this platform is (being) released": rules referencing
+#: such a fact treat the platform as released (PC Watch coupling).
+RELEASE_STATUSES = frozenset({"announced", "announced_undated", "announced_dated", "released"})
 
 
 class Platform(BaseModel):
@@ -139,9 +153,21 @@ class Facts(BaseModel):
     def fact(self, fact_id: str) -> Fact | None:
         return next((f for f in self.facts if f.id == fact_id), None)
 
+    def effective_status(self, name: str) -> str:
+        """Platform status after applying its backing fact (PC Watch coupling)."""
+        platform = self.platforms[name]
+        fact = self.fact(platform.fact) if platform.fact else None
+        if platform.status == "unreleased" and fact is not None and fact.status in RELEASE_STATUSES:
+            return "released"
+        return platform.status
+
     @property
     def unreleased_terms(self) -> dict[str, list[str]]:
-        return {k: p.terms for k, p in self.platforms.items() if p.status == "unreleased"}
+        return {
+            k: p.terms
+            for k, p in self.platforms.items()
+            if self.effective_status(k) == "unreleased"
+        }
 
 
 class Allowlist(BaseModel):
@@ -186,6 +212,19 @@ class Pack(BaseModel):
     brands: list[Brand] = Field(default_factory=list)
     allowlist: Allowlist = Field(default_factory=Allowlist)
     facts: Facts | None = None
+    pc_watch: dict[str, Any] | None = Field(
+        default=None, description="PC Watch config (validated by lureradar.pcwatch.config)"
+    )
+
+    @property
+    def release_storefronts(self) -> list[str]:
+        """Official storefront domains allowlisted once the watched platform is announced."""
+        if not self.pc_watch or not self.facts:
+            return []
+        fact = self.facts.fact(str(self.pc_watch.get("fact", "")))
+        if fact is None or fact.status not in RELEASE_STATUSES:
+            return []
+        return [str(d) for d in self.pc_watch.get("pc_storefronts") or []]
 
     @field_validator("id")
     @classmethod
@@ -248,3 +287,4 @@ class PackFile(BaseModel):
     brands: list[Brand] | str = Field(default_factory=list)
     allowlist: Allowlist | str | None = None
     facts: Facts | str | None = None
+    pc_watch: str | None = None

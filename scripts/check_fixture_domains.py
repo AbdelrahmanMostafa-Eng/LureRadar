@@ -96,7 +96,9 @@ def _benign_infrastructure() -> set[str]:
     return {n.lower() for n in names}
 
 
-BENIGN = _benign_infrastructure()
+# Standards bodies that appear in XML/JSON namespaces, never as indicators.
+NAMESPACE_HOSTS = {"w3.org", "json-schema.org", "purl.org", "schema.org", "ietf.org"}
+BENIGN = _benign_infrastructure() | NAMESPACE_HOSTS
 
 
 def allowed_host(host: str) -> bool:

@@ -1,0 +1,86 @@
+name: Feed refresh
+
+# Daily pipeline run. GitHub Actions cron is best-effort (runs can be delayed
+# or skipped under load), which is why every feed carries `generated_at` and
+# the site shows `last_updated` prominently.
+on:
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: feed-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Collect, score, sign and publish feeds
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write # create/update release assets (daily snapshot + rolling "feeds-latest")
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          enable-cache: true
+      - name: Install
+        run: uv sync --locked --python 3.12
+      - name: Restore pipeline state
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .lureradar/state.db
+          key: lureradar-state-${{ github.run_id }}
+          restore-keys: lureradar-state-
+      - name: Doctor (live source verification for docs/SOURCES.md)
+        run: |
+          mkdir -p build
+          uv run lureradar doctor --json | tee build/doctor.json
+      - name: Benchmark (feeds the FPR badge)
+        if: hashFiles('bench/__main__.py') != ''
+        run: uv run python -m bench --json-out build/bench.json --no-write
+      - name: Scan
+        env:
+          LURERADAR_SIGNING_KEY: ${{ secrets.LURERADAR_SIGNING_KEY }}
+          LURERADAR_URLHAUS_KEY: ${{ secrets.LURERADAR_URLHAUS_KEY }}
+          LURERADAR_SAFEBROWSING_KEY: ${{ secrets.LURERADAR_SAFEBROWSING_KEY }}
+          LURERADAR_URLSCAN_KEY: ${{ secrets.LURERADAR_URLSCAN_KEY }}
+        run: >-
+          uv run lureradar scan --out build/feeds --state .lureradar/state.db
+          --fpr-from build/bench.json --log-json --json --budget 1800
+          > build/scan-report.json
+      - name: Verify every feed format, checksums and signatures
+        run: uv run lureradar feed verify build/feeds
+      - name: Save pipeline state
+        if: always()
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .lureradar/state.db
+          key: lureradar-state-${{ github.run_id }}
+      - name: Publish release assets (daily snapshot + rolling latest)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp build/doctor.json build/scan-report.json build/feeds/
+          day="$(date -u +%Y-%m-%d)"
+          notes="Daily LureRadar feed snapshot (data: CC0-1.0). Verify: lureradar feed verify <dir>."
+          gh release create "feeds-${day}" build/feeds/* --title "Feed snapshot ${day}" \
+            --notes "${notes}" --latest=false \
+            || gh release upload "feeds-${day}" build/feeds/* --clobber
+          gh release view feeds-latest >/dev/null 2>&1 \
+            || gh release create feeds-latest --prerelease --latest=false \
+                 --title "Latest feeds (rolling)" --notes "Rolling copy of the newest feeds."
+          gh release upload feeds-latest build/feeds/* --clobber
+
+  pages:
+    needs: refresh
+    uses: ./.github/workflows/pages.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

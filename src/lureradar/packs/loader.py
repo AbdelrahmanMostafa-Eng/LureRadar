@@ -99,6 +99,9 @@ def load_pack(pack_dir: Path) -> Pack:
         else:
             resolved[key] = value.model_dump() if isinstance(value, model) else value
 
+    resolved["pc_watch"] = (
+        _resolve_ref(pack_dir, spec.pc_watch, "pc_watch") if spec.pc_watch else None
+    )
     if spec.id != pack_dir.name:
         raise PackError(f"{pack_dir}: pack id {spec.id!r} must match its folder name")
     try:

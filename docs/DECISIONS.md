@@ -134,3 +134,40 @@ actually contacted; live mode therefore needs direct egress.
 and only the reputation services the user configured with a key. It never
 downloads third-party feeds on the user's behalf. The verdict lists every
 service contacted (`Enrichment.contacted`).
+
+## ADR-013: Feed signatures use the minisign format
+
+Of the two options (Sigstore or minisign), feeds use **minisign-format
+Ed25519 signatures** (BLAKE2b-prehashed), produced in pure Python with
+`cryptography`. Reasons: users verify with a tiny standard tool or
+`lureradar feed verify`, fully offline, and the test suite can exercise
+signing end to end. Interoperability is verified against an independent
+implementation (`py-minisign`) in `tests/unit/test_signing.py`. The secret
+lives only in the `LURERADAR_SIGNING_KEY` Actions secret (our compact base64
+format; `lureradar feed keygen` prints it once and never writes it to disk).
+Release artifacts (wheels, SBOM) are signed separately with Sigstore keyless
+signing in `release.yml`.
+
+## ADR-014: Feed unit, publication and retention
+
+Feeds list **registrable domains** (eTLD+1, PSL private suffixes included, so
+`user.github.io` is the unit, never `github.io`). Feeds are never committed to
+`main`: `feed-refresh.yml` attaches them to a dated `feeds-YYYY-MM-DD` release
+(the permanent daily snapshot) and to the rolling `feeds-latest` release;
+`pages.yml` is the single Pages deployer and pulls both. Pipeline state is a
+SQLite file in the Actions cache. Indicators go `stale` after 30 days without
+a re-sighting and are purged after 90. Each run re-applies the allowlist and
+offline rules to every active indicator, so an allowlist PR or a facts change
+takes effect within one run.
+
+## ADR-015: PC Watch is facts-driven, with a human in the loop
+
+The published PC status is the `pc_release` fact in `facts.yaml`, which only
+a maintainer commit can change. Automation (every 4 hours) can open a review
+issue with official evidence, and downgrade the status to UNKNOWN when the
+last fully successful check (all required sources OK) is older than 36 hours.
+A source yielding fewer game items than `expect_min_items` counts as failed,
+so a page redesign cannot masquerade as "not announced". New fact statuses
+(`announced_undated`, `announced_dated`, `released`) make the backing platform
+count as released: `claims_unreleased_platform` drops to 0 for PC and the
+official PC storefronts in `pc_watch.yaml` join the allowlist.

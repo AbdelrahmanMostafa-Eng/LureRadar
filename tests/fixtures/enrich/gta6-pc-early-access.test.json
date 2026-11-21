@@ -1,0 +1,42 @@
+{
+  "dns": {
+    "resolved": true,
+    "a": [
+      "203.0.113.16"
+    ]
+  },
+  "rdap": {
+    "registered": "2026-11-18T09:00:00Z",
+    "registrar": "Example Registrar LLC",
+    "abuse_email": "abuse@registrar.example",
+    "server": "https://rdap.example"
+  },
+  "http": {
+    "final_url": "https://gta6-pc-early-access.test/claim",
+    "status": 200,
+    "content_type": "text/html",
+    "body_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+    "bytes_read": 5000,
+    "hops": [
+      {
+        "url": "https://bit.ly/example-redirect",
+        "status": 301
+      }
+    ],
+    "features": {
+      "title": "GTA 6 PC Early Access",
+      "campaign_mentions": 2,
+      "download_cta": [
+        "Claim your key"
+      ],
+      "survey_gate": [],
+      "keygen_ui": [],
+      "scarcity": [
+        "Only 12 keys left"
+      ],
+      "installer_links": [],
+      "social_proof": [],
+      "disable_av": []
+    }
+  }
+}

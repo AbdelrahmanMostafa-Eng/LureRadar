@@ -116,6 +116,10 @@ class HttpSource:
                 time.sleep(self.backoff_s * (2**attempt))
         raise SourceError(f"{self.info.name}: {last}")
 
+    def fetch(self, since: datetime) -> Iterable[Candidate]:
+        """Yield candidates first seen at or after ``since``."""
+        raise NotImplementedError
+
     # ------------------------------------------------------------------ health
     def _health(self, status: HealthStatus, detail: str) -> SourceHealth:
         return SourceHealth(

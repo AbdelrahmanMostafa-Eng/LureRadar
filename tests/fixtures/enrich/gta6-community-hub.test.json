@@ -1,0 +1,14 @@
+{
+  "dns": {
+    "resolved": true,
+    "a": [
+      "203.0.113.21"
+    ]
+  },
+  "rdap": {
+    "registered": "2023-06-01T09:00:00Z",
+    "registrar": "Example Registrar LLC",
+    "abuse_email": "abuse@registrar.example",
+    "server": "https://rdap.example"
+  }
+}

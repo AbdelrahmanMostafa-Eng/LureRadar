@@ -973,6 +973,7 @@ dev = [
     { name = "mypy" },
     { name = "pillow" },
     { name = "pre-commit" },
+    { name = "py-minisign" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "respx" },
@@ -1011,6 +1012,7 @@ dev = [
     { name = "mypy", specifier = ">=1.13" },
     { name = "pillow", specifier = ">=11" },
     { name = "pre-commit", specifier = ">=4.0" },
+    { name = "py-minisign", specifier = ">=0.21" },
     { name = "pytest", specifier = ">=8.3" },
     { name = "pytest-cov", specifier = ">=6.0" },
     { name = "respx", specifier = ">=0.22" },
@@ -1445,6 +1447,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/3a/c3/6965c2690ddce885ec75121572d065a5b94c5a5d8d3e657927ecda9fd715/pre_commit-4.7.0.tar.gz", hash = "sha256:1f3deee12b914c8fa184bd2b5953391c2e4f36763e403d4a23dc9983fa7c6e86", size = 198120, upload-time = "2026-10-12T20:45:40.32Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/eb/83/ce0a196e4f7b20b11ce3aa1fc72fb973f64b7628d51c1b8aebad37fb7f81/pre_commit-4.7.0-py2.py3-none-any.whl", hash = "sha256:2e229038ad3656081b70c27913157e4b636ef306f643f024a8a8e3f0f7b2f877", size = 226261, upload-time = "2026-10-12T20:45:38.858Z" },
+]
+
+[[package]]
+name = "py-minisign"
+version = "0.21.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cryptography" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/24/b0/41402994b0bd289bc19f6d7b9b0ab0b45ac9fad7c5b9cc5c80f3f4d5a7f7/py_minisign-0.21.1.tar.gz", hash = "sha256:50819ca8e92715bc2d974f49bdb0859085aa540ec0aa8dc3905b28d620f99030", size = 9332, upload-time = "2026-08-18T16:40:06.115Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ce/02/8e5a5ef1503a39c672577c416aa6ecc6c1ddb19b10c058cd1b2f61723944/py_minisign-0.21.1-py3-none-any.whl", hash = "sha256:69fa5bb0f69cec5a9fa6e63ad65db50ff926406f4ce7a54ef23e50dfb8cb221a", size = 13803, upload-time = "2026-08-18T16:40:04.978Z" },
 ]
 
 [[package]]

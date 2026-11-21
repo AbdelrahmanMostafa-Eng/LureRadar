@@ -1,0 +1,45 @@
+{
+  "dns": {
+    "resolved": true,
+    "a": [
+      "203.0.113.10"
+    ]
+  },
+  "rdap": {
+    "registered": "2026-11-20T03:00:00Z",
+    "registrar": "Example Registrar LLC",
+    "abuse_email": "abuse@registrar.example",
+    "server": "https://rdap.example"
+  },
+  "first_ct_seen": "2026-11-21T06:00:00Z",
+  "http": {
+    "final_url": "https://rockstar-gta6-pc-download.test/",
+    "status": 200,
+    "content_type": "text/html",
+    "body_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "bytes_read": 18233,
+    "features": {
+      "title": "GTA 6 PC Download - Free Full Version",
+      "campaign_mentions": 4,
+      "download_cta": [
+        "Download now"
+      ],
+      "survey_gate": [
+        "Complete a short survey"
+      ],
+      "keygen_ui": [],
+      "scarcity": [
+        "Only 37 keys left",
+        "countdown timer"
+      ],
+      "installer_links": [
+        "https://rockstar-gta6-pc-download.test/GTA6_Setup.exe"
+      ],
+      "social_proof": [
+        "124,532 downloads today"
+      ],
+      "disable_av": [],
+      "unreleased_claim": "download on pc (pc)"
+    }
+  }
+}

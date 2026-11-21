@@ -1,0 +1,39 @@
+{
+  "dns": {
+    "resolved": true,
+    "a": [
+      "203.0.113.11"
+    ]
+  },
+  "rdap": {
+    "registered": "2026-11-19T12:00:00Z",
+    "registrar": "Example Registrar LLC",
+    "abuse_email": "abuse@registrar.example",
+    "server": "https://rdap.example"
+  },
+  "first_ct_seen": "2026-11-20T22:10:00Z",
+  "http": {
+    "final_url": "https://gta6-free-key-generator.test/",
+    "status": 200,
+    "content_type": "text/html",
+    "body_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "bytes_read": 9000,
+    "features": {
+      "title": "GTA 6 Key Generator",
+      "campaign_mentions": 3,
+      "keygen_ui": [
+        "Generate your key"
+      ],
+      "survey_gate": [
+        "human verification"
+      ],
+      "download_cta": [],
+      "scarcity": [],
+      "installer_links": [],
+      "social_proof": [
+        "8,201 keys generated"
+      ],
+      "disable_av": []
+    }
+  }
+}

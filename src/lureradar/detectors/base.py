@@ -114,7 +114,7 @@ class CampaignIndex:
             for name, platform in pack.facts.platforms.items():
                 terms = frozenset(compact(t) for t in platform.terms)
                 platform_terms |= terms
-                if platform.status == "unreleased":
+                if pack.facts.effective_status(name) == "unreleased":
                     unreleased[name] = terms
         brand_tokens: dict[str, str] = {}
         official: set[str] = set()
@@ -199,6 +199,7 @@ def allow_state(target: ParsedTarget, indexes: Sequence[CampaignIndex]) -> Allow
     for idx in indexes:
         outlets.update(idx.pack.allowlist.outlets)
         outlets.update(idx.official_domains)
+        outlets.update(idx.pack.release_storefronts)
         platforms.update(idx.pack.allowlist.platforms)
     if reg in outlets:
         return AllowState(outlet=True, matched=reg, reason="established legitimate outlet")

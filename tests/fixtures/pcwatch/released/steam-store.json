@@ -1,0 +1,4 @@
+{"total": 2, "items": [
+  {"type": "app", "name": "Grand Theft Auto VI", "id": 1000009, "price": {"currency": "USD", "initial": 6999, "final": 6999}},
+  {"type": "app", "name": "Grand Theft Auto V Enhanced", "id": 1000001, "price": {"currency": "USD", "initial": 3999, "final": 3999}}
+]}

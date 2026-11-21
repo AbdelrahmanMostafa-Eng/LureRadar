@@ -1,0 +1,4 @@
+{"total": 2, "items": [
+  {"type": "app", "name": "Grand Theft Auto V Enhanced", "id": 1000001, "price": {"currency": "USD", "initial": 3999, "final": 3999}},
+  {"type": "app", "name": "Grand Theft Auto IV: The Complete Edition", "id": 1000002, "price": {"currency": "USD", "initial": 1999, "final": 1999}}
+]}

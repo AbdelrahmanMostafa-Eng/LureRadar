@@ -74,6 +74,7 @@ dev = [
   "respx>=0.22",
   "stix2>=3.0.1",
   "jsonschema>=4.23",
+  "py-minisign>=0.21",
   "pre-commit>=4.0",
   "resvg-py>=0.2",
   "pillow>=11",
@@ -117,7 +118,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S", "PLR", "T20", "N802", "DTZ", "PTH", "PERF", "TRY"]
+"tests/**" = ["S", "PLR", "T20", "N802", "DTZ", "PTH", "PERF", "TRY", "E501"]
 "bench/**" = ["T20", "S311", "PTH"]
 "scripts/**" = ["T20", "S603", "S607", "S311"]
 "src/lureradar/cli.py" = ["B008", "PLR0913", "PLR0917"]

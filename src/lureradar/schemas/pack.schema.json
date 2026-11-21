@@ -1,0 +1,369 @@
+{
+  "$defs": {
+    "Allowlist": {
+      "additionalProperties": false,
+      "description": "Legitimate domains.\n\n``outlets`` are hard-cleared (publishers, wikis, retailers, official sites).\n``platforms`` host user content: they are never listed at domain level, but\nURL paths on them are still analysed (verdict capped at SUSPICIOUS).",
+      "properties": {
+        "outlets": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Outlets",
+          "type": "array"
+        },
+        "platforms": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Platforms",
+          "type": "array"
+        }
+      },
+      "title": "Allowlist",
+      "type": "object"
+    },
+    "Brand": {
+      "additionalProperties": false,
+      "description": "An impersonation target: an official-looking *name*, never a logo.",
+      "properties": {
+        "aliases": {
+          "description": "Other tokens lures use",
+          "items": {
+            "type": "string"
+          },
+          "title": "Aliases",
+          "type": "array"
+        },
+        "display": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Human-readable name for verdicts",
+          "title": "Display"
+        },
+        "name": {
+          "description": "Canonical brand token, lowercase, no spaces",
+          "title": "Name",
+          "type": "string"
+        },
+        "official": {
+          "description": "Official registrable domains",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Official",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "official"
+      ],
+      "title": "Brand",
+      "type": "object"
+    },
+    "Fact": {
+      "additionalProperties": false,
+      "description": "A dated, sourced claim. Facts drive rules; they are never asserted undated.",
+      "properties": {
+        "as_of": {
+          "format": "date",
+          "title": "As Of",
+          "type": "string"
+        },
+        "claim": {
+          "title": "Claim",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/Source"
+          },
+          "minItems": 1,
+          "title": "Sources",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "confirmed",
+            "not_announced",
+            "announced",
+            "rumoured",
+            "denied"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "id",
+        "claim",
+        "status",
+        "as_of",
+        "sources"
+      ],
+      "title": "Fact",
+      "type": "object"
+    },
+    "Facts": {
+      "additionalProperties": false,
+      "properties": {
+        "as_of": {
+          "format": "date",
+          "title": "As Of",
+          "type": "string"
+        },
+        "facts": {
+          "items": {
+            "$ref": "#/$defs/Fact"
+          },
+          "title": "Facts",
+          "type": "array"
+        },
+        "platforms": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Platform"
+          },
+          "title": "Platforms",
+          "type": "object"
+        }
+      },
+      "required": [
+        "as_of"
+      ],
+      "title": "Facts",
+      "type": "object"
+    },
+    "Platform": {
+      "additionalProperties": false,
+      "properties": {
+        "fact": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Fact id backing the status",
+          "title": "Fact"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display name, e.g. 'PC'",
+          "title": "Label"
+        },
+        "status": {
+          "enum": [
+            "released",
+            "unreleased"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "terms": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Terms",
+          "type": "array"
+        }
+      },
+      "required": [
+        "status",
+        "terms"
+      ],
+      "title": "Platform",
+      "type": "object"
+    },
+    "Source": {
+      "additionalProperties": false,
+      "properties": {
+        "accessed": {
+          "format": "date",
+          "title": "Accessed",
+          "type": "string"
+        },
+        "published": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Published"
+        },
+        "publisher": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Publisher"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url",
+        "title",
+        "accessed"
+      ],
+      "title": "Source",
+      "type": "object"
+    }
+  },
+  "$id": "https://abdelrahmanmostafa-eng.github.io/LureRadar/schemas/pack-1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A campaign pack, fully resolved (file references already loaded).",
+  "properties": {
+    "allowlist": {
+      "$ref": "#/$defs/Allowlist"
+    },
+    "as_of": {
+      "format": "date",
+      "title": "As Of",
+      "type": "string"
+    },
+    "brands": {
+      "items": {
+        "$ref": "#/$defs/Brand"
+      },
+      "title": "Brands",
+      "type": "array"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "facts": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Facts"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "intents": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Intents",
+      "type": "array"
+    },
+    "keywords": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Keywords",
+      "type": "array"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "subject": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "What is launching, e.g. a game title",
+      "title": "Subject"
+    },
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "version",
+    "as_of",
+    "keywords",
+    "intents"
+  ],
+  "title": "Pack",
+  "type": "object",
+  "x-schema-version": "1"
+}

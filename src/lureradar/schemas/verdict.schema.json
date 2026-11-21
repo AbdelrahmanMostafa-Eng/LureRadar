@@ -1,0 +1,201 @@
+{
+  "$defs": {
+    "Signal": {
+      "description": "One named, weighted, explainable piece of evidence.",
+      "properties": {
+        "category": {
+          "default": "lexical",
+          "enum": [
+            "lexical",
+            "brand",
+            "platform",
+            "infrastructure",
+            "content",
+            "reputation",
+            "trust",
+            "text"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "evidence": {
+          "default": [],
+          "description": "Defanged evidence snippets",
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "explanation": {
+          "description": "Human-readable reason",
+          "title": "Explanation",
+          "type": "string"
+        },
+        "id": {
+          "description": "Stable signal identifier, see docs/SIGNALS.md",
+          "title": "Id",
+          "type": "string"
+        },
+        "live": {
+          "default": false,
+          "description": "True if produced by --live enrichment",
+          "title": "Live",
+          "type": "boolean"
+        },
+        "weight": {
+          "description": "Contribution to the 0-100 score (may be negative)",
+          "title": "Weight",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "weight",
+        "explanation"
+      ],
+      "title": "Signal",
+      "type": "object"
+    },
+    "TargetKind": {
+      "enum": [
+        "url",
+        "domain",
+        "text"
+      ],
+      "title": "TargetKind",
+      "type": "string"
+    },
+    "Tier": {
+      "description": "Verdict tiers, ordered from least to most severe.",
+      "enum": [
+        "clear",
+        "suspicious",
+        "likely",
+        "confirmed"
+      ],
+      "title": "Tier",
+      "type": "string"
+    },
+    "Verdict": {
+      "description": "Result of scoring one target. Serialised by ``check --json``.",
+      "properties": {
+        "allowlisted": {
+          "default": false,
+          "title": "Allowlisted",
+          "type": "boolean"
+        },
+        "corroborated": {
+          "default": false,
+          "description": "External reputation corroborated by independent evidence",
+          "title": "Corroborated",
+          "type": "boolean"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "host": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Hostname, defanged",
+          "title": "Host"
+        },
+        "kind": {
+          "$ref": "#/$defs/TargetKind"
+        },
+        "mode": {
+          "default": "offline",
+          "enum": [
+            "offline",
+            "live"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "next_steps": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Next Steps",
+          "type": "array"
+        },
+        "packs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Packs",
+          "type": "array"
+        },
+        "registrable_domain": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "eTLD+1, defanged",
+          "title": "Registrable Domain"
+        },
+        "schema_version": {
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "score": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Score",
+          "type": "integer"
+        },
+        "signals": {
+          "items": {
+            "$ref": "#/$defs/Signal"
+          },
+          "title": "Signals",
+          "type": "array"
+        },
+        "target": {
+          "description": "The target, defanged",
+          "title": "Target",
+          "type": "string"
+        },
+        "tier": {
+          "$ref": "#/$defs/Tier"
+        },
+        "urls": {
+          "description": "For text targets: verdicts for embedded URLs",
+          "items": {
+            "$ref": "#/$defs/Verdict"
+          },
+          "title": "Urls",
+          "type": "array"
+        }
+      },
+      "required": [
+        "target",
+        "kind",
+        "score",
+        "tier",
+        "generated_at"
+      ],
+      "title": "Verdict",
+      "type": "object"
+    }
+  },
+  "$id": "https://abdelrahmanmostafa-eng.github.io/LureRadar/schemas/verdict-1.0.schema.json",
+  "$ref": "#/$defs/Verdict",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "x-schema-version": "1.0"
+}

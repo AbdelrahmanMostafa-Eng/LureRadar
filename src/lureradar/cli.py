@@ -27,7 +27,9 @@ app = typer.Typer(
     pretty_exceptions_enable=False,
 )
 pack_app = typer.Typer(help="List, validate and scaffold campaign packs.", no_args_is_help=True)
+feed_app = typer.Typer(help="Build, diff, verify and pull feeds.", no_args_is_help=True)
 app.add_typer(pack_app, name="pack")
+app.add_typer(feed_app, name="feed")
 
 EXIT_ERROR = 1
 
@@ -43,6 +45,72 @@ def _fail(message: str) -> typer.Exit:
 
 def _dump_json(data: object) -> None:
     sys.stdout.write(orjson.dumps(data, option=orjson.OPT_INDENT_2).decode() + "\n")
+
+
+# --------------------------------------------------------------------- check
+@app.command()
+def check(
+    target: Annotated[
+        str,
+        typer.Argument(
+            help="URL, domain (defanged is fine) or a message to analyse. Use - to read stdin."
+        ),
+    ],
+    json_out: Annotated[bool, typer.Option("--json", help="Machine-readable output.")] = False,
+    live: Annotated[
+        bool,
+        typer.Option(
+            "--live",
+            help="Also query DNS, RDAP, TLS, the page itself (hardened fetch) and configured "
+            "reputation sources. Offline by default.",
+        ),
+    ] = False,
+    pack: Annotated[
+        list[str] | None, typer.Option("--pack", "-p", help="Campaign pack id(s). Default: all.")
+    ] = None,
+    explain: Annotated[
+        bool, typer.Option("--explain", help="Show evidence for every signal.")
+    ] = False,
+    snapshot: Annotated[
+        Path | None, typer.Option(help="Feed snapshot to consult (default: cached `feed pull`).")
+    ] = None,
+    no_snapshot: Annotated[
+        bool, typer.Option("--no-snapshot", help="Ignore the local feed snapshot.")
+    ] = False,
+) -> None:
+    """Score a URL, domain or message and print a verdict card."""
+    from lureradar.pipeline.snapshot import FeedSnapshot
+    from lureradar.render import verdict_card
+    from lureradar.scoring.engine import Engine
+
+    raw = sys.stdin.read() if target == "-" else target
+    try:
+        snap = None if no_snapshot else FeedSnapshot.load_default(snapshot)
+        engine = Engine(pack_ids=pack or None, snapshot=snap)
+        enricher = None
+        if live:
+            import importlib
+
+            try:
+                live_mod = importlib.import_module("lureradar.enrich.live")
+            except ImportError as exc:
+                raise _fail("--live enrichment is not available in this build") from exc
+            enricher = live_mod.LiveEnricher.from_env()
+            if not json_out:
+                _console(stderr=True).print(
+                    f"[{theme.MUTED}]--live: contacting the target and enrichment services "
+                    "(DNS, RDAP, TLS, HTTP). See docs/PRIVACY.md.[/]"
+                )
+        verdict = engine.check(raw, enricher=enricher)
+    except LureRadarError as exc:
+        raise _fail(str(exc)) from exc
+    if json_out:
+        _dump_json(verdict.model_dump(mode="json"))
+    else:
+        console = _console()
+        width = min(console.width, 100)
+        console.print(verdict_card(verdict, explain=explain), width=width)
+    raise typer.Exit(verdict.tier.exit_code)
 
 
 # ---------------------------------------------------------------------- pack

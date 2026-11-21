@@ -1,0 +1,210 @@
+{
+  "$defs": {
+    "Indicator": {
+      "description": "A published feed entry.",
+      "properties": {
+        "dispute_url": {
+          "default": "",
+          "title": "Dispute Url",
+          "type": "string"
+        },
+        "domain": {
+          "title": "Domain",
+          "type": "string"
+        },
+        "first_seen": {
+          "format": "date-time",
+          "title": "First Seen",
+          "type": "string"
+        },
+        "last_seen": {
+          "format": "date-time",
+          "title": "Last Seen",
+          "type": "string"
+        },
+        "packs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Packs",
+          "type": "array"
+        },
+        "score": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Score",
+          "type": "integer"
+        },
+        "signals": {
+          "items": {
+            "$ref": "#/$defs/Signal"
+          },
+          "title": "Signals",
+          "type": "array"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "stale"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "tier": {
+          "$ref": "#/$defs/Tier"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        }
+      },
+      "required": [
+        "domain",
+        "tier",
+        "score",
+        "first_seen",
+        "last_seen"
+      ],
+      "title": "Indicator",
+      "type": "object"
+    },
+    "Signal": {
+      "description": "One named, weighted, explainable piece of evidence.",
+      "properties": {
+        "category": {
+          "default": "lexical",
+          "enum": [
+            "lexical",
+            "brand",
+            "platform",
+            "infrastructure",
+            "content",
+            "reputation",
+            "trust",
+            "text"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "evidence": {
+          "default": [],
+          "description": "Defanged evidence snippets",
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "explanation": {
+          "description": "Human-readable reason",
+          "title": "Explanation",
+          "type": "string"
+        },
+        "id": {
+          "description": "Stable signal identifier, see docs/SIGNALS.md",
+          "title": "Id",
+          "type": "string"
+        },
+        "live": {
+          "default": false,
+          "description": "True if produced by --live enrichment",
+          "title": "Live",
+          "type": "boolean"
+        },
+        "weight": {
+          "description": "Contribution to the 0-100 score (may be negative)",
+          "title": "Weight",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "weight",
+        "explanation"
+      ],
+      "title": "Signal",
+      "type": "object"
+    },
+    "Tier": {
+      "description": "Verdict tiers, ordered from least to most severe.",
+      "enum": [
+        "clear",
+        "suspicious",
+        "likely",
+        "confirmed"
+      ],
+      "title": "Tier",
+      "type": "string"
+    }
+  },
+  "$id": "https://abdelrahmanmostafa-eng.github.io/LureRadar/schemas/feed-1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "base_url": {
+      "title": "Base Url",
+      "type": "string"
+    },
+    "count": {
+      "default": 0,
+      "title": "Count",
+      "type": "integer"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "generator": {
+      "title": "Generator",
+      "type": "string"
+    },
+    "indicators": {
+      "items": {
+        "$ref": "#/$defs/Indicator"
+      },
+      "title": "Indicators",
+      "type": "array"
+    },
+    "license": {
+      "default": "CC0-1.0",
+      "title": "License",
+      "type": "string"
+    },
+    "min_tier": {
+      "$ref": "#/$defs/Tier",
+      "default": "likely"
+    },
+    "notice": {
+      "default": "Detections are automated and may contain false positives. Dispute any entry via its dispute_url. No warranty.",
+      "title": "Notice",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "generated_at"
+  ],
+  "title": "FeedDocument",
+  "type": "object",
+  "x-schema-version": "1.0"
+}

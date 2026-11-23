@@ -215,3 +215,21 @@ variable (never shell interpolation), validates and defangs it, writes
 `data/reports/<date>-issue<N>.yaml` and opens a pull request with the offline
 verdict. A maintainer merges; the pipeline then scores it like any other
 candidate, so a report cannot list a domain by itself.
+
+## ADR-020: Static Astro site with a parity-tested client checker
+
+The dashboard is Astro 7 (static output, exact pinned versions, telemetry
+off) with hand-written CSS variables from `web/src/styles/tokens.css`,
+self-hosted Inter and JetBrains Mono, and no third-party requests. The
+in-browser checker (`web/src/lib/checker.ts`) is a TypeScript port of the
+offline engine fed by `rules.json` exported from the Python packs (including
+the full Public Suffix List and a Unicode skeleton map). `npm test` asserts
+it matches the Python engine on 132 cases (score, tier and signal ids), so the
+two cannot drift silently. Data under `web/src/data/generated/` is rebuilt by
+`scripts/build_site_data.py` on every build; without published feeds the site
+shows clearly labelled demo data from the fixture pipeline. Audit (local
+preview, Lighthouse 13.6 / axe-core 4.14): 100 in all four categories on
+Home, Radar, Check and PC Watch; 0 axe violations on 16 pages in both themes
+(`web/audit-results.json`). A clean-checkout build exposed that the Python
+`.gitignore` template's `lib/` rule hid `web/src/lib/`; it is now anchored to
+the repository root.

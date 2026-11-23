@@ -1,0 +1,8 @@
+---
+interface Props { text: string; label?: string; lang?: string }
+const { text, label = "Copy" } = Astro.props;
+---
+<div class="copy">
+  <pre tabindex="0"><code>{text}</code></pre>
+  <button type="button" class="btn small" data-copy={text} aria-label={`${label}: ${text.split("\n")[0].slice(0, 60)}`}>Copy</button>
+</div>

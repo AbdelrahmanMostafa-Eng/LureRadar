@@ -60,8 +60,9 @@ scan-fixtures: ## Run the full pipeline offline against recorded fixtures
 	$(RUN) lureradar scan --fixtures --out build/site/feeds --state build/state.db
 
 site: ## Build the static site into web/dist (demo data unless FEEDS=dir)
+	cd web && npm ci
 	$(RUN) python scripts/build_site_data.py $(if $(FEEDS),--feeds $(FEEDS),)
-	cd web && npm ci && npm test && npm run build
+	cd web && npm run build && npm test
 
 og: ## Regenerate brand images (social preview, favicons, OG cards)
 	$(RUN) python scripts/gen_og.py

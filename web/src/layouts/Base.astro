@@ -1,0 +1,141 @@
+---
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/inter/latin-600.css";
+import "@fontsource/inter/latin-700.css";
+import "@fontsource/jetbrains-mono/latin-400.css";
+import "@fontsource/jetbrains-mono/latin-700.css";
+import "../styles/global.css";
+import Logo from "../components/Logo.astro";
+import { NAV, abs, href, meta, stats, fmtUtc, REPO_URL, issueUrl } from "../lib/site";
+
+interface Props {
+  title: string;
+  description: string;
+  og?: string;
+  jsonld?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
+}
+const { title, description, og = "default", jsonld, noindex = false } = Astro.props;
+const pathname = Astro.url.pathname;
+const canonical = new URL(pathname, Astro.site).toString();
+const ogImage = abs(`og/${og}.png`);
+const fullTitle = title.includes("LureRadar") ? title : `${title} · LureRadar`;
+const current = (p: string) => {
+  const target = href(p);
+  return p === "" ? pathname === target : pathname.startsWith(target);
+};
+const updated = stats.generated_at ?? meta.generated_at;
+const ld = jsonld ? (Array.isArray(jsonld) ? jsonld : [jsonld]) : [];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#07090D" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F7F9FB" media="(prefers-color-scheme: light)" />
+    <link rel="icon" href={href("favicon.svg")} type="image/svg+xml" />
+    <link rel="icon" href={href("favicon-32.png")} sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href={href("apple-touch-icon.png")} />
+    <link rel="manifest" href={href("site.webmanifest")} />
+    <link rel="alternate" type="application/atom+xml" title="LureRadar PC Watch" href={href("feeds/pc-watch.atom")} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="LureRadar" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    {ld.map((obj) => <script type="application/ld+json" set:html={JSON.stringify(obj).replace(/</g, "\\u003c")} />)}
+    <script is:inline>
+      try {
+        var t = localStorage.getItem("lr-theme");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href={href("")} aria-label="LureRadar home"><Logo /><span>Lure<b>Radar</b></span></a>
+        <nav class="nav" aria-label="Main">
+          {NAV.slice(1).map((n) => <a href={href(n.path)} aria-current={current(n.path) ? "page" : undefined}>{n.label}</a>)}
+        </nav>
+        <details class="menu">
+          <summary aria-label="Open menu">Menu</summary>
+          <nav class="menu-panel" aria-label="Main (mobile)">
+            {NAV.map((n) => <a href={href(n.path)} aria-current={current(n.path) ? "page" : undefined}>{n.label}</a>)}
+          </nav>
+        </details>
+        <button type="button" class="theme-toggle" id="theme-toggle" title="Change colour theme">Theme: Auto</button>
+      </div>
+    </header>
+    <div class="freshness">
+      <div class="wrap">
+        <span><span class="dot" id="fresh-dot" aria-hidden="true"></span> Feed updated <time id="fresh-time" datetime={updated ?? ""}>{fmtUtc(updated)}</time> <span id="fresh-age"></span></span>
+        {meta.demo && <span class="pill demo">Demo data: synthetic fixtures, reserved .test domains</span>}
+        <span class="muted">Updates daily (best-effort schedule)</span>
+      </div>
+    </div>
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="wrap">
+        <div class="cols">
+          <div>
+            <a class="brand" href={href("")}><Logo size={26} /><span>Lure<b>Radar</b></span></a>
+            <p style="margin-top:10px">See the lure before you bite. Open threat radar for hyped-launch scams.</p>
+          </div>
+          <div>
+            <h2>Product</h2>
+            <ul>
+              <li><a href={href("check/")}>Check a link</a></li>
+              <li><a href={href("radar/")}>Radar</a></li>
+              <li><a href={href("feeds/")}>Blocklists</a></li>
+              <li><a href={href("pc-watch/")}>PC Watch</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Project</h2>
+            <ul>
+              <li><a href={href("docs/")}>Docs</a></li>
+              <li><a href={href("methodology/")}>Methodology</a></li>
+              <li><a href={href("packs/")}>Campaign packs</a></li>
+              <li><a href={REPO_URL}>Source code</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Trust</h2>
+            <ul>
+              <li><a href={href("about/")}>About</a></li>
+              <li><a href={href("ethics/")}>Ethics &amp; abuse</a></li>
+              <li><a href={href("privacy/")}>Privacy</a></li>
+              <li><a href={href("bot/")}>Crawler (bot) info</a></li>
+              <li><a href={issueUrl("false-positive-review.yml")}>Dispute a listing</a></li>
+            </ul>
+          </div>
+        </div>
+        <p class="disclaimer">
+          LureRadar is an independent project, not affiliated with, endorsed by, or sponsored by Rockstar Games, Take-Two Interactive, or any platform holder. All trademarks belong to their owners.
+          Detections are automated and may contain false positives; no warranty. Code MIT · feed data CC0-1.0 · v{meta.version} · no trackers, no cookies.
+        </p>
+      </div>
+    </footer>
+    <script>
+      import { initChrome } from "../lib/chrome";
+      initChrome();
+    </script>
+  </body>
+</html>

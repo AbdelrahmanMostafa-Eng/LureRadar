@@ -1,0 +1,25 @@
+---
+import Base from "../layouts/Base.astro";
+import { abs, issueUrl, meta } from "../lib/site";
+---
+<Base title="LureRadar crawler (bot) information" description="What the LureRadar fetcher does, how it identifies itself, the limits it respects, and how site owners can opt out." og="about">
+  <div class="wrap narrow" style="padding-top:40px">
+    <span class="eyebrow">For site owners</span>
+    <h1>The LureRadar fetcher</h1>
+    <p>You are probably here because you saw this User-Agent in your logs:</p>
+    <pre tabindex="0"><code>LureRadar/{meta.version} (+{abs("bot/")})</code></pre>
+    <h2>What it does</h2>
+    <p>LureRadar looks at newly registered domains whose names suggest a hyped-launch scam (for example a “GTA 6 PC download” site). For each one it may fetch <strong>one page</strong> to look for lure patterns such as fake download buttons or survey gates.</p>
+    <h2>Limits it always respects</h2>
+    <ul>
+      <li>At most one request per host per second, a small global concurrency cap, a 10-second deadline and at most 5 redirects.</li>
+      <li>Only text/HTML is read, capped at 1 MB. Files and binaries are never downloaded; JavaScript is never executed; no cookies are kept.</li>
+      <li>Only hashes and extracted features are stored, never copies of your pages.</li>
+      <li>Private, loopback and cloud-metadata addresses are refused (SSRF protection).</li>
+    </ul>
+    <h2>Opting out</h2>
+    <p>If you run a legitimate site and want it excluded, <a href={issueUrl("false-positive-review.yml", "[Opt-out] your-domain")}>open an opt-out / dispute request</a>. Legitimate sites are added to the allowlist, which also removes them from every feed on the next run. No reason is needed.</p>
+    <p class="muted">The fetcher never submits forms, never logs in, and never attempts to bypass access controls.</p>
+  </div>
+</Base>
+<style>.narrow { max-width: 900px; }</style>

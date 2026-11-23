@@ -1,0 +1,17 @@
+---
+import Base from "../layouts/Base.astro";
+import { renderDoc } from "../lib/docs";
+const doc = renderDoc("PRIVACY.md");
+---
+<Base title="Privacy" description="LureRadar collects nothing: no trackers, no cookies, no accounts. The web checker and CLI run offline; --live contacts only the target and services you configure." og="about">
+  <div class="wrap" style="padding-top:40px">
+    <span class="eyebrow">Privacy</span>
+    <h1>{doc?.title ?? "Privacy"}</h1>
+    <article class="prose">
+      <p><strong>This website</strong> sets no cookies and loads no trackers, analytics or third-party resources (fonts are self-hosted). The checker runs entirely in your browser: what you paste is never sent anywhere. The site is static and hosted on GitHub Pages; GitHub's own server logs are covered by GitHub's privacy statement.</p>
+    </article>
+    {doc ? <article class="prose" set:html={doc.html} /> : (
+      <article class="prose"><p><code>lureradar check</code> is offline by default and opens no network connections; <code>--live</code> contacts only the target and the enrichment services you configure, and lists every service it contacted.</p></article>
+    )}
+  </div>
+</Base>

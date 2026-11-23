@@ -1,0 +1,59 @@
+---
+import Base from "../layouts/Base.astro";
+import CopyBlock from "../components/CopyBlock.astro";
+import { packs, REPO_URL, href } from "../lib/site";
+
+const example = `id: console-x
+name: "Console X launch lures"
+version: 1
+as_of: 2026-11-21
+keywords: [console-x, "console x"]
+intents: [download, free, key, keygen, crack, apk, pc, beta, early-access, generator]
+brands:
+  - {name: examplestore, official: [example.com]}
+allowlist:
+  outlets: [example.org]
+  platforms: []
+facts:
+  as_of: 2026-11-21
+  facts:
+    - id: pc_release
+      claim: "No PC version announced (replace with a dated, sourced claim)."
+      status: not_announced
+      as_of: 2026-11-21
+      sources: [{url: "https://example.com/source", title: "Source", accessed: 2026-11-21}]
+  platforms:
+    pc: {status: unreleased, fact: pc_release, terms: [pc, windows, steam]}`;
+---
+<Base title="Campaign packs: add a launch in 20 lines" description="LureRadar campaign packs describe one hyped launch in YAML: keywords, intents, brands, allowlist and dated facts. GTA 6 ships first; add your own launch in about 20 lines." og="packs">
+  <div class="wrap" style="padding-top:40px">
+    <span class="eyebrow">Campaign packs</span>
+    <h1>One engine, many launches</h1>
+    <p class="muted">LureRadar is a generic launch-lure engine. Everything campaign-specific lives in a pack: keywords, lure intents, brands that scammers impersonate (names only, never logos), legitimate outlets, and dated, sourced facts that drive rules such as “there is no PC version yet”.</p>
+    {packs.length ? packs.map((p) => (
+      <article class="card pack">
+        <h2>{p.name} <span class="pill">{p.id} · v{p.version} · as of {p.as_of}</span></h2>
+        <p class="muted">{p.description}</p>
+        <div class="grid grid-2">
+          <div><h3>Keywords</h3><p class="mono tags">{p.keywords.join(" · ")}</p></div>
+          <div><h3>Impersonated brands</h3><ul>{p.brands.map((b: any) => <li>{b.name} <span class="muted mono">({b.official.join(", ")})</span></li>)}</ul></div>
+          <div><h3>Platforms</h3><ul>{Object.entries(p.platforms).map(([k, v]: [string, any]) => <li>{v.label}: <span class={v.status === "unreleased" ? "warn" : "okc"}>{v.status}</span></li>)}</ul></div>
+          <div><h3>Allowlist</h3><p>{p.allowlist_outlets} outlets (hard clear), {p.allowlist_platforms} user-content platforms (capped)</p></div>
+        </div>
+        <h3>Facts on record</h3>
+        <ul class="facts">{p.facts.map((f: any) => <li><strong>{f.id}</strong> <span class="pill">{f.status}</span> <span class="muted">as of {f.as_of}</span><br />{f.claim} {f.sources.map((s: any) => <a href={s.url}>[{s.publisher ?? "source"}]</a>)}</li>)}</ul>
+      </article>
+    )) : <div class="empty"><strong>No packs loaded</strong>Pack data appears after <code>build_site_data.py</code> runs.</div>}
+    <h2>Add a launch in about 20 lines</h2>
+    <p>Scaffold with <code>lureradar pack new console-x</code>, edit, then run <code>lureradar pack validate</code>. Every fact needs a date and a source. Full format in the <a href={href("docs/packs/")}>pack documentation</a>; propose one with the <a href={`${REPO_URL}/issues/new?template=new-campaign-pack.yml`}>new campaign pack</a> form.</p>
+    <CopyBlock text={example} label="Copy example pack" />
+  </div>
+</Base>
+<style>
+  .pack { margin-top: 20px; }
+  .pack h2 { margin-top: 0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .tags { overflow-wrap: anywhere; }
+  .warn { color: var(--amber); font-family: var(--font-mono); }
+  .okc { color: var(--radar); font-family: var(--font-mono); }
+  .facts { padding-left: 1.1em; display: grid; gap: 10px; }
+</style>

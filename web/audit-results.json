@@ -1,0 +1,65 @@
+{
+  "base": "http://127.0.0.1:4321/LureRadar/",
+  "generated_at": "2026-11-23T11:02:38.542Z",
+  "axe": {
+    "dark:/": [],
+    "dark:radar/": [],
+    "dark:check/": [],
+    "dark:feeds/": [],
+    "dark:pc-watch/": [],
+    "dark:methodology/": [],
+    "dark:packs/": [],
+    "dark:report/": [],
+    "dark:about/": [],
+    "dark:ethics/": [],
+    "dark:privacy/": [],
+    "dark:bot/": [],
+    "dark:docs/": [],
+    "dark:docs/quickstart/": [],
+    "dark:docs/signals/": [],
+    "dark:404.html": [],
+    "light:/": [],
+    "light:radar/": [],
+    "light:check/": [],
+    "light:feeds/": [],
+    "light:pc-watch/": [],
+    "light:methodology/": [],
+    "light:packs/": [],
+    "light:report/": [],
+    "light:about/": [],
+    "light:ethics/": [],
+    "light:privacy/": [],
+    "light:bot/": [],
+    "light:docs/": [],
+    "light:docs/quickstart/": [],
+    "light:docs/signals/": [],
+    "light:404.html": []
+  },
+  "third_party": {},
+  "lighthouse": {
+    "/": {
+      "performance": 100,
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100
+    },
+    "radar/": {
+      "performance": 100,
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100
+    },
+    "check/": {
+      "performance": 100,
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100
+    },
+    "pc-watch/": {
+      "performance": 100,
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100
+    }
+  }
+}

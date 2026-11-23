@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-labelledby="t">
+  <title id="t">LureRadar</title>
+  <style>
+    .lr-ring { stroke: #3CFFB0; } .lr-fill { fill: #3CFFB0; } .lr-hook { stroke: #FFB020; }
+    .lr-text { fill: #E6EDF3; } .lr-accent { fill: #3CFFB0; }
+    @media (prefers-color-scheme: light) {
+      .lr-ring { stroke: #00805A; } .lr-fill { fill: #00805A; }
+      .lr-hook { stroke: #A35F00; } .lr-text { fill: #0D1117; }
+      .lr-accent { fill: #00805A; }
+    }
+  </style>
+  <style>svg { color: #3CFFB0; } @media (prefers-color-scheme: light) { svg { color: #00805A; } }</style>
+  
+  <defs>
+    <linearGradient id="lr-sweep" x1="32" y1="32" x2="54" y2="12" gradientUnits="userSpaceOnUse">
+      <stop offset="0" class="lr-stop" stop-opacity="0" stop-color="currentColor"/>
+      <stop offset="1" class="lr-stop" stop-opacity=".6" stop-color="currentColor"/>
+    </linearGradient>
+  </defs>
+  <g class="lr-color">
+    <circle class="lr-ring" cx="32" cy="32" r="27" fill="none" stroke-width="4"/>
+    <circle class="lr-ring" cx="32" cy="32" r="15.5" fill="none" stroke-width="2.5" opacity=".45"/>
+    <path d="M32 32V5a27 27 0 0 1 23.4 13.5Z" fill="url(#lr-sweep)"/>
+    <path class="lr-ring" d="M32 32 55.4 18.5" stroke-width="3" stroke-linecap="round"/>
+    <circle class="lr-fill" cx="32" cy="32" r="3.2"/>
+    <g class="lr-hook" fill="none" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M43 36.5V44a4.5 4.5 0 0 1-9 0v-3.2l2.8 2.6"/>
+      <circle cx="43" cy="33.6" r="1.9" stroke-width="2.4"/>
+    </g>
+  </g>
+</svg>

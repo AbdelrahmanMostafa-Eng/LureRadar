@@ -1,0 +1,124 @@
+---
+import Base from "../layouts/Base.astro";
+import CopyBlock from "../components/CopyBlock.astro";
+import { abs, href, pcwatch, packs, fmtUtc, REPO_URL } from "../lib/site";
+
+const status = String(pcwatch.status ?? "UNKNOWN");
+const confirmed = String(pcwatch.confirmed_status ?? "UNKNOWN");
+const gta = packs.find((p) => p.id === "gta6");
+const fact = gta?.facts?.find((f: any) => f.id === "pc_release");
+const timeline: any[] = pcwatch.timeline ?? [];
+const sources: any[] = pcwatch.sources ?? [];
+const tone = status === "NOT_ANNOUNCED" ? "ok" : status === "UNKNOWN" ? "unknown" : "changed";
+const faq = [
+  {
+    q: "Is a GTA 6 PC download real?",
+    a: `${fact ? `As of ${fact.as_of}, ${fact.claim.replace(/^As of [0-9-]+ /, "")}` : "No official PC version has been announced."} Any "GTA 6 PC download", "PC beta key" or "PC crack" is therefore not genuine. Paste the link into the LureRadar checker before clicking.`,
+  },
+  {
+    q: "How will I know when PC is announced?",
+    a: "Subscribe to the PC Watch Atom feed or poll pc-watch.json. LureRadar checks official sources (Rockstar Newswire, Take-Two press releases and filings, official stores) every few hours. When an official announcement appears, a maintainer verifies it and the status changes here.",
+  },
+  {
+    q: "Why does the status sometimes say UNKNOWN?",
+    a: "If the official sources could not be checked successfully in the last 36 hours, LureRadar shows UNKNOWN instead of repeating an old answer. It never shows NOT ANNOUNCED because a check failed.",
+  },
+];
+const jsonld = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+};
+---
+<Base title="Is GTA 6 coming to PC? PC Watch" description="Is GTA 6 coming to PC? Dated answer from official sources only (Rockstar, Take-Two, official stores), checked every few hours. GTA 6 PC release date tracker and why any 'GTA 6 PC download' is a lure." og="pc-watch" jsonld={jsonld}>
+  <div class="wrap" style="padding-top:40px">
+    <span class="eyebrow">PC Watch</span>
+    <h1>Is GTA 6 coming to PC?</h1>
+    <div class={`banner card ${tone}`} role="status">
+      <p class="status mono">{status.replaceAll("_", " ")}</p>
+      <p class="answer">{status === "UNKNOWN"
+        ? "Status unknown right now: official sources have not been checked successfully in the last 36 hours, so we will not repeat an old answer."
+        : (pcwatch.answer ?? "No status available yet.")}</p>
+      {pcwatch.note && status !== "UNKNOWN" && <p class="note">{pcwatch.note}</p>}
+      <dl>
+        <div><dt>Last checked</dt><dd class="mono">{fmtUtc(pcwatch.last_checked)}</dd></div>
+        <div><dt>Last successful check</dt><dd class="mono">{fmtUtc(pcwatch.last_success)}</dd></div>
+        <div><dt>Last status change</dt><dd class="mono">{fmtUtc(pcwatch.last_changed)}</dd></div>
+        <div><dt>Maintainer-confirmed status</dt><dd class="mono">{confirmed.replaceAll("_", " ")}{pcwatch.confirmed_as_of && ` (facts.yaml, as of ${pcwatch.confirmed_as_of})`}</dd></div>
+      </dl>
+      {pcwatch.review_pending && <p class="note">Official-source evidence of a change is awaiting maintainer review.</p>}
+    </div>
+    {fact && (
+      <p class="muted">Fact on record: “{fact.claim}” Sources: {fact.sources.map((s: any, i: number) => <>{i ? ", " : ""}<a href={s.url}>{s.publisher ?? s.title}</a></>)}. Wording stays true if things change: we say what is announced <em>as of a date</em>, never what “will never” happen.</p>
+    )}
+
+    <h2>Evidence timeline</h2>
+    {timeline.length ? (
+      <ol class="timeline">
+        {timeline.map((e) => (
+          <li>
+            <time class="mono" datetime={e.date}>{e.date}</time>
+            <div>
+              <p class="t-title"><a href={e.url}>{e.title}</a> <span class="muted">· {e.source}</span></p>
+              <p>{e.paraphrase}</p>
+              <p class="muted">What it means: {e.meaning}</p>
+              <p class="muted small">Verified {e.verified_on}: {e.verification}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <div class="empty"><strong>No timeline entries yet</strong>Entries are added only after they are verified against an official source.</div>
+    )}
+
+    <h2>Official sources checked</h2>
+    {sources.length ? (
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable table">
+        <table>
+          <thead><tr><th scope="col">Source</th><th scope="col">Kind</th><th scope="col">Last result</th><th scope="col">Detail</th></tr></thead>
+          <tbody>{sources.map((s) => <tr><td>{s.name}</td><td class="muted">{s.kind}</td><td class={`mono res-${s.status}`}>{s.status === "unsupported" ? "UNKNOWN" : s.status}</td><td class="muted">{s.detail}</td></tr>)}</tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="empty"><strong>No automated check has run yet</strong>The <code>pc-watch</code> workflow checks Rockstar Newswire, Take-Two press releases and SEC filings, and Steam every 4 hours. Until its first successful run the status above stays UNKNOWN.</div>
+    )}
+    <p class="muted small">Press articles, leaks, rumours and non-official social posts never change the status. Only a maintainer-approved commit to <a href={`${REPO_URL}/blob/main/packs/gta6/facts.yaml`}>facts.yaml</a> does.</p>
+
+    <h2>Get notified</h2>
+    <p>Add the Atom feed to any RSS reader, or poll the JSON (no accounts, no email). Webhook example: <a href={`${REPO_URL}/blob/main/examples/pc-watch-webhook.md`}>Discord / Slack</a>.</p>
+    <CopyBlock text={abs("feeds/pc-watch.atom")} label="Copy Atom feed URL" />
+    <p><a href={href("feeds/pc-watch.json")}>pc-watch.json</a> · <a href={href("feeds/shields-pc-watch.json")}>badge JSON</a></p>
+
+    <h2>FAQ</h2>
+    {faq.map((f) => <details class="faq card"><summary>{f.q}</summary><p>{f.a}</p></details>)}
+    <p class="disclaimer-note muted">{pcwatch.disclaimer ?? "LureRadar is an independent, unofficial project, not affiliated with Rockstar Games or Take-Two Interactive."}</p>
+    <p><a class="btn primary" href={href("check/")}>Check a “GTA 6 PC” link</a> <a class="btn" href={href("feeds/")}>Block fake download sites</a></p>
+  </div>
+</Base>
+<style>
+  .banner { margin: 18px 0; border-width: 2px; }
+  .banner.ok { border-color: var(--radar); }
+  .banner.unknown { border-color: var(--border-strong); }
+  .banner.changed { border-color: var(--amber); }
+  .status { font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 700; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .ok .status { color: var(--radar); }
+  .unknown .status { color: var(--muted); }
+  .changed .status { color: var(--amber); }
+  .answer { font-size: 1.15rem; }
+  .note { color: var(--amber); }
+  dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0 0; }
+  dt { color: var(--muted); font-size: 0.82rem; }
+  dd { margin: 2px 0 0; }
+  .timeline { list-style: none; padding: 0; display: grid; gap: 18px; }
+  .timeline li { display: grid; grid-template-columns: 110px 1fr; gap: 16px; border-left: 2px solid var(--border-strong); padding-left: 16px; }
+  .timeline p { margin: 0 0 4px; }
+  .t-title { font-weight: 600; }
+  .small { font-size: 0.85rem; }
+  .res-ok { color: var(--radar); }
+  .res-failed { color: var(--danger); }
+  .res-unsupported { color: var(--muted); }
+  .faq { margin: 10px 0; }
+  .faq summary { cursor: pointer; font-weight: 600; }
+  .faq p { margin: 10px 0 0; }
+  @media (max-width: 640px) { .timeline li { grid-template-columns: 1fr; } }
+</style>

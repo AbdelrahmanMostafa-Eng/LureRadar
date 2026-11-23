@@ -1,0 +1,96 @@
+---
+// Signature animation: a radar sweep whose blips resolve into fishing hooks.
+// Blip positions are derived from real (or clearly labelled demo) indicators.
+// Respects prefers-reduced-motion (static frame).
+import { all, polar, defang } from "../lib/site";
+interface Props { size?: number }
+const { size = 460 } = Astro.props;
+const PERIOD = 6;
+const R = 190;
+const C = 200;
+const items = all.indicators.filter((i) => i.status === "active").slice(0, 14);
+const fallback = ["a.test", "b.test", "c.test", "d.test", "e.test"].map((d, i) => ({ domain: d, tier: i % 2 ? "likely" : "suspicious" }));
+const blips = (items.length ? items : fallback).map((i) => {
+  const { angle, r } = polar(i.domain);
+  const rad = ((angle - 90) * Math.PI) / 180;
+  return {
+    x: C + Math.cos(rad) * R * r,
+    y: C + Math.sin(rad) * R * r,
+    delay: -((360 - angle) / 360) * PERIOD,
+    hook: i.tier === "likely" || i.tier === "confirmed",
+    danger: i.tier === "confirmed",
+    label: defang(i.domain),
+  };
+});
+---
+<figure class="radar" aria-labelledby="radar-cap">
+  <svg viewBox="0 0 400 400" width={size} height={size} aria-hidden="true">
+    <defs>
+      <radialGradient id="rglow" cx="200" cy="200" r="200" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="var(--radar)" stop-opacity=".14" />
+        <stop offset="1" stop-color="var(--radar)" stop-opacity="0" />
+      </radialGradient>
+      <linearGradient id="rsweep" x1="200" y1="200" x2="200" y2="10" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="var(--radar)" stop-opacity="0" />
+        <stop offset="1" stop-color="var(--radar)" stop-opacity=".45" />
+      </linearGradient>
+    </defs>
+    <circle cx="200" cy="200" r="198" fill="url(#rglow)" />
+    {[0.25, 0.5, 0.75, 1].map((k) => (
+      <circle cx="200" cy="200" r={R * k} fill="none" stroke={k === 1 ? "var(--radar)" : "var(--border-strong)"} stroke-opacity={k === 1 ? 0.5 : 1} stroke-width={k === 1 ? 2 : 1.2} />
+    ))}
+    <path d="M10 200H390M200 10V390" stroke="var(--border-strong)" stroke-width="1" />
+    <g class="sweep" style={`animation-duration:${PERIOD}s`}>
+      <path d="M200 200L200 10A190 190 0 0 1 334.4 65.6Z" fill="url(#rsweep)" transform="rotate(-45 200 200)" />
+      <path d="M200 200L200 10" stroke="var(--radar)" stroke-width="2.5" stroke-linecap="round" />
+    </g>
+    {blips.map((b) => (
+      <g class="blip" transform={`translate(${b.x.toFixed(1)} ${b.y.toFixed(1)})`} style={`animation-delay:${b.delay.toFixed(2)}s;animation-duration:${PERIOD}s`}>
+        <circle class={b.hook ? "ping resolves" : "ping"} r="5" fill={b.hook ? (b.danger ? "var(--danger)" : "var(--amber)") : "var(--radar)"} style={`animation-delay:${b.delay.toFixed(2)}s;animation-duration:${PERIOD}s`} />
+        {b.hook && (
+          <g class="hook" fill="none" stroke={b.danger ? "var(--danger)" : "var(--amber)"} stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style={`animation-delay:${b.delay.toFixed(2)}s;animation-duration:${PERIOD}s`}>
+            <path d="M4 -5V3a4 4 0 0 1-8 0v-2.6l2.3 2.1" />
+            <circle cx="4" cy="-7.5" r="1.6" stroke-width="1.8" />
+          </g>
+        )}
+      </g>
+    ))}
+    <circle cx="200" cy="200" r="5" fill="var(--radar)" />
+  </svg>
+  <figcaption id="radar-cap" class="visually-hidden">
+    Radar showing {blips.length} recent indicators as blips; likely lures resolve into hook marks.
+  </figcaption>
+</figure>
+<style>
+  .radar { margin: 0; display: grid; place-items: center; }
+  .radar svg { width: 100%; max-width: 460px; height: auto; overflow: visible; }
+  .sweep { transform-origin: 200px 200px; animation: lr-sweep linear infinite; }
+  .ping { animation: lr-ping linear infinite; opacity: 0.25; }
+  .ping.resolves { animation-name: lr-ping-resolve; opacity: 0; }
+  .hook { animation: lr-hook linear infinite; opacity: 0; }
+  @keyframes lr-ping-resolve {
+    0% { opacity: 1; transform: scale(1.8); }
+    8% { opacity: 0.95; transform: scale(1); }
+    16%, 100% { opacity: 0; transform: scale(0.6); }
+  }
+  @keyframes lr-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes lr-ping {
+    0% { opacity: 1; transform: scale(1.8); }
+    8% { opacity: 0.95; transform: scale(1); }
+    30% { opacity: 0.35; }
+    100% { opacity: 0.25; transform: scale(1); }
+  }
+  @keyframes lr-hook {
+    0%, 6% { opacity: 0; transform: translateY(3px) scale(0.6); }
+    16% { opacity: 1; transform: translateY(0) scale(1.15); }
+    24% { transform: scale(1); }
+    80% { opacity: 0.75; }
+    100% { opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sweep { animation: none; transform: rotate(60deg); }
+    .ping { animation: none; opacity: 0.8; }
+    .ping.resolves { opacity: 0; }
+    .hook { animation: none; opacity: 1; }
+  }
+</style>

@@ -1,0 +1,31 @@
+---
+import Base from "../layouts/Base.astro";
+import { issueUrl, href } from "../lib/site";
+---
+<Base title="Report a lure or dispute a listing" description="Seen a fake GTA 6 download, key giveaway or phishing link? Report it to LureRadar, or dispute a listing you think is wrong. Defanged, public, no personal data." og="report">
+  <div class="wrap narrow" style="padding-top:40px">
+    <span class="eyebrow">Contribute</span>
+    <h1>Report a lure</h1>
+    <p class="muted">Reports become public GitHub issues and, after validation, small pull requests into <code>data/reports/</code>. A report never bypasses scoring: it adds a candidate that the pipeline scores like any other.</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h2>Report a lure</h2>
+        <p>Paste the link <strong>defanged</strong> (<code>hxxps://evil[.]example/x</code>) and where you saw it. Do not include personal data, screenshots of private chats, or files.</p>
+        <a class="btn primary" href={issueUrl("report-a-lure.yml")}>Open the report form</a>
+      </div>
+      <div class="card">
+        <h2>Dispute a listing</h2>
+        <p>Think a legitimate site is listed? Tell us which entry and why. Target: triage within 2 business days; confirmed false positives leave the feeds on the next run.</p>
+        <a class="btn" href={issueUrl("false-positive-review.yml")}>Open the dispute form</a>
+      </div>
+    </div>
+    <h2>Before you report</h2>
+    <ul>
+      <li>Check it first with the <a href={href("check/")}>checker</a> to see what LureRadar already knows.</li>
+      <li>Never download or run anything from a suspected lure to “confirm” it.</li>
+      <li>For takedowns, contact the registrar or host; <code>lureradar report --abuse &lt;domain&gt;</code> drafts the message.</li>
+      <li>Security issues in LureRadar itself go through private vulnerability reporting, not issues.</li>
+    </ul>
+  </div>
+</Base>
+<style>.narrow { max-width: 960px; } .card h2 { margin-top: 0; }</style>

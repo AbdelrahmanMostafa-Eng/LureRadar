@@ -1,0 +1,182 @@
+---
+import Base from "../layouts/Base.astro";
+import { href, packs, issueUrl } from "../lib/site";
+const gta = packs.find((p) => p.id === "gta6");
+const pcFact = gta?.facts?.find((f: any) => f.id === "pc_release");
+---
+<Base title="Check a link, domain or message" description="Is this GTA 6 download, key or giveaway a scam? Check any link, domain or message in your browser. Explainable verdict, nothing sent to any server." og="check">
+  <div class="wrap narrow">
+    <span class="eyebrow">Client-side checker</span>
+    <h1>Is this a lure?</h1>
+    <p class="muted">
+      Paste a URL, a domain (defanged is fine: <code>hxxps://evil[.]test</code>) or a whole message.
+      The same offline rules as the <code>lureradar check</code> CLI run <strong>entirely in your browser</strong>:
+      nothing you type leaves this page. The page loads the public rules and feed once, without your input.
+    </p>
+    <form id="check-form" class="card" autocomplete="off">
+      <label for="q">Link, domain or message</label>
+      <textarea id="q" spellcheck="false" placeholder='e.g. hxxps://rockstar-gta6-pc-download[.]test/free-key  or  "Free GTA 6 PC beta key, DM me on Telegram"'></textarea>
+      <div class="actions">
+        <button class="btn primary" type="submit">Check</button>
+        <button class="btn" type="button" id="example">Try the demo link</button>
+        <button class="btn" type="button" id="example-msg">Try a scam message</button>
+        <span id="status" class="muted" role="status" aria-live="polite">Loading rules…</span>
+      </div>
+    </form>
+    <div id="result" aria-live="polite"></div>
+    <noscript><div class="empty"><strong>JavaScript is off</strong>The checker runs locally with JavaScript. You can use the CLI instead: <code>uvx lureradar check "…"</code></div></noscript>
+    <section aria-labelledby="notes-h">
+      <h2 id="notes-h">Good to know</h2>
+      <ul class="muted">
+        <li>Offline heuristics only: domain age, page content and external reputation need the CLI's <code>--live</code> mode or the daily pipeline.</li>
+        <li>A CLEAR verdict is not a safety guarantee. Download games only from official stores.</li>
+        {pcFact && <li>Fact check: {pcFact.claim} (<a href={href("pc-watch/")}>PC Watch</a>, facts as of {pcFact.as_of}).</li>}
+        <li>Wrong verdict? <a href={issueUrl("false-positive-review.yml")}>Dispute it</a> or <a href={issueUrl("report-a-lure.yml")}>report a lure</a>.</li>
+      </ul>
+    </section>
+  </div>
+</Base>
+<style>
+  .narrow { max-width: 900px; padding-top: 40px; }
+  form label { display: block; margin-bottom: 8px; }
+  .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+  #result { margin-top: 20px; }
+  #result :global(.verdict) { border-width: 1px; border-style: solid; }
+  #result :global(.v-head) { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  #result :global(.v-score) { font: 700 1.6rem/1 var(--font-mono); }
+  #result :global(.v-score small) { color: var(--muted); font-size: 0.95rem; font-weight: 400; }
+  #result :global(.v-target) { font-family: var(--font-mono); overflow-wrap: anywhere; margin: 14px 0 4px; font-weight: 600; }
+  #result :global(.score-bar) { margin-top: 12px; max-width: 420px; }
+  #result :global(.signals) { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 10px; }
+  #result :global(.signals li) { display: grid; grid-template-columns: 48px 1fr; gap: 10px; }
+  #result :global(.sig-id) { font-family: var(--font-mono); color: var(--info); font-size: 0.85rem; display: block; }
+  #result :global(.steps) { margin: 16px 0 0; padding-left: 1.2em; }
+  #result :global(.urls) { margin-top: 14px; }
+  #result :global(.urls p) { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 6px 0; font-family: var(--font-mono); }
+  #result :global(h3) { margin: 18px 0 6px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+</style>
+<script>
+  import { createChecker, snapshotFromFeed, type Verdict, type Rules } from "../lib/checker";
+  const base = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+  const LABEL: Record<string, string> = { clear: "Clear", suspicious: "Suspicious", likely: "Likely lure", confirmed: "Confirmed lure" };
+  const COLOR: Record<string, string> = { clear: "var(--radar)", suspicious: "var(--amber)", likely: "var(--danger)", confirmed: "var(--danger)" };
+  const statusEl = document.getElementById("status")!;
+  const result = document.getElementById("result")!;
+  const input = document.getElementById("q") as HTMLTextAreaElement;
+  let checker: ReturnType<typeof createChecker> | null = null;
+  let snapshot: ReturnType<typeof snapshotFromFeed> | null = null;
+  let rulesData: Rules | null = null;
+
+  function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string): HTMLElementTagNameMap[K] {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function badge(tier: string): HTMLElement {
+    return el("span", `tier tier-${tier}`, LABEL[tier] ?? tier);
+  }
+  function headline(v: Verdict): string {
+    const ids = new Set(v.signals.filter((s) => s.weight > 0).map((s) => s.id));
+    if (v.allowlisted) return "Allowlisted legitimate outlet";
+    if (v.tier === "clear") return ids.size ? "No lure signals strong enough to flag" : "No lure signals found";
+    const parts: string[] = [];
+    if (ids.has("claims_unreleased_platform") || ids.has("text_unreleased_platform")) parts.push("unreleased platform");
+    if (ids.has("brand_impersonation") || ids.has("homoglyph_idn")) parts.push("brand impersonation");
+    if (ids.has("keyword_intent_combo") && !parts.length) parts.push("campaign keyword with download/key intent");
+    if (v.kind === "text" && !parts.length) parts.push("lure language");
+    return parts.length ? `Looks like a launch lure: ${parts.join(" + ")}` : "Lure indicators present";
+  }
+  function steps(v: Verdict): string[] {
+    if (v.allowlisted) return ["This domain is on the allowlist. Still check the exact link before downloading."];
+    if (v.tier === "clear") return [v.kind === "text" ? "Nothing decisive found. Stay cautious with unexpected offers." : "Offline heuristics found nothing decisive. That is not a guarantee: the CLI's --live mode adds registration age and page checks."];
+    const out = [];
+    if (v.tier === "suspicious") out.push("Do not download files or sign in until you have verified the source.", "Buy and download games only through official stores and publisher sites.");
+    else out.push("Do not visit, download, enter credentials or pay.", "Block it: subscribe to the LureRadar blocklists (Pi-hole, AdGuard, uBlock Origin).");
+    return out;
+  }
+  function render(v: Verdict): void {
+    result.replaceChildren();
+    const card = el("article", "card verdict");
+    card.style.borderColor = COLOR[v.tier];
+    card.setAttribute("aria-label", `Verdict: ${LABEL[v.tier]}, score ${v.score} of 100`);
+    const head = el("div", "v-head");
+    head.append(badge(v.tier));
+    const score = el("span", "v-score", String(v.score));
+    score.style.color = COLOR[v.tier];
+    score.append(el("small", undefined, " / 100"));
+    head.append(score);
+    card.append(head);
+    const bar = el("div", "score-bar");
+    const fill = el("span");
+    fill.style.width = `${v.score}%`;
+    fill.style.background = COLOR[v.tier];
+    bar.append(fill);
+    card.append(bar, el("p", "v-target", v.target), el("p", "muted", headline(v)));
+    const shown = v.signals.filter((s) => s.weight !== 0 || s.id === "user_content_platform" || s.id === "feed_listed");
+    if (shown.length) {
+      card.append(el("h3", undefined, "Why"));
+      const ul = el("ul", "signals");
+      for (const s of shown) {
+        const li = el("li");
+        const w = el("span", s.weight >= 20 ? "w-pos" : s.weight > 0 ? "w-mid" : s.weight < 0 ? "w-neg" : "w-zero", s.weight > 0 ? `+${s.weight}` : String(s.weight));
+        const body = el("div");
+        body.append(el("span", "sig-id", s.id), el("span", undefined, s.explanation));
+        li.append(w, body);
+        ul.append(li);
+      }
+      card.append(ul);
+    }
+    if (v.kind === "text" && v.urls.length) {
+      card.append(el("h3", undefined, "Links in the message"));
+      const box = el("div", "urls");
+      for (const u of v.urls.slice(0, 5)) {
+        const p = el("p");
+        p.append(badge(u.tier), el("span", undefined, `${u.score} ${u.target}`));
+        box.append(p);
+      }
+      card.append(box);
+    }
+    card.append(el("h3", undefined, "What to do next"));
+    const ol = el("ul", "steps");
+    for (const s of steps(v)) ol.append(el("li", undefined, s));
+    card.append(ol);
+    result.append(card);
+  }
+  function run(): void {
+    const q = input.value.trim();
+    if (!q) {
+      result.replaceChildren(Object.assign(el("div", "empty"), { innerHTML: "<strong>Nothing to check yet</strong>Paste a link, domain or message above." }));
+      return;
+    }
+    if (!checker) return;
+    try {
+      render(checker.check(q, snapshot));
+    } catch (err) {
+      const box = el("div", "empty");
+      box.append(el("strong", undefined, "Could not check that input"), el("span", undefined, (err as Error).message || "invalid input"));
+      result.replaceChildren(box);
+    }
+  }
+  document.getElementById("check-form")!.addEventListener("submit", (ev) => { ev.preventDefault(); run(); });
+  document.getElementById("example")!.addEventListener("click", () => { input.value = "hxxps://rockstar-gta6-pc-download[.]test/free-key"; run(); });
+  document.getElementById("example-msg")!.addEventListener("click", () => { input.value = "FREE GTA 6 PC beta keys!! DM me on Telegram, only 20 left"; run(); });
+
+  async function init(): Promise<void> {
+    try {
+      const res = await fetch(`${base}data/rules.json`);
+      rulesData = (await res.json()) as Rules;
+      checker = createChecker(rulesData);
+      try {
+        const feed = await fetch(`${base}feeds/latest.json`);
+        if (feed.ok) snapshot = snapshotFromFeed(await feed.json());
+      } catch { /* feed optional */ }
+      statusEl.textContent = `Rules v${rulesData.version} loaded${snapshot ? " · feed snapshot loaded" : ""}. Runs locally.`;
+      const hash = new URLSearchParams(location.hash.slice(1)).get("q");
+      if (hash) { input.value = hash; run(); }
+    } catch {
+      statusEl.textContent = "Could not load the rules file. Use the CLI: uvx lureradar check";
+    }
+  }
+  init();
+</script>

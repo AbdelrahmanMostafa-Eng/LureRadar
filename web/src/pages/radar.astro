@@ -1,0 +1,152 @@
+---
+import Base from "../layouts/Base.astro";
+import TierBadge from "../components/TierBadge.astro";
+import DemoNotice from "../components/DemoNotice.astro";
+import { all, defang, fmtUtc, fmtDate, safeJson, signed, weightClass, issueUrl } from "../lib/site";
+
+const rows = [...all.indicators]
+  .filter((i) => i.status === "active")
+  .sort((a, b) => b.score - a.score || a.domain.localeCompare(b.domain));
+const counts = { all: rows.length, confirmed: 0, likely: 0, suspicious: 0 } as Record<string, number>;
+for (const r of rows) counts[r.tier] = (counts[r.tier] ?? 0) + 1;
+const detail = rows.map((r) => ({
+  domain: defang(r.domain),
+  url: r.url ? defang(r.url) : null,
+  tier: r.tier,
+  score: r.score,
+  first: fmtUtc(r.first_seen),
+  last: fmtUtc(r.last_seen),
+  sources: r.sources,
+  packs: r.packs,
+  signals: r.signals.map((s) => ({ id: s.id, weight: s.weight, explanation: s.explanation, evidence: (s.evidence ?? []).slice(0, 3), live: !!s.live })),
+  dispute: r.dispute_url || issueUrl("false-positive-review.yml", `[FP] ${defang(r.domain)}`),
+}));
+---
+<Base title="Radar: latest launch-lure detections" description="Latest fake GTA 6 download, key-generator and phishing domains detected by LureRadar, with the exact signals and evidence behind every score. All indicators defanged." og="radar">
+  <div class="wrap" style="padding-top:40px">
+    <span class="eyebrow">Radar</span>
+    <h1>Latest detections</h1>
+    <p class="muted">Every indicator with the signals that scored it. Blocklists include LIKELY and CONFIRMED only; SUSPICIOUS stays on watch. Domains are defanged (<code>[.]</code>) so nothing here is clickable.</p>
+    <DemoNotice />
+    <div class="toolbar" role="toolbar" aria-label="Filter detections">
+      <div class="filters" role="group" aria-label="Tier">
+        {(["all", "confirmed", "likely", "suspicious"] as const).map((t, i) => (
+          <button type="button" class="btn small filter" data-tier={t} aria-pressed={i === 0 ? "true" : "false"}>
+            {t === "all" ? "All" : t[0].toUpperCase() + t.slice(1)} <span class="count">{counts[t] ?? 0}</span>
+          </button>
+        ))}
+      </div>
+      <label class="visually-hidden" for="search">Search detections</label>
+      <input id="search" type="search" placeholder="Search domain, source or signal" autocomplete="off" />
+    </div>
+    {rows.length ? (
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable table">
+        <table id="radar-table">
+          <caption class="visually-hidden">Active indicators sorted by score</caption>
+          <thead><tr><th scope="col">Indicator</th><th scope="col">Tier</th><th scope="col">Score</th><th scope="col">Top signals</th><th scope="col">First seen</th><th scope="col"><span class="visually-hidden">Details</span></th></tr></thead>
+          <tbody>
+            {rows.map((r, idx) => (
+              <tr data-tier={r.tier} data-search={`${defang(r.domain)} ${r.sources.join(" ")} ${r.signals.map((s) => s.id).join(" ")}`.toLowerCase()}>
+                <td class="mono">{defang(r.domain)}</td>
+                <td><TierBadge tier={r.tier} /></td>
+                <td class="mono">{r.score}</td>
+                <td><div class="sigs">{r.signals.filter((s) => s.weight > 0).slice(0, 3).map((s) => <span class="mono"><span class={weightClass(s.weight)}>{signed(s.weight)}</span> {s.id}</span>)}</div></td>
+                <td class="mono">{fmtDate(r.first_seen)}</td>
+                <td><button type="button" class="btn small open" data-idx={idx} aria-haspopup="dialog">Details<span class="visually-hidden"> for {defang(r.domain)}</span></button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="empty"><strong>No active detections right now</strong>The radar is quiet. The pipeline runs daily; check back after the next run.</div>
+    )}
+    <p id="no-match" class="empty" hidden><strong>No matches</strong>Try another search or tier.</p>
+  </div>
+  <dialog id="drawer" aria-labelledby="d-title">
+    <form method="dialog" class="d-close"><button class="btn small" aria-label="Close details">Close</button></form>
+    <div id="d-body"></div>
+  </dialog>
+  <script type="application/json" id="radar-data" set:html={safeJson(detail)} />
+</Base>
+<style>
+  .toolbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 20px 0 16px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter[aria-pressed="true"] { border-color: var(--radar); color: var(--text); background: var(--radar-soft); }
+  .count { font-family: var(--font-mono); color: var(--muted); }
+  #search { flex: 1 1 260px; max-width: 420px; min-height: 40px; }
+  .sigs { display: grid; gap: 2px; font-size: 0.85rem; }
+  dialog { width: min(720px, 100vw - 24px); max-height: 90vh; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: 14px; padding: 24px; box-shadow: var(--shadow); }
+  dialog::backdrop { background: rgb(0 0 0 / 0.6); }
+  .d-close { float: right; }
+  #d-body :global(h2) { margin-top: 0; font-family: var(--font-mono); font-size: 1.15rem; overflow-wrap: anywhere; }
+  #d-body :global(dl) { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; font-size: 0.92rem; }
+  #d-body :global(dt) { color: var(--muted); }
+  #d-body :global(dd) { margin: 0; font-family: var(--font-mono); overflow-wrap: anywhere; }
+  #d-body :global(ul.sig) { list-style: none; padding: 0; display: grid; gap: 12px; }
+  #d-body :global(.ev) { color: var(--muted); font-family: var(--font-mono); font-size: 0.82rem; overflow-wrap: anywhere; }
+  #d-body :global(.d-actions) { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+</style>
+<script>
+  type Row = { domain: string; url: string | null; tier: string; score: number; first: string; last: string; sources: string[]; packs: string[]; signals: { id: string; weight: number; explanation: string; evidence: string[]; live: boolean }[]; dispute: string };
+  const data = JSON.parse(document.getElementById("radar-data")!.textContent || "[]") as Row[];
+  const table = document.getElementById("radar-table");
+  const rows = table ? Array.from(table.querySelectorAll<HTMLTableRowElement>("tbody tr")) : [];
+  const search = document.getElementById("search") as HTMLInputElement;
+  const noMatch = document.getElementById("no-match")!;
+  let tier = "all";
+  function apply(): void {
+    const q = search.value.trim().toLowerCase();
+    let shown = 0;
+    for (const r of rows) {
+      const ok = (tier === "all" || r.dataset.tier === tier) && (!q || (r.dataset.search ?? "").includes(q));
+      r.hidden = !ok;
+      if (ok) shown++;
+    }
+    noMatch.hidden = shown > 0 || rows.length === 0;
+  }
+  document.querySelectorAll<HTMLButtonElement>(".filter").forEach((b) => b.addEventListener("click", () => {
+    tier = b.dataset.tier ?? "all";
+    document.querySelectorAll(".filter").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    apply();
+  }));
+  search.addEventListener("input", apply);
+
+  const dialog = document.getElementById("drawer") as HTMLDialogElement;
+  const body = document.getElementById("d-body")!;
+  const el = <K extends keyof HTMLElementTagNameMap>(t: K, c?: string, txt?: string) => { const e = document.createElement(t); if (c) e.className = c; if (txt !== undefined) e.textContent = txt; return e; };
+  document.querySelectorAll<HTMLButtonElement>(".open").forEach((b) => b.addEventListener("click", () => {
+    const r = data[Number(b.dataset.idx)];
+    body.replaceChildren();
+    const h = el("h2", undefined, r.domain);
+    h.id = "d-title";
+    const dl = el("dl");
+    const add = (k: string, v: string) => dl.append(el("dt", undefined, k), el("dd", undefined, v));
+    add("Tier", r.tier.toUpperCase());
+    add("Score", `${r.score} / 100`);
+    if (r.url) add("Seen at", r.url);
+    add("First seen", r.first);
+    add("Last seen", r.last);
+    add("Sources", r.sources.join(", ") || "-");
+    add("Packs", r.packs.join(", ") || "-");
+    body.append(h, dl, el("h3", undefined, "Signals and evidence"));
+    const ul = el("ul", "sig");
+    for (const s of r.signals) {
+      const li = el("li");
+      const w = el("span", s.weight >= 20 ? "w-pos" : s.weight > 0 ? "w-mid" : s.weight < 0 ? "w-neg" : "w-zero", s.weight > 0 ? `+${s.weight}` : String(s.weight));
+      li.append(w, el("span", "mono", ` ${s.id}${s.live ? " (live)" : ""}`), el("div", undefined, s.explanation));
+      for (const ev of s.evidence) li.append(el("div", "ev", `evidence: ${ev}`));
+      ul.append(li);
+    }
+    body.append(ul);
+    const actions = el("div", "d-actions");
+    const copy = el("button", "btn small", "Copy defanged");
+    copy.type = "button";
+    copy.dataset.copy = r.domain;
+    const dispute = el("a", "btn small", "Dispute this listing");
+    dispute.href = r.dispute;
+    actions.append(copy, dispute);
+    body.append(actions);
+    dialog.showModal();
+  }));
+</script>

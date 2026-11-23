@@ -1,0 +1,13 @@
+---
+import Base from "../layouts/Base.astro";
+import { href } from "../lib/site";
+---
+<Base title="Not found" description="This page does not exist." noindex>
+  <div class="wrap" style="padding-top:64px">
+    <div class="empty">
+      <strong>Nothing on the radar here (404)</strong>
+      <p>The page you asked for does not exist. If you followed a link promising a free download, that is a good reason to be suspicious.</p>
+      <p><a class="btn primary" href={href("")}>Go home</a> <a class="btn" href={href("check/")}>Check a link</a></p>
+    </div>
+  </div>
+</Base>

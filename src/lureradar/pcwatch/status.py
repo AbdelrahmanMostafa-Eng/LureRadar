@@ -204,5 +204,12 @@ def honest_sentence(state: PcWatchState) -> str:
     if state.status is Status.NOT_ANNOUNCED:
         return f"No official PC release of {state.subject} has been announced as of {stamp}."
     if state.status is Status.UNKNOWN:
-        return f"PC status for {state.subject} is unknown right now. {state.note}".strip()
+        detail = state.note.removeprefix("UNKNOWN ").strip("() ")
+        last = detail.split(" · ", 1)[0] if detail.startswith("last confirmed") else ""
+        suffix = (
+            f" Official sources could not be checked recently ({last})."
+            if last
+            else (" Official sources could not be checked recently.")
+        )
+        return f"PC status for {state.subject} is unknown right now.{suffix}"
     return f"{state.headline} (official sources, confirmed as of {stamp})."

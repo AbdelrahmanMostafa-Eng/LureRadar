@@ -1,0 +1,141 @@
+---
+import Base from "../layouts/Base.astro";
+import Radar from "../components/Radar.astro";
+import TierBadge from "../components/TierBadge.astro";
+import { abs, href, latest, stats, pcwatch, meta, defang, fmtUtc, REPO_URL } from "../lib/site";
+
+const recent = [...latest.indicators].sort((a, b) => b.first_seen.localeCompare(a.first_seen)).slice(0, 5);
+const new24 = stats.new_24h ?? 0;
+const shareText = new24
+  ? `Today: ${new24} new fake GTA 6 download site${new24 === 1 ? "" : "s"} caught by LureRadar${meta.demo ? " (demo data)" : ""}.`
+  : "LureRadar: free blocklists and an offline checker for fake GTA 6 downloads and launch scams.";
+const pcStatus = String(pcwatch.status ?? "UNKNOWN");
+const jsonld = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "LureRadar",
+  applicationCategory: "SecurityApplication",
+  operatingSystem: "Linux, macOS, Windows",
+  description: "Open threat radar for hyped-launch scams: fake downloads, key-gen traps and phishing, starting with GTA 6. Free blocklists, offline CLI, explainable scores.",
+  url: abs(""),
+  codeRepository: REPO_URL,
+  license: "https://opensource.org/licenses/MIT",
+  softwareVersion: meta.version,
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+};
+---
+<Base title="LureRadar: GTA 6 scam & fake download blocklist" description="Is that GTA 6 PC download real? LureRadar detects fake GTA 6 downloads, key-gen traps and phishing lures. Free GTA 6 blocklist for Pi-hole, AdGuard and uBlock Origin, plus an offline checker." og="stats" jsonld={jsonld}>
+  <div class="wrap hero">
+    <div class="hero-copy">
+      <span class="eyebrow">Open threat radar for hyped-launch scams</span>
+      <h1>See the lure <span class="accent">before you bite.</span></h1>
+      <p class="lead">
+        LureRadar spots <strong>fake GTA 6 PC downloads</strong>, key-generator traps and phishing lures around big releases,
+        explains every verdict, and turns them into a free <strong>GTA 6 scam blocklist</strong> for Pi-hole, AdGuard and uBlock Origin.
+      </p>
+      <form class="check-form" id="home-check" action={href("check/")} method="get" role="search">
+        <label for="home-q" class="visually-hidden">Link, domain or message to check</label>
+        <div class="field-row">
+          <input id="home-q" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a link, domain or message" />
+          <button class="btn primary" type="submit">Check it</button>
+        </div>
+        <p class="hint muted">Runs in your browser. Nothing you type is sent anywhere.</p>
+      </form>
+      <div class="cta-row">
+        <a class="btn" href={href("feeds/")}>Get the blocklists</a>
+        <a class="btn" href={href("pc-watch/")}>Is GTA 6 coming to PC?</a>
+      </div>
+    </div>
+    <Radar />
+  </div>
+
+  <section class="wrap" aria-labelledby="stats-h">
+    <h2 id="stats-h" class="visually-hidden">Live statistics</h2>
+    <div class="grid grid-4">
+      <div class="card stat"><div class="value" style="color:var(--danger)">{new24}</div><div class="label">new lure sites in 24 h</div></div>
+      <div class="card stat"><div class="value">{stats.active_listed ?? 0}</div><div class="label">active indicators (LIKELY+) in the blocklists</div></div>
+      <div class="card stat"><div class="value" style="color:var(--amber)">{stats.suspicious ?? 0}</div><div class="label">suspicious, on watch (not blocked)</div></div>
+      <div class="card stat"><div class="value mono" style="font-size:1.15rem;padding-top:.6rem">{fmtUtc(stats.generated_at)}</div><div class="label">feed generated</div></div>
+    </div>
+    <div class="share-row">
+      {meta.demo && <span class="pill demo">Demo data: synthetic fixtures, reserved .test domains</span>}
+      <button type="button" class="btn small" id="share" data-text={shareText} data-url={abs("")}>Share these stats</button>
+    </div>
+  </section>
+
+  <section class="wrap grid grid-2" aria-label="Latest detections and PC Watch">
+    <div class="card">
+      <div class="card-head"><h2>Latest detections</h2><a href={href("radar/")}>Open the radar</a></div>
+      {recent.length ? (
+        <ul class="recent">
+          {recent.map((i) => (
+            <li><TierBadge tier={i.tier} /> <span class="mono">{defang(i.domain)}</span> <span class="muted mono">{i.score}/100</span></li>
+          ))}
+        </ul>
+      ) : (
+        <div class="empty"><strong>No active detections</strong>The radar is quiet. New indicators appear after each daily run.</div>
+      )}
+    </div>
+    <div class="card pc-mini">
+      <div class="card-head"><h2>PC Watch</h2><a href={href("pc-watch/")}>Details</a></div>
+      <p class="pc-status mono" data-status={pcStatus}>{pcStatus.replaceAll("_", " ")}</p>
+      <p>{pcStatus === "UNKNOWN"
+        ? `No recent automated check yet. Maintainer-confirmed status: ${String(pcwatch.confirmed_status ?? "unknown").replaceAll("_", " ").toLowerCase()} (as of ${pcwatch.confirmed_as_of ?? "?"}).`
+        : (pcwatch.answer ?? "Official sources only.")}</p>
+      <p class="muted small">Official sources only. A status change always needs a maintainer to confirm it.</p>
+    </div>
+  </section>
+
+  <section class="wrap" aria-labelledby="how-h">
+    <h2 id="how-h">How it works</h2>
+    <div class="grid grid-3">
+      <div class="card"><h3>1 · Watch</h3><p class="muted">Certificate Transparency, public phishing feeds and community reports surface new launch-themed domains every day.</p></div>
+      <div class="card"><h3>2 · Explain</h3><p class="muted">Named signals with fixed weights (fake PC version, brand impersonation, new domain, lure page patterns). No black box, no AI scoring.</p></div>
+      <div class="card"><h3>3 · Block</h3><p class="muted">LIKELY+ indicators become signed, CC0 blocklists for Pi-hole, AdGuard, uBlock Origin, hosts, RPZ and STIX.</p></div>
+    </div>
+    <div class="copy-cta card">
+      <p class="mono"><span style="color:var(--radar)">$</span> uvx lureradar check "hxxps://rockstar-gta6-pc-download[.]test/free-key"</p>
+      <p class="muted">Offline by default. Exit codes 0/10/20/30 make it script-friendly.</p>
+    </div>
+  </section>
+</Base>
+<style>
+  .hero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; align-items: center; padding-top: 48px; }
+  @media (max-width: 900px) { .hero { grid-template-columns: 1fr; } .hero :global(.radar) { max-width: 360px; margin: 0 auto; } }
+  .accent { color: var(--radar); }
+  .lead { font-size: 1.15rem; color: var(--muted); max-width: 40em; }
+  .lead strong { color: var(--text); font-weight: 600; }
+  .check-form { margin: 24px 0 16px; }
+  .hint { font-size: 0.88rem; margin: 8px 0 0; }
+  .cta-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .share-row { display: flex; gap: 12px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+  .card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .card-head h2 { margin: 0 0 12px; font-size: 1.2rem; }
+  .recent { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .recent li { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .pc-status { font-size: 1.4rem; font-weight: 700; margin: 0 0 6px; color: var(--amber); }
+  .pc-status[data-status="NOT_ANNOUNCED"] { color: var(--radar); }
+  .pc-status[data-status="UNKNOWN"] { color: var(--muted); }
+  .small { font-size: 0.85rem; }
+  .copy-cta { margin-top: 16px; }
+  .copy-cta p { margin: 0; overflow-wrap: anywhere; }
+  .copy-cta p + p { margin-top: 6px; }
+</style>
+<script>
+  const form = document.getElementById("home-check") as HTMLFormElement | null;
+  form?.addEventListener("submit", (ev) => {
+    // keep the query in the URL fragment: fragments are never sent to the server
+    ev.preventDefault();
+    const q = (document.getElementById("home-q") as HTMLInputElement).value.trim();
+    location.href = `${form.action}#q=${encodeURIComponent(q)}`;
+  });
+  const share = document.getElementById("share") as HTMLButtonElement | null;
+  share?.addEventListener("click", async () => {
+    const text = share.dataset.text ?? "";
+    const url = share.dataset.url ?? location.href;
+    if (navigator.share) {
+      try { await navigator.share({ title: "LureRadar", text, url }); return; } catch { /* cancelled */ }
+    }
+    window.open(`https://x.com/intent/post?text=${encodeURIComponent(`${text} ${url}`)}`, "_blank", "noopener");
+  });
+</script>

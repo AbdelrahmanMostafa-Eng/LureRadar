@@ -1,0 +1,88 @@
+---
+import Base from "../layouts/Base.astro";
+import { href, signalsDoc, methodology as m, REPO_URL } from "../lib/site";
+import { renderDoc } from "../lib/docs";
+
+const signalsMd = renderDoc("SIGNALS.md");
+const pct = (x: unknown) => (typeof x === "number" ? `${(x * 100).toFixed(x === 0 || x === 1 ? 0 : 1)}%` : "n/a");
+const headline = m
+  ? [
+      ["FPR on real benign domains (LIKELY+)", pct(m.benign_fpr_likely), `${m.corpus?.benign_real_domains ?? "?"} domains`],
+      ["Same, with allowlists disabled", pct(m.benign_fpr_likely_without_allowlists), "intrinsic precision"],
+      ["FPR on keyword-bearing hard negatives (LIKELY+)", pct(m.hard_negative_fpr_likely), `${m.corpus?.benign_hard_negatives ?? "?"} names`],
+      ["Text analyzer recall at LIKELY+", pct(m.text?.likely?.recall), `precision ${pct(m.text?.likely?.precision)}`],
+    ]
+  : [];
+const patterns = m?.patterns ? Object.entries(m.patterns as Record<string, any>) : [];
+const hist = m?.calibration ? (m.calibration as any) : null;
+const maxCount = hist ? Math.max(1, ...Object.values({ ...hist.benign_histogram, ...hist.lure_histogram }).map(Number)) : 1;
+---
+<Base title="Methodology: how LureRadar scores lures" description="Every LureRadar score is a sum of named, weighted signals with evidence. Frozen weights, reproducible benchmark (make bench), false-positive rate on real benign domains and honest blind spots." og="methodology">
+  <div class="wrap" style="padding-top:40px">
+    <span class="eyebrow">Methodology</span>
+    <h1>How a lure gets scored</h1>
+    <p class="muted">Scores are the sum of named signals (clamped to 0-100). Tiers: CLEAR &lt; 40 ≤ SUSPICIOUS &lt; 70 ≤ LIKELY &lt; 90 ≤ CONFIRMED. Keywords alone never score, allowlisted outlets are always CLEAR, and blocklists only contain LIKELY+. No machine-learning model and no LLM in the scoring path.</p>
+
+    <h2>Benchmark</h2>
+    {m ? (
+      <>
+        <div class="grid grid-4">{headline.map(([k, v, s]) => <div class="card stat"><div class="value">{v}</div><div class="label">{k}<br /><span class="muted">{s}</span></div></div>)}</div>
+        <p class="muted small">Reproduce: <code>make bench</code> (seed {m.generated_with?.seed ?? "?"}, clock {String(m.generated_with?.now ?? "").slice(0, 10)}). Synthetic lures are written by the same people who wrote the rules, so recall on them is optimistic; read the <a href={href("docs/benchmarks/")}>full report and blind spots</a>.</p>
+        {patterns.length > 0 && (
+          <div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable table">
+            <table>
+              <thead><tr><th scope="col">Pattern</th><th scope="col">Label</th><th scope="col">n</th><th scope="col">SUSPICIOUS+</th><th scope="col">LIKELY+</th><th scope="col">Example</th></tr></thead>
+              <tbody>{patterns.map(([name, p]) => <tr><td class="mono">{name}</td><td>{p.label}</td><td class="mono">{p.n}</td><td class="mono">{pct(p.suspicious_plus)}</td><td class="mono">{pct(p.likely_plus)}</td><td class="mono muted ex">{p.example}</td></tr>)}</tbody>
+            </table>
+          </div>
+        )}
+        {hist && (
+          <>
+            <h3>Score distribution (offline, allowlists off)</h3>
+            <div class="hist" role="img" aria-label="Histogram of offline scores for benign and lure samples">
+              {Object.keys(hist.benign_histogram).map((b) => (
+                <div class="bucket">
+                  <div class="bars">
+                    <span class="b benign" style={`height:${(Number(hist.benign_histogram[b]) / maxCount) * 100}%`} title={`benign ${hist.benign_histogram[b]}`}></span>
+                    <span class="b lure" style={`height:${(Number(hist.lure_histogram[b] ?? 0) / maxCount) * 100}%`} title={`lure ${hist.lure_histogram[b] ?? 0}`}></span>
+                  </div>
+                  <span class="mono lbl">{b}</span>
+                </div>
+              ))}
+            </div>
+            <p class="muted small"><span class="key benign"></span> benign · <span class="key lure"></span> synthetic lures · highest benign score without allowlists: {hist.max_benign_score_without_allowlists}; margin to the LIKELY threshold: {hist.likely_threshold_margin} points.</p>
+          </>
+        )}
+      </>
+    ) : (
+      <div class="empty"><strong>No benchmark results in this build</strong>Run <code>make bench</code> to produce <code>bench/results/latest.json</code>; the numbers appear here on the next site build.</div>
+    )}
+
+    <h2>Signals</h2>
+    {signalsMd ? (
+      <div class="prose" set:html={signalsMd.html} />
+    ) : signalsDoc.length ? (
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable table">
+        <table>
+          <thead><tr><th scope="col">Signal</th><th scope="col">Weight</th><th scope="col">What it means</th></tr></thead>
+          <tbody>{signalsDoc.map((s) => <tr><td><span class="mono">{s.id}</span><br /><span class="muted">{s.title}</span></td><td class="mono">{s.weight}</td><td>{s.description}</td></tr>)}</tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="empty"><strong>Signal documentation unavailable</strong>See the repository.</div>
+    )}
+    <p class="muted">Weights live in <a href={`${REPO_URL}/blob/main/src/lureradar/scoring/weights.py`}>scoring/weights.py</a>; changing one requires re-running the benchmark in the same PR.</p>
+  </div>
+</Base>
+<style>
+  .small { font-size: 0.88rem; }
+  .ex { font-size: 0.8rem; overflow-wrap: anywhere; max-width: 260px; }
+  .hist { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; height: 180px; align-items: end; margin-top: 12px; }
+  .bucket { display: grid; grid-template-rows: 1fr auto; height: 100%; gap: 4px; }
+  .bars { display: flex; gap: 3px; align-items: end; height: 100%; }
+  .b { flex: 1; border-radius: 4px 4px 0 0; min-height: 2px; }
+  .benign { background: var(--radar); }
+  .lure { background: var(--danger); }
+  .lbl { font-size: 0.7rem; color: var(--muted); text-align: center; }
+  .key { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; }
+</style>

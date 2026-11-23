@@ -1,0 +1,91 @@
+---
+import Base from "../layouts/Base.astro";
+import CopyBlock from "../components/CopyBlock.astro";
+import DemoNotice from "../components/DemoNotice.astro";
+import { abs, href, stats, fmtUtc, REPO_URL } from "../lib/site";
+
+const u = (f: string) => abs(`feeds/${f}`);
+const count = stats.active_listed ?? stats.count ?? 0;
+const files = [
+  ["hosts.txt", "hosts file (0.0.0.0 domain)", "Pi-hole, /etc/hosts, routers"],
+  ["domains.txt", "one domain per line", "Pi-hole, AdGuard Home, NextDNS, scripts"],
+  ["adguard.txt", "Adblock syntax (||domain^)", "AdGuard, uBlock Origin"],
+  ["rpz.zone", "DNS Response Policy Zone", "Unbound, BIND, Knot, PowerDNS"],
+  ["stix.json", "STIX 2.1 bundle", "TIPs, SIEMs, MISP / OpenCTI"],
+  ["indicators.csv", "CSV with # metadata line", "spreadsheets, SIEM lookups"],
+  ["latest.json", "LureRadar JSON (canonical)", "everything is derived from this"],
+  ["all.json", "same, incl. SUSPICIOUS", "dashboards and research (not for blocking)"],
+  ["stats.json", "counts and trends", "dashboards, badges"],
+  ["pc-watch.atom", "Atom 1.0 feed", "RSS readers (PC Watch)"],
+];
+const ubo = `https://subscribe.adblockplus.org/?location=${encodeURIComponent(u("adguard.txt"))}&title=${encodeURIComponent("LureRadar launch lures")}`;
+const unbound = `server:
+    module-config: "respip validator iterator"
+
+rpz:
+    name: rpz.lureradar.invalid.
+    url: ${u("rpz.zone")}
+    rpz-action-override: nxdomain
+    rpz-log: yes
+    rpz-log-name: lureradar`;
+const hostsCmd = `curl -fsSLo lureradar-hosts.txt ${u("hosts.txt")}
+less lureradar-hosts.txt   # review before merging
+sudo sh -c 'cat lureradar-hosts.txt >> /etc/hosts'`;
+const verify = `curl -fsSLO ${u("latest.json")} -O ${u("latest.json.minisig")}
+minisign -Vm latest.json -p lureradar-feed.pub
+# or: lureradar feed verify ./feeds --pubkey keys/lureradar-feed.pub --require-signature`;
+---
+<Base title="Free GTA 6 scam blocklists (Pi-hole, AdGuard, uBlock)" description="Block fake GTA 6 download and launch-scam sites in 60 seconds. Free, signed, CC0 blocklists for Pi-hole, AdGuard, uBlock Origin, hosts files, Unbound RPZ and STIX 2.1." og="feeds">
+  <div class="wrap" style="padding-top:40px">
+    <span class="eyebrow">Blocklists</span>
+    <h1>Protect yourself in 60 seconds</h1>
+    <p class="muted">Free, CC0, refreshed daily. Default lists contain <strong>LIKELY</strong> and <strong>CONFIRMED</strong> indicators only. Every file carries <code>generated_at</code>, <code>schema_version</code> and <code>count</code>.</p>
+    <div class="card fresh">
+      <div><span class="mono value">{count}</span> <span class="muted">indicators in the blocklists</span></div>
+      <div class="muted">Generated <time datetime={stats.generated_at ?? ""}>{fmtUtc(stats.generated_at)}</time> · daily run on GitHub Actions (best-effort schedule, so always check <code>generated_at</code>)</div>
+      <DemoNotice />
+    </div>
+
+    <h2>Pi-hole</h2>
+    <p>Settings → Lists (Adlists) → add this address, then <strong>Update Gravity</strong> (or run <code>pihole -g</code>).</p>
+    <CopyBlock text={u("hosts.txt")} label="Copy Pi-hole list URL" />
+
+    <h2>AdGuard Home and AdGuard apps</h2>
+    <p>AdGuard Home: Filters → DNS blocklists → Add blocklist → Add a custom list. AdGuard apps: Filters → Custom → Add filter.</p>
+    <CopyBlock text={u("adguard.txt")} label="Copy AdGuard list URL" />
+
+    <h2>uBlock Origin</h2>
+    <p>Dashboard → Filter lists → <em>Import</em> (bottom of the page) → paste the URL → Apply changes. Or use the <a href={ubo} rel="nofollow">one-click subscribe link</a> (uBlock Origin and AdGuard extensions recognise it).</p>
+    <CopyBlock text={u("adguard.txt")} label="Copy uBlock Origin list URL" />
+
+    <h2>Unbound (RPZ)</h2>
+    <p>Add to <code>unbound.conf</code> and reload. Names resolve to NXDOMAIN, including subdomains.</p>
+    <CopyBlock text={unbound} label="Copy Unbound RPZ config" />
+
+    <h2>hosts file</h2>
+    <p>Download, review, then merge. Never pipe a download straight into a shell.</p>
+    <CopyBlock text={hostsCmd} label="Copy hosts commands" />
+
+    <h2>All formats</h2>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable table">
+      <table>
+        <thead><tr><th scope="col">File</th><th scope="col">Format</th><th scope="col">Use it for</th></tr></thead>
+        <tbody>
+          {files.map(([f, fmt, use]) => <tr><td class="mono"><a href={href(`feeds/${f}`)}>{f}</a></td><td>{fmt}</td><td class="muted">{use}</td></tr>)}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Verify what you download</h2>
+    <p>Files are signed with minisign (Ed25519) once the maintainers publish the key, and listed in <a href={href("feeds/SHA256SUMS")}><code>SHA256SUMS</code></a>. See <a href={href("docs/feeds/")}>Feeds documentation</a> and <a href={`${REPO_URL}/tree/main/keys`}>keys/</a>.</p>
+    <CopyBlock text={verify} label="Copy verification commands" />
+
+    <h2>Disputes</h2>
+    <p class="muted">Every entry links to a false-positive review form. Confirmed false positives are removed on the next pipeline run (one-line allowlist PR). Indicators expire after 30 days without a new sighting.</p>
+  </div>
+</Base>
+<style>
+  .fresh { display: grid; gap: 8px; margin: 20px 0 8px; }
+  .fresh .value { font-size: 1.8rem; font-weight: 700; color: var(--radar); }
+  h2 { margin-top: 1.8em; }
+</style>

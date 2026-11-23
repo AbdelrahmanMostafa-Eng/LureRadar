@@ -1,0 +1,22 @@
+---
+import Base from "../../layouts/Base.astro";
+import { href, REPO_URL } from "../../lib/site";
+import { listDocs, renderDoc } from "../../lib/docs";
+
+export function getStaticPaths() {
+  return listDocs().filter((d) => d.slug !== "index").map((d) => ({ params: { slug: d.slug }, props: { file: d.file } }));
+}
+const { file } = Astro.props as { file: string };
+const doc = renderDoc(file)!;
+const plain = doc.html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+const description = plain.slice(0, 155) + (plain.length > 155 ? "…" : "");
+---
+<Base title={doc.title} description={description || `LureRadar documentation: ${doc.title}`} og="default">
+  <div class="wrap" style="padding-top:40px">
+    <p class="crumbs"><a href={href("docs/")}>Docs</a> / <span class="mono">{file}</span></p>
+    <h1>{doc.title}</h1>
+    <article class="prose" set:html={doc.html} />
+    <p class="muted" style="margin-top:2em"><a href={`${REPO_URL}/blob/main/docs/${file}`}>View or edit on GitHub</a></p>
+  </div>
+</Base>
+<style>.crumbs { color: var(--muted); font-size: 0.9rem; }</style>

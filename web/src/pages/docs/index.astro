@@ -1,0 +1,25 @@
+---
+import Base from "../../layouts/Base.astro";
+import { href, REPO_URL } from "../../lib/site";
+import { listDocs } from "../../lib/docs";
+const docs = listDocs().filter((d) => d.slug !== "index");
+const order = ["quickstart", "how-it-works", "signals", "feeds", "pc-watch", "packs", "schema", "sources", "benchmarks", "threat-model", "privacy", "ethics-and-abuse", "decisions"];
+docs.sort((a, b) => (order.indexOf(a.slug) + 100 * Number(order.indexOf(a.slug) < 0)) - (order.indexOf(b.slug) + 100 * Number(order.indexOf(b.slug) < 0)) || a.title.localeCompare(b.title));
+---
+<Base title="Documentation" description="LureRadar documentation: quickstart, how it works, signals, feeds, PC Watch, campaign packs, JSON schema, data sources, benchmarks, threat model and privacy." og="default">
+  <div class="wrap" style="padding-top:40px">
+    <span class="eyebrow">Docs</span>
+    <h1>Documentation</h1>
+    <p class="muted">Rendered from the repository's <a href={`${REPO_URL}/tree/main/docs`}>docs/</a> folder at build time.</p>
+    {docs.length ? (
+      <div class="grid grid-3">
+        {docs.map((d) => <a class="card doc" href={href(`docs/${d.slug}/`)}><span class="mono muted">{d.file}</span><strong>{d.title}</strong></a>)}
+      </div>
+    ) : <div class="empty"><strong>No documents found</strong>Docs live in the repository's docs/ folder.</div>}
+  </div>
+</Base>
+<style>
+  .doc { display: grid; gap: 6px; text-decoration: none; color: var(--text); }
+  .doc:hover { border-color: var(--radar); }
+  .doc .mono { font-size: 0.8rem; }
+</style>

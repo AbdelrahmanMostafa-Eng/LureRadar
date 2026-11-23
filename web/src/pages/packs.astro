@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import PageHeader from "../components/PageHeader.astro";
 import CopyBlock from "../components/CopyBlock.astro";
 import { packs, REPO_URL, href } from "../lib/site";
 
@@ -26,12 +27,12 @@ facts:
     pc: {status: unreleased, fact: pc_release, terms: [pc, windows, steam]}`;
 ---
 <Base title="Campaign packs: add a launch in 20 lines" description="LureRadar campaign packs describe one hyped launch in YAML: keywords, intents, brands, allowlist and dated facts. GTA 6 ships first; add your own launch in about 20 lines." og="packs">
-  <div class="wrap" style="padding-top:40px">
-    <span class="eyebrow">Campaign packs</span>
-    <h1>One engine, many launches</h1>
-    <p class="muted">LureRadar is a generic launch-lure engine. Everything campaign-specific lives in a pack: keywords, lure intents, brands that scammers impersonate (names only, never logos), legitimate outlets, and dated, sourced facts that drive rules such as “there is no PC version yet”.</p>
+  <PageHeader eyebrow="Campaign packs" index="PCK" title="One engine," em="many launches.">
+    <p>LureRadar is a generic launch-lure engine. Everything campaign-specific lives in a pack: keywords, lure intents, brands that scammers impersonate (names only, never logos), legitimate outlets, and dated, sourced facts that drive rules such as “there is no PC version yet”.</p>
+  </PageHeader>
+  <div class="wrap">
     {packs.length ? packs.map((p) => (
-      <article class="card pack">
+      <article class="card pack" data-reveal>
         <h2>{p.name} <span class="pill">{p.id} · v{p.version} · as of {p.as_of}</span></h2>
         <p class="muted">{p.description}</p>
         <div class="grid grid-2">

@@ -81,11 +81,16 @@ export function polar(domain: string): { angle: number; r: number } {
 export const NAV = [
   { path: "", label: "Home" },
   { path: "radar/", label: "Radar" },
-  { path: "check/", label: "Check" },
-  { path: "feeds/", label: "Feeds" },
+  { path: "check/", label: "Check a link" },
+  { path: "feeds/", label: "Blocklists" },
   { path: "pc-watch/", label: "PC Watch" },
   { path: "methodology/", label: "Methodology" },
   { path: "packs/", label: "Packs" },
+  { path: "docs/", label: "Docs" },
   { path: "report/", label: "Report" },
   { path: "about/", label: "About" },
 ];
+/** The few destinations shown in the desktop header; the rest live in the menu and footer. */
+export const PRIMARY_NAV = ["radar/", "feeds/", "pc-watch/", "methodology/", "docs/"].map(
+  (path) => NAV.find((n) => n.path === path)!,
+);

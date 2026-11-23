@@ -268,3 +268,21 @@ Because the Vercel build pulls feeds from the rolling releases, the data
 workflows request a rebuild through an optional deploy hook
 (`vercel-redeploy.yml`, secret `VERCEL_DEPLOY_HOOK_URL`) rather than giving
 Vercel any write access to the repository.
+
+## ADR-023: Editorial "instrument" visual design for the site
+
+The site moved from a generic dark dashboard (neon accent, equal card grids) to
+an editorial design: Instrument Serif for display type, Geist and Geist Mono for
+UI and data, a warm ink/paper palette with the brand's phosphor green used
+sparingly, and the radar redrawn as a working instrument (range = score, rings
+on the 90/70/40 tier thresholds, bearing = stable hash of the domain). Fonts
+stay self-hosted (`@fontsource`), so the site still makes no third-party
+requests. Motion rules: entrance animations are CSS-only and finish without
+JavaScript; scroll reveals are hidden only when JavaScript is present to reveal
+them; continuously running animations use transform/opacity on HTML elements so
+they run on the compositor (the radar contacts moved out of SVG for this, which
+roughly halved main-thread rendering work and lifted the home page's Lighthouse
+performance score from 94 to 97-98 on the throttled profile); `prefers-reduced-motion` disables all of it; page changes use
+cross-document view transitions where the browser supports them. The audit
+(`web/scripts/audit.mjs`) waits for finite animations before running axe so
+contrast is measured on the settled page.

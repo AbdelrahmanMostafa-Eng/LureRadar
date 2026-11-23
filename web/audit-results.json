@@ -1,6 +1,6 @@
 {
-  "base": "http://127.0.0.1:4321/LureRadar/",
-  "generated_at": "2026-11-23T11:02:38.542Z",
+  "base": "http://127.0.0.1:4321/",
+  "generated_at": "2026-11-23T16:21:00.128Z",
   "axe": {
     "dark:/": [],
     "dark:radar/": [],
@@ -38,7 +38,7 @@
   "third_party": {},
   "lighthouse": {
     "/": {
-      "performance": 100,
+      "performance": 97,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100
@@ -56,7 +56,7 @@
       "seo": 100
     },
     "pc-watch/": {
-      "performance": 100,
+      "performance": 97,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100

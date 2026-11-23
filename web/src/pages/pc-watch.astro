@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import CopyBlock from "../components/CopyBlock.astro";
+import PageHeader from "../components/PageHeader.astro";
 import { abs, href, pcwatch, packs, fmtUtc, REPO_URL } from "../lib/site";
 
 const status = String(pcwatch.status ?? "UNKNOWN");
@@ -31,32 +32,36 @@ const jsonld = {
 };
 ---
 <Base title="Is GTA 6 coming to PC? PC Watch" description="Is GTA 6 coming to PC? Dated answer from official sources only (Rockstar, Take-Two, official stores), checked every few hours. GTA 6 PC release date tracker and why any 'GTA 6 PC download' is a lure." og="pc-watch" jsonld={jsonld}>
-  <div class="wrap" style="padding-top:40px">
-    <span class="eyebrow">PC Watch</span>
-    <h1>Is GTA 6 coming to PC?</h1>
-    <div class={`banner card ${tone}`} role="status">
-      <p class="status mono">{status.replaceAll("_", " ")}</p>
-      <p class="answer">{status === "UNKNOWN"
-        ? "Status unknown right now: official sources have not been checked successfully in the last 36 hours, so we will not repeat an old answer."
-        : (pcwatch.answer ?? "No status available yet.")}</p>
-      {pcwatch.note && status !== "UNKNOWN" && <p class="note">{pcwatch.note}</p>}
+  <PageHeader eyebrow="PC Watch · official sources only" index="PCW" title="Is GTA 6 coming" em="to PC?">
+    <p>A dated answer from official sources only (Rockstar, Take-Two, official stores), checked every few hours. Rumours, leaks and press articles never change the status.</p>
+  </PageHeader>
+  <div class="wrap">
+    <div class={`banner ${tone}`} role="status" data-reveal>
+      <div class="banner-main">
+        <p class="label-caps">Current status</p>
+        <p class="status"><span class="sdot" aria-hidden="true"></span>{status.replaceAll("_", " ").toLowerCase()}</p>
+        <p class="answer">{status === "UNKNOWN"
+          ? "Status unknown right now: official sources have not been checked successfully in the last 36 hours, so we will not repeat an old answer."
+          : (pcwatch.answer ?? "No status available yet.")}</p>
+        {pcwatch.note && status !== "UNKNOWN" && <p class="note">{pcwatch.note}</p>}
+        {pcwatch.review_pending && <p class="note">Official-source evidence of a change is awaiting maintainer review.</p>}
+      </div>
       <dl>
         <div><dt>Last checked</dt><dd class="mono">{fmtUtc(pcwatch.last_checked)}</dd></div>
         <div><dt>Last successful check</dt><dd class="mono">{fmtUtc(pcwatch.last_success)}</dd></div>
         <div><dt>Last status change</dt><dd class="mono">{fmtUtc(pcwatch.last_changed)}</dd></div>
-        <div><dt>Maintainer-confirmed status</dt><dd class="mono">{confirmed.replaceAll("_", " ")}{pcwatch.confirmed_as_of && ` (facts.yaml, as of ${pcwatch.confirmed_as_of})`}</dd></div>
+        <div><dt>Maintainer-confirmed</dt><dd class="mono">{confirmed.replaceAll("_", " ")}{pcwatch.confirmed_as_of && ` · as of ${pcwatch.confirmed_as_of}`}</dd></div>
       </dl>
-      {pcwatch.review_pending && <p class="note">Official-source evidence of a change is awaiting maintainer review.</p>}
     </div>
     {fact && (
-      <p class="muted">Fact on record: “{fact.claim}” Sources: {fact.sources.map((s: any, i: number) => <>{i ? ", " : ""}<a href={s.url}>{s.publisher ?? s.title}</a></>)}. Wording stays true if things change: we say what is announced <em>as of a date</em>, never what “will never” happen.</p>
+      <p class="fact" data-reveal><span class="label-caps">Fact on record</span> “{fact.claim}” Sources: {fact.sources.map((s: any, i: number) => <>{i ? ", " : ""}<a href={s.url}>{s.publisher ?? s.title}</a></>)}. Wording stays true if things change: we say what is announced <em>as of a date</em>, never what “will never” happen.</p>
     )}
 
     <h2>Evidence timeline</h2>
     {timeline.length ? (
       <ol class="timeline">
         {timeline.map((e) => (
-          <li>
+          <li data-reveal>
             <time class="mono" datetime={e.date}>{e.date}</time>
             <div>
               <p class="t-title"><a href={e.url}>{e.title}</a> <span class="muted">· {e.source}</span></p>
@@ -90,35 +95,54 @@ const jsonld = {
     <p><a href={href("feeds/pc-watch.json")}>pc-watch.json</a> · <a href={href("feeds/shields-pc-watch.json")}>badge JSON</a></p>
 
     <h2>FAQ</h2>
-    {faq.map((f) => <details class="faq card"><summary>{f.q}</summary><p>{f.a}</p></details>)}
+    <div class="faqs">{faq.map((f) => <details class="faq"><summary>{f.q}<span class="chev" aria-hidden="true"></span></summary><div class="faq-a"><p>{f.a}</p></div></details>)}</div>
     <p class="disclaimer-note muted">{pcwatch.disclaimer ?? "LureRadar is an independent, unofficial project, not affiliated with Rockstar Games or Take-Two Interactive."}</p>
-    <p><a class="btn primary" href={href("check/")}>Check a “GTA 6 PC” link</a> <a class="btn" href={href("feeds/")}>Block fake download sites</a></p>
+    <p class="cta-row"><a class="btn primary" href={href("check/")}>Check a “GTA 6 PC” link <span class="arr" aria-hidden="true">→</span></a> <a class="btn" href={href("feeds/")}>Block fake download sites</a></p>
   </div>
 </Base>
 <style>
-  .banner { margin: 18px 0; border-width: 2px; }
-  .banner.ok { border-color: var(--radar); }
-  .banner.unknown { border-color: var(--border-strong); }
-  .banner.changed { border-color: var(--amber); }
-  .status { font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 700; margin: 0 0 8px; letter-spacing: -0.02em; }
-  .ok .status { color: var(--radar); }
-  .unknown .status { color: var(--muted); }
-  .changed .status { color: var(--amber); }
-  .answer { font-size: 1.15rem; }
-  .note { color: var(--amber); }
-  dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0 0; }
-  dt { color: var(--muted); font-size: 0.82rem; }
-  dd { margin: 2px 0 0; }
-  .timeline { list-style: none; padding: 0; display: grid; gap: 18px; }
-  .timeline li { display: grid; grid-template-columns: 110px 1fr; gap: 16px; border-left: 2px solid var(--border-strong); padding-left: 16px; }
-  .timeline p { margin: 0 0 4px; }
-  .t-title { font-weight: 600; }
-  .small { font-size: 0.85rem; }
+  .banner { --tone: var(--muted); display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); padding: clamp(24px, 3.4vw, 40px); border: 1px solid var(--border); border-radius: 20px; background: radial-gradient(ellipse 80% 120% at 0% 0%, color-mix(in srgb, var(--tone) 10%, transparent), transparent 60%), var(--surface); }
+  .banner.ok { --tone: var(--radar); }
+  .banner.changed { --tone: var(--amber); }
+  .banner-main p { margin: 0; }
+  .status { display: flex; align-items: center; gap: 18px; margin: 14px 0 18px !important; font: 400 clamp(3rem, 7vw, 5.6rem)/0.95 var(--font-display); letter-spacing: -0.02em; color: var(--tone); text-transform: capitalize; }
+  .sdot { position: relative; width: 14px; height: 14px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .sdot::after { content: ""; position: absolute; inset: -8px; border-radius: 50%; border: 1px solid currentColor; animation: lr-pulse 2.6s var(--ease-out) infinite; }
+  .answer { font-size: 1.12rem; color: var(--text-2); max-width: 44ch; }
+  .note { color: var(--amber); margin-top: 12px !important; }
+  .banner dl { margin: 0; display: grid; gap: 0; align-content: center; border-top: 1px solid var(--border); }
+  .banner dl > div { padding: 13px 0; border-bottom: 1px solid var(--border); }
+  dt { color: var(--muted); font: 500 0.66rem/1.4 var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; }
+  dd { margin: 4px 0 0; font-size: 0.88rem; color: var(--text); }
+  @media (max-width: 860px) { .banner { grid-template-columns: minmax(0, 1fr); } }
+  .fact { margin-top: 22px; color: var(--muted); max-width: 80ch; }
+  .fact .label-caps { margin-right: 10px; }
+  .timeline { list-style: none; padding: 0; margin: 0; position: relative; }
+  .timeline::before { content: ""; position: absolute; left: 132px; top: 8px; bottom: 8px; width: 1px; background: var(--border-strong); }
+  .timeline li { position: relative; display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 32px; padding: 0 0 30px; }
+  .timeline li::before { content: ""; position: absolute; left: 128px; top: 7px; width: 9px; height: 9px; border-radius: 50%; background: var(--bg); border: 1.5px solid var(--radar); }
+  .timeline time { color: var(--muted); font-size: 0.82rem; padding-top: 2px; }
+  .timeline p { margin: 0 0 6px; color: var(--text-2); }
+  .t-title { font-weight: 600; color: var(--text) !important; }
+  @media (max-width: 640px) {
+    .timeline::before { left: 4px; }
+    .timeline li { grid-template-columns: minmax(0, 1fr); gap: 4px; padding-left: 26px; }
+    .timeline li::before { left: 0; }
+  }
   .res-ok { color: var(--radar); }
   .res-failed { color: var(--danger); }
   .res-unsupported { color: var(--muted); }
-  .faq { margin: 10px 0; }
-  .faq summary { cursor: pointer; font-weight: 600; }
-  .faq p { margin: 10px 0 0; }
-  @media (max-width: 640px) { .timeline li { grid-template-columns: 1fr; } }
+  .faqs { border-top: 1px solid var(--border); }
+  .faq { border-bottom: 1px solid var(--border); }
+  .faq summary { display: flex; justify-content: space-between; align-items: center; gap: 16px; cursor: pointer; list-style: none; padding: 22px 0; font: 400 clamp(1.3rem, 2vw, 1.6rem)/1.25 var(--font-display); }
+  .faq summary::-webkit-details-marker { display: none; }
+  .chev { position: relative; width: 14px; height: 14px; flex-shrink: 0; }
+  .chev::before, .chev::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1.5px; background: currentColor; transition: transform 0.45s var(--ease-out); }
+  .chev::after { transform: rotate(90deg); }
+  .faq[open] .chev::after { transform: rotate(0deg); }
+  .faq-a { color: var(--text-2); max-width: 70ch; padding-bottom: 22px; }
+  .faq[open] .faq-a { animation: lr-rise 0.5s var(--ease-out) both; }
+  .faq-a p { margin: 0; }
+  .disclaimer-note { margin-top: 28px; font-size: 0.85rem; }
+  .cta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
 </style>

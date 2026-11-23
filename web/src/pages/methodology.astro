@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import PageHeader from "../components/PageHeader.astro";
 import { href, signalsDoc, methodology as m, REPO_URL } from "../lib/site";
 import { renderDoc } from "../lib/docs";
 
@@ -18,15 +19,21 @@ const hist = m?.calibration ? (m.calibration as any) : null;
 const maxCount = hist ? Math.max(1, ...Object.values({ ...hist.benign_histogram, ...hist.lure_histogram }).map(Number)) : 1;
 ---
 <Base title="Methodology: how LureRadar scores lures" description="Every LureRadar score is a sum of named, weighted signals with evidence. Frozen weights, reproducible benchmark (make bench), false-positive rate on real benign domains and honest blind spots." og="methodology">
-  <div class="wrap" style="padding-top:40px">
-    <span class="eyebrow">Methodology</span>
-    <h1>How a lure gets scored</h1>
-    <p class="muted">Scores are the sum of named signals (clamped to 0-100). Tiers: CLEAR &lt; 40 ≤ SUSPICIOUS &lt; 70 ≤ LIKELY &lt; 90 ≤ CONFIRMED. Keywords alone never score, allowlisted outlets are always CLEAR, and blocklists only contain LIKELY+. No machine-learning model and no LLM in the scoring path.</p>
+  <PageHeader eyebrow="Methodology" index="MTH" title="How a lure" em="gets scored.">
+    <p>Scores are the sum of named signals (clamped to 0–100). Keywords alone never score, allowlisted outlets are always CLEAR, and blocklists only contain LIKELY+. No machine-learning model and no LLM in the scoring path.</p>
+  </PageHeader>
+  <div class="wrap">
+    <ol class="scale" aria-label="Tier thresholds" data-reveal>
+      <li style="--c:var(--radar)"><span class="r mono">0–39</span><span class="t">Clear</span><span class="muted small">not flagged</span></li>
+      <li style="--c:var(--amber)"><span class="r mono">40–69</span><span class="t">Suspicious</span><span class="muted small">on watch, never blocked</span></li>
+      <li style="--c:var(--danger)"><span class="r mono">70–89</span><span class="t">Likely</span><span class="muted small">in the blocklists</span></li>
+      <li style="--c:var(--danger)"><span class="r mono">90–100</span><span class="t">Confirmed</span><span class="muted small">or corroborated</span></li>
+    </ol>
 
     <h2>Benchmark</h2>
     {m ? (
       <>
-        <div class="grid grid-4">{headline.map(([k, v, s]) => <div class="card stat"><div class="value">{v}</div><div class="label">{k}<br /><span class="muted">{s}</span></div></div>)}</div>
+        <div class="readout bench" data-reveal>{headline.map(([k, v, s]) => <div><div class="value">{v}</div><div class="label">{k}<br /><span class="muted">{s}</span></div></div>)}</div>
         <p class="muted small">Reproduce: <code>make bench</code> (seed {m.generated_with?.seed ?? "?"}, clock {String(m.generated_with?.now ?? "").slice(0, 10)}). Synthetic lures are written by the same people who wrote the rules, so recall on them is optimistic; read the <a href={href("docs/benchmarks/")}>full report and blind spots</a>.</p>
         {patterns.length > 0 && (
           <div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable table">
@@ -75,7 +82,16 @@ const maxCount = hist ? Math.max(1, ...Object.values({ ...hist.benign_histogram,
   </div>
 </Base>
 <style>
-  .small { font-size: 0.88rem; }
+  .small { font-size: 0.86rem; }
+  .scale { list-style: none; margin: 0 0 8px; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+  .scale li { position: relative; display: grid; gap: 4px; padding: 20px 20px 18px; border-left: 1px solid var(--border); }
+  .scale li:first-child { border-left: 0; }
+  .scale li::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--c); }
+  .scale .r { font-size: 0.78rem; color: var(--muted); }
+  .scale .t { font: 400 1.7rem/1.1 var(--font-display); color: var(--c); }
+  @media (max-width: 760px) { .scale { grid-template-columns: 1fr 1fr; } .scale li:nth-child(3) { border-left: 0; } .scale li:nth-child(n+3) { border-top: 1px solid var(--border); } }
+  .bench .value { font-size: clamp(2rem, 3.6vw, 3rem); }
+  .bench .label { color: var(--text-2); font-size: 0.86rem; margin-top: 12px; line-height: 1.5; }
   .ex { font-size: 0.8rem; overflow-wrap: anywhere; max-width: 260px; }
   .hist { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; height: 180px; align-items: end; margin-top: 12px; }
   .bucket { display: grid; grid-template-rows: 1fr auto; height: 100%; gap: 4px; }

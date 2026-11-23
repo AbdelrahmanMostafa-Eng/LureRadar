@@ -24,18 +24,23 @@ const shots = [
   ["radar.png", "radar/"],
   ["pc-watch.png", "pc-watch/"],
 ];
+// The film grain (body::after) is a live-browser texture; it defeats PNG/GIF
+// compression and is invisible at README sizes, so captures leave it out.
+const NO_GRAIN = "body::after { display: none !important; }";
 for (const [name, path] of shots) {
   await page.goto(BASE + path, { waitUntil: "networkidle" });
+  await page.addStyleTag({ content: NO_GRAIN });
   await page.screenshot({ path: join(out, name) });
 }
 await page.goto(BASE + "check/", { waitUntil: "networkidle" });
-await page.waitForFunction(() => document.getElementById("status")?.textContent?.includes("loaded"));
+await page.addStyleTag({ content: NO_GRAIN });
+await page.waitForFunction(() => document.getElementById("status")?.hasAttribute("data-ready"));
 await page.fill("#q", "hxxps://rockstar-gta6-pc-download[.]test/free-key");
 await page.click("button[type=submit]");
 await page.waitForSelector(".verdict");
 await page.evaluate(() => {
   document.getElementById("check-form")?.scrollIntoView({ block: "start" });
-  window.scrollBy(0, -84);
+  window.scrollBy(0, -110);
 });
 await page.screenshot({ path: join(out, "check.png") });
 await ctx.close();
@@ -46,13 +51,14 @@ mkdirSync(frames, { recursive: true });
 const actx = await browser.newContext({ viewport: { width: 1280, height: 860 }, deviceScaleFactor: 1, colorScheme: "dark" });
 const ap = await actx.newPage();
 await ap.goto(BASE, { waitUntil: "networkidle" });
-const fig = ap.locator("figure.radar");
+await ap.addStyleTag({ content: NO_GRAIN });
+const fig = ap.locator("figure.radar .scope");
 await ap.evaluate(() => {
   const anims = document.getAnimations();
   // @ts-ignore stash start times
   window.__lr = anims.map((a) => { a.pause(); return [a, a.currentTime ?? 0]; });
 });
-const FPS = 12, SECONDS = 6;
+const FPS = 12, SECONDS = 7; // one full sweep (Radar.astro PERIOD)
 for (let i = 0; i < FPS * SECONDS; i++) {
   await ap.evaluate((t) => {
     // @ts-ignore

@@ -1,0 +1,16 @@
+---
+// Editorial header shared by inner pages: index + eyebrow, serif title with
+// optional italic emphasis, lede and an optional meta row (slot "meta").
+interface Props { eyebrow: string; title: string; em?: string; index?: string; crumbs?: { label: string; href: string } }
+const { eyebrow, title, em, index, crumbs } = Astro.props;
+const hasMeta = Astro.slots.has("meta");
+---
+<header class="page-head wrap">
+  {crumbs && <p class="crumbs intro"><a href={crumbs.href}>{crumbs.label}</a> <span aria-hidden="true">/</span> {eyebrow}</p>}
+  {!crumbs && <p class="eyebrow intro">{index && <span class="idx">{index}</span>}{eyebrow}</p>}
+  <h1 class="lines">
+    <span class="line"><span>{title}{em && " "}{em && <em>{em}</em>}</span></span>
+  </h1>
+  <div class="lede intro" style="--i:2"><slot /></div>
+  {hasMeta && <div class="head-meta intro" style="--i:3"><slot name="meta" /></div>}
+</header>

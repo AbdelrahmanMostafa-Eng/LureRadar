@@ -1,74 +1,103 @@
-/* LureRadar design tokens. Mirrors src/lureradar/theme.py (terminal card,
-   report images) and the palette in assets/*.svg. Dark is the default. */
+/* LureRadar design tokens.
+   Dark ("ink") is the default; light ("paper") follows the OS or the toggle.
+   The hues match src/lureradar/theme.py and assets/*.svg (phosphor green,
+   amber, red); the web tones are softened for long reading. Every text pair
+   below is >= 4.5:1 against --bg and --surface (checked with axe). */
 :root {
-  --bg: #07090d;
-  --surface: #0d1117;
-  --surface-2: #111821;
-  --border: #1b232c;
-  --border-strong: #2a3541;
-  --text: #e6edf3;
-  --muted: #8b98a5;
-  --radar: #3cffb0;
-  --amber: #ffb020;
-  --danger: #ff4d5e;
-  --info: #4cc2ff;
-  --on-accent: #07090d;
-  --radar-soft: rgb(60 255 176 / 0.12);
-  --amber-soft: rgb(255 176 32 / 0.12);
-  --danger-soft: rgb(255 77 94 / 0.12);
-  --info-soft: rgb(76 194 255 / 0.12);
-  --focus: #4cc2ff;
-  --shadow: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 12px 32px rgb(0 0 0 / 0.35);
-  --font-ui: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --radius: 12px;
-  --radius-sm: 8px;
-  --max: 1160px;
+  --bg: #0a0b0a;
+  --bg-2: #0d0f0d;
+  --surface: #111311;
+  --surface-2: #171a17;
+  --border: #222622;
+  --border-strong: #343a34;
+  --text: #edece6;
+  --text-2: #c4c3bb;
+  --muted: #929189;
+  --radar: #5ae6a6;
+  --amber: #f0b44c;
+  --danger: #ff6b5f;
+  --info: #9dbdff;
+  --on-accent: #0a0b0a;
+  --paper: #edece6;
+  --radar-soft: rgb(90 230 166 / 0.1);
+  --amber-soft: rgb(240 180 76 / 0.1);
+  --danger-soft: rgb(255 107 95 / 0.1);
+  --info-soft: rgb(157 189 255 / 0.1);
+  --focus: #9dbdff;
+  --scrim: rgb(5 6 5 / 0.72);
+  --shadow: 0 1px 0 rgb(255 255 255 / 0.035) inset, 0 24px 48px -24px rgb(0 0 0 / 0.6);
+  --shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 40px 80px -32px rgb(0 0 0 / 0.75);
+  --grain-opacity: 0.045;
+
+  --font-display: "Instrument Serif", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-ui: "Geist Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --radius: 14px;
+  --radius-sm: 9px;
+  --max: 1240px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --header-h: 68px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur: 0.7s;
   color-scheme: dark;
 }
 
-/* Light theme: every text/background pair is >= 4.5:1 (checked with axe). */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --bg: #f7f9fb;
-    --surface: #ffffff;
-    --surface-2: #eef2f6;
-    --border: #d5dde5;
-    --border-strong: #b8c3cf;
-    --text: #0d1117;
-    --muted: #4a5562;
-    --radar: #00805a;
-    --amber: #8f5300;
-    --danger: #c4162a;
-    --info: #0a6eb0;
-    --on-accent: #ffffff;
-    --radar-soft: rgb(0 128 90 / 0.1);
-    --amber-soft: rgb(143 83 0 / 0.08);
-    --danger-soft: rgb(196 22 42 / 0.08);
-    --info-soft: rgb(10 110 176 / 0.08);
-    --focus: #0a6eb0;
-    --shadow: 0 1px 2px rgb(13 17 23 / 0.06), 0 8px 24px rgb(13 17 23 / 0.06);
+    --bg: #f3f1ea;
+    --bg-2: #efede5;
+    --surface: #fbfaf6;
+    --surface-2: #e9e6dc;
+    --border: #dcd8cb;
+    --border-strong: #c2bdae;
+    --text: #141513;
+    --text-2: #33342f;
+    --muted: #5d5d55;
+    --radar: #0a7550;
+    --amber: #865000;
+    --danger: #b3261e;
+    --info: #1f4fae;
+    --on-accent: #fbfaf6;
+    --paper: #141513;
+    --radar-soft: rgb(10 117 80 / 0.09);
+    --amber-soft: rgb(134 80 0 / 0.08);
+    --danger-soft: rgb(179 38 30 / 0.07);
+    --info-soft: rgb(31 79 174 / 0.07);
+    --focus: #1f4fae;
+    --scrim: rgb(20 21 19 / 0.4);
+    --shadow: 0 1px 2px rgb(20 21 19 / 0.05), 0 18px 40px -24px rgb(20 21 19 / 0.18);
+    --shadow-lg: 0 1px 2px rgb(20 21 19 / 0.06), 0 32px 64px -28px rgb(20 21 19 / 0.28);
+    --grain-opacity: 0.06;
     color-scheme: light;
   }
 }
 :root[data-theme="light"] {
-  --bg: #f7f9fb;
-  --surface: #ffffff;
-  --surface-2: #eef2f6;
-  --border: #d5dde5;
-  --border-strong: #b8c3cf;
-  --text: #0d1117;
-  --muted: #4a5562;
-  --radar: #00805a;
-  --amber: #8f5300;
-  --danger: #c4162a;
-  --info: #0a6eb0;
-  --on-accent: #ffffff;
-  --radar-soft: rgb(0 128 90 / 0.1);
-  --amber-soft: rgb(143 83 0 / 0.08);
-  --danger-soft: rgb(196 22 42 / 0.08);
-  --info-soft: rgb(10 110 176 / 0.08);
-  --focus: #0a6eb0;
-  --shadow: 0 1px 2px rgb(13 17 23 / 0.06), 0 8px 24px rgb(13 17 23 / 0.06);
+  --bg: #f3f1ea;
+  --bg-2: #efede5;
+  --surface: #fbfaf6;
+  --surface-2: #e9e6dc;
+  --border: #dcd8cb;
+  --border-strong: #c2bdae;
+  --text: #141513;
+  --text-2: #33342f;
+  --muted: #5d5d55;
+  --radar: #0a7550;
+  --amber: #865000;
+  --danger: #b3261e;
+  --info: #1f4fae;
+  --on-accent: #fbfaf6;
+  --paper: #141513;
+  --radar-soft: rgb(10 117 80 / 0.09);
+  --amber-soft: rgb(134 80 0 / 0.08);
+  --danger-soft: rgb(179 38 30 / 0.07);
+  --info-soft: rgb(31 79 174 / 0.07);
+  --focus: #1f4fae;
+  --scrim: rgb(20 21 19 / 0.4);
+  --shadow: 0 1px 2px rgb(20 21 19 / 0.05), 0 18px 40px -24px rgb(20 21 19 / 0.18);
+  --shadow-lg: 0 1px 2px rgb(20 21 19 / 0.06), 0 32px 64px -28px rgb(20 21 19 / 0.28);
+  --grain-opacity: 0.06;
   color-scheme: light;
 }

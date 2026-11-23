@@ -62,3 +62,6 @@ export function renderDoc(file: string): { html: string; title: string } | null 
     .replace(/<\/table>/g, "</table></div>");
   return { html, title };
 }
+
+/** Reading order for the docs index and sidebar; unknown docs sort after these, by title. */
+export const DOC_ORDER = ["quickstart", "how-it-works", "signals", "feeds", "pc-watch", "packs", "schema", "sources", "benchmarks", "threat-model", "privacy", "ethics-and-abuse", "deploy", "decisions"];

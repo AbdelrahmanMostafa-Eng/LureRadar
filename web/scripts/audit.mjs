@@ -38,6 +38,11 @@ for (const scheme of ["dark", "light"]) {
       await page.click("button[type=submit]");
       await page.waitForSelector(".verdict");
     }
+    // Let entrance animations finish (finite ones only; the radar sweep loops
+    // forever) so contrast is measured on the settled page, not mid-fade.
+    await page.evaluate(() => Promise.all(document.getAnimations()
+      .filter((a) => a.effect?.getComputedTiming().iterations !== Infinity)
+      .map((a) => a.finished.catch(() => null))));
     await page.addScriptTag({ content: axeSource });
     const res = await page.evaluate(async () =>
       // @ts-ignore injected

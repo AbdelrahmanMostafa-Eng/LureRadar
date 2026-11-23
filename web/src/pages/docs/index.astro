@@ -1,25 +1,41 @@
 ---
 import Base from "../../layouts/Base.astro";
+import PageHeader from "../../components/PageHeader.astro";
 import { href, REPO_URL } from "../../lib/site";
-import { listDocs } from "../../lib/docs";
+import { listDocs, DOC_ORDER } from "../../lib/docs";
 const docs = listDocs().filter((d) => d.slug !== "index");
-const order = ["quickstart", "how-it-works", "signals", "feeds", "pc-watch", "packs", "schema", "sources", "benchmarks", "threat-model", "privacy", "ethics-and-abuse", "decisions"];
-docs.sort((a, b) => (order.indexOf(a.slug) + 100 * Number(order.indexOf(a.slug) < 0)) - (order.indexOf(b.slug) + 100 * Number(order.indexOf(b.slug) < 0)) || a.title.localeCompare(b.title));
+const rank = (slug: string) => (DOC_ORDER.indexOf(slug) < 0 ? 100 : DOC_ORDER.indexOf(slug));
+docs.sort((a, b) => rank(a.slug) - rank(b.slug) || a.title.localeCompare(b.title));
 ---
 <Base title="Documentation" description="LureRadar documentation: quickstart, how it works, signals, feeds, PC Watch, campaign packs, JSON schema, data sources, benchmarks, threat model and privacy." og="default">
-  <div class="wrap" style="padding-top:40px">
-    <span class="eyebrow">Docs</span>
-    <h1>Documentation</h1>
-    <p class="muted">Rendered from the repository's <a href={`${REPO_URL}/tree/main/docs`}>docs/</a> folder at build time.</p>
+  <PageHeader eyebrow="Documentation" index="DOC" title="Read the" em="manual.">
+    <p>Rendered from the repository's <a href={`${REPO_URL}/tree/main/docs`}>docs/</a> folder at build time. Start with the quickstart; the threat model and decisions log explain the why.</p>
+  </PageHeader>
+  <div class="wrap">
     {docs.length ? (
-      <div class="grid grid-3">
-        {docs.map((d) => <a class="card doc" href={href(`docs/${d.slug}/`)}><span class="mono muted">{d.file}</span><strong>{d.title}</strong></a>)}
-      </div>
+      <ol class="doclist">
+        {docs.map((d, i) => (
+          <li data-reveal style={`--i:${i % 6}`}>
+            <a href={href(`docs/${d.slug}/`)}>
+              <span class="n mono">{String(i + 1).padStart(2, "0")}</span>
+              <span class="t">{d.title}</span>
+              <span class="f mono">{d.file}</span>
+              <span class="arr" aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))}
+      </ol>
     ) : <div class="empty"><strong>No documents found</strong>Docs live in the repository's docs/ folder.</div>}
   </div>
 </Base>
 <style>
-  .doc { display: grid; gap: 6px; text-decoration: none; color: var(--text); }
-  .doc:hover { border-color: var(--radar); }
-  .doc .mono { font-size: 0.8rem; }
+  .doclist { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
+  .doclist a { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto 28px; gap: 18px; align-items: baseline; padding: 22px 6px; border-bottom: 1px solid var(--border); color: var(--text); text-decoration: none; transition: background-color 0.25s, padding-left 0.5s var(--ease-out); }
+  .doclist a:hover { background: var(--surface); padding-left: 16px; }
+  .n { color: var(--muted); font-size: 0.78rem; }
+  .t { font: 400 clamp(1.5rem, 2.4vw, 2rem)/1.15 var(--font-display); }
+  .f { color: var(--muted); font-size: 0.78rem; }
+  .arr { color: var(--muted); transition: transform 0.45s var(--ease-out), color 0.25s; }
+  .doclist a:hover .arr { transform: translateX(4px); color: var(--radar); }
+  @media (max-width: 640px) { .doclist a { grid-template-columns: 40px minmax(0, 1fr) 20px; } .f { display: none; } }
 </style>

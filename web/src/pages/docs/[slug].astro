@@ -1,7 +1,8 @@
 ---
 import Base from "../../layouts/Base.astro";
+import PageHeader from "../../components/PageHeader.astro";
 import { href, REPO_URL } from "../../lib/site";
-import { listDocs, renderDoc } from "../../lib/docs";
+import { listDocs, renderDoc, DOC_ORDER } from "../../lib/docs";
 
 export function getStaticPaths() {
   return listDocs().filter((d) => d.slug !== "index").map((d) => ({ params: { slug: d.slug }, props: { file: d.file } }));
@@ -10,13 +11,31 @@ const { file } = Astro.props as { file: string };
 const doc = renderDoc(file)!;
 const plain = doc.html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 const description = plain.slice(0, 155) + (plain.length > 155 ? "…" : "");
+const rank = (slug: string) => (DOC_ORDER.indexOf(slug) < 0 ? 100 : DOC_ORDER.indexOf(slug));
+const all = listDocs().filter((d) => d.slug !== "index").sort((a, b) => rank(a.slug) - rank(b.slug) || a.title.localeCompare(b.title));
+const here = Astro.url.pathname;
 ---
 <Base title={doc.title} description={description || `LureRadar documentation: ${doc.title}`} og="default">
-  <div class="wrap" style="padding-top:40px">
-    <p class="crumbs"><a href={href("docs/")}>Docs</a> / <span class="mono">{file}</span></p>
-    <h1>{doc.title}</h1>
+  <PageHeader eyebrow={file} title={doc.title} crumbs={{ label: "Docs", href: href("docs/") }}>
+    <p class="muted small">Rendered from <a href={`${REPO_URL}/blob/main/docs/${file}`}>docs/{file}</a> · <a href={`${REPO_URL}/edit/main/docs/${file}`}>suggest an edit</a></p>
+  </PageHeader>
+  <div class="wrap doc-layout">
+    <nav class="doc-nav" aria-label="Documentation">
+      <p class="label-caps">Documentation</p>
+      <ul>
+        {all.map((d) => <li><a href={href(`docs/${d.slug}/`)} aria-current={here.endsWith(`/docs/${d.slug}/`) ? "page" : undefined}>{d.title}</a></li>)}
+      </ul>
+    </nav>
     <article class="prose" set:html={doc.html} />
-    <p class="muted" style="margin-top:2em"><a href={`${REPO_URL}/blob/main/docs/${file}`}>View or edit on GitHub</a></p>
   </div>
 </Base>
-<style>.crumbs { color: var(--muted); font-size: 0.9rem; }</style>
+<style>
+  .doc-layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: clamp(28px, 5vw, 80px); align-items: start; }
+  .doc-nav { position: sticky; top: calc(var(--header-h) + 32px); max-height: calc(100vh - var(--header-h) - 64px); overflow-y: auto; }
+  .doc-nav ul { list-style: none; margin: 14px 0 0; padding: 0; border-left: 1px solid var(--border); }
+  .doc-nav a { display: block; padding: 6px 0 6px 16px; margin-left: -1px; border-left: 1px solid transparent; color: var(--muted); text-decoration: none; font-size: 0.88rem; line-height: 1.4; transition: color 0.2s, border-color 0.2s; }
+  .doc-nav a:hover { color: var(--text); }
+  .doc-nav a[aria-current="page"] { color: var(--text); border-left-color: var(--radar); }
+  .prose > :global(:first-child) { margin-top: 0; }
+  @media (max-width: 900px) { .doc-layout { grid-template-columns: minmax(0, 1fr); } .doc-nav { display: none; } }
+</style>

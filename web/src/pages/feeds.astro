@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import CopyBlock from "../components/CopyBlock.astro";
 import DemoNotice from "../components/DemoNotice.astro";
+import PageHeader from "../components/PageHeader.astro";
 import { abs, href, stats, fmtUtc, REPO_URL } from "../lib/site";
 
 const u = (f: string) => abs(`feeds/${f}`);
@@ -34,58 +35,86 @@ sudo sh -c 'cat lureradar-hosts.txt >> /etc/hosts'`;
 const verify = `curl -fsSLO ${u("latest.json")} -O ${u("latest.json.minisig")}
 minisign -Vm latest.json -p lureradar-feed.pub
 # or: lureradar feed verify ./feeds --pubkey keys/lureradar-feed.pub --require-signature`;
+const toc = [["pihole", "Pi-hole"], ["adguard", "AdGuard"], ["ubo", "uBlock Origin"], ["unbound", "Unbound (RPZ)"], ["hosts", "hosts file"], ["formats", "All formats"], ["verify", "Verify"], ["disputes", "Disputes"]];
 ---
 <Base title="Free GTA 6 scam blocklists (Pi-hole, AdGuard, uBlock)" description="Block fake GTA 6 download and launch-scam sites in 60 seconds. Free, signed, CC0 blocklists for Pi-hole, AdGuard, uBlock Origin, hosts files, Unbound RPZ and STIX 2.1." og="feeds">
-  <div class="wrap" style="padding-top:40px">
-    <span class="eyebrow">Blocklists</span>
-    <h1>Protect yourself in 60 seconds</h1>
-    <p class="muted">Free, CC0, refreshed daily. Default lists contain <strong>LIKELY</strong> and <strong>CONFIRMED</strong> indicators only. Every file carries <code>generated_at</code>, <code>schema_version</code> and <code>count</code>.</p>
-    <div class="card fresh">
-      <div><span class="mono value">{count}</span> <span class="muted">indicators in the blocklists</span></div>
-      <div class="muted">Generated <time datetime={stats.generated_at ?? ""}>{fmtUtc(stats.generated_at)}</time> · daily run on GitHub Actions (best-effort schedule, so always check <code>generated_at</code>)</div>
+  <PageHeader eyebrow="Blocklists" index="BLK" title="Protect yourself" em="in 60 seconds.">
+    <p>Free, CC0, refreshed daily. Default lists contain <strong>LIKELY</strong> and <strong>CONFIRMED</strong> indicators only. Every file carries <code>generated_at</code>, <code>schema_version</code> and <code>count</code>.</p>
+    <Fragment slot="meta">
+      <span class="meta-count"><span class="mono" data-count={count}>{count}</span> indicators in the blocklists</span>
+      <span class="label-caps">Generated <time datetime={stats.generated_at ?? ""}>{fmtUtc(stats.generated_at)}</time></span>
       <DemoNotice />
+    </Fragment>
+  </PageHeader>
+  <div class="wrap feeds-layout">
+    <nav class="toc" aria-label="On this page">
+      <p class="label-caps">On this page</p>
+      <ol>
+        {toc.map(([id, label], i) => <li><a href={`#${id}`}><span class="mono">{String(i + 1).padStart(2, "0")}</span>{label}</a></li>)}
+      </ol>
+    </nav>
+    <div class="feeds-body">
+      <section id="pihole" class="recipe" data-reveal>
+        <h2><span class="k mono">01</span>Pi-hole</h2>
+        <p>Settings → Lists (Adlists) → add this address, then <strong>Update Gravity</strong> (or run <code>pihole -g</code>).</p>
+        <CopyBlock text={u("hosts.txt")} label="Copy Pi-hole list URL" />
+      </section>
+      <section id="adguard" class="recipe" data-reveal>
+        <h2><span class="k mono">02</span>AdGuard Home and AdGuard apps</h2>
+        <p>AdGuard Home: Filters → DNS blocklists → Add blocklist → Add a custom list. AdGuard apps: Filters → Custom → Add filter.</p>
+        <CopyBlock text={u("adguard.txt")} label="Copy AdGuard list URL" />
+      </section>
+      <section id="ubo" class="recipe" data-reveal>
+        <h2><span class="k mono">03</span>uBlock Origin</h2>
+        <p>Dashboard → Filter lists → <em>Import</em> (bottom of the page) → paste the URL → Apply changes. Or use the <a href={ubo} rel="nofollow">one-click subscribe link</a> (uBlock Origin and AdGuard extensions recognise it).</p>
+        <CopyBlock text={u("adguard.txt")} label="Copy uBlock Origin list URL" />
+      </section>
+      <section id="unbound" class="recipe" data-reveal>
+        <h2><span class="k mono">04</span>Unbound (RPZ)</h2>
+        <p>Add to <code>unbound.conf</code> and reload. Names resolve to NXDOMAIN, including subdomains.</p>
+        <CopyBlock text={unbound} label="Copy Unbound RPZ config" />
+      </section>
+      <section id="hosts" class="recipe" data-reveal>
+        <h2><span class="k mono">05</span>hosts file</h2>
+        <p>Download, review, then merge. Never pipe a download straight into a shell.</p>
+        <CopyBlock text={hostsCmd} label="Copy hosts commands" />
+      </section>
+      <section id="formats" class="recipe" data-reveal>
+        <h2><span class="k mono">06</span>All formats</h2>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable table">
+          <table>
+            <thead><tr><th scope="col">File</th><th scope="col">Format</th><th scope="col">Use it for</th></tr></thead>
+            <tbody>
+              {files.map(([f, fmt, use]) => <tr><td class="mono"><a href={href(`feeds/${f}`)}>{f}</a></td><td>{fmt}</td><td class="muted">{use}</td></tr>)}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section id="verify" class="recipe" data-reveal>
+        <h2><span class="k mono">07</span>Verify what you download</h2>
+        <p>Files are signed with minisign (Ed25519) once the maintainers publish the key, and listed in <a href={href("feeds/SHA256SUMS")}><code>SHA256SUMS</code></a>. See the <a href={href("docs/feeds/")}>feeds documentation</a> and <a href={`${REPO_URL}/tree/main/keys`}>keys/</a>.</p>
+        <CopyBlock text={verify} label="Copy verification commands" />
+      </section>
+      <section id="disputes" class="recipe" data-reveal>
+        <h2><span class="k mono">08</span>Disputes</h2>
+        <p class="muted">Every entry links to a false-positive review form. Confirmed false positives are removed on the next pipeline run (one-line allowlist PR). Indicators expire after 30 days without a new sighting.</p>
+      </section>
     </div>
-
-    <h2>Pi-hole</h2>
-    <p>Settings → Lists (Adlists) → add this address, then <strong>Update Gravity</strong> (or run <code>pihole -g</code>).</p>
-    <CopyBlock text={u("hosts.txt")} label="Copy Pi-hole list URL" />
-
-    <h2>AdGuard Home and AdGuard apps</h2>
-    <p>AdGuard Home: Filters → DNS blocklists → Add blocklist → Add a custom list. AdGuard apps: Filters → Custom → Add filter.</p>
-    <CopyBlock text={u("adguard.txt")} label="Copy AdGuard list URL" />
-
-    <h2>uBlock Origin</h2>
-    <p>Dashboard → Filter lists → <em>Import</em> (bottom of the page) → paste the URL → Apply changes. Or use the <a href={ubo} rel="nofollow">one-click subscribe link</a> (uBlock Origin and AdGuard extensions recognise it).</p>
-    <CopyBlock text={u("adguard.txt")} label="Copy uBlock Origin list URL" />
-
-    <h2>Unbound (RPZ)</h2>
-    <p>Add to <code>unbound.conf</code> and reload. Names resolve to NXDOMAIN, including subdomains.</p>
-    <CopyBlock text={unbound} label="Copy Unbound RPZ config" />
-
-    <h2>hosts file</h2>
-    <p>Download, review, then merge. Never pipe a download straight into a shell.</p>
-    <CopyBlock text={hostsCmd} label="Copy hosts commands" />
-
-    <h2>All formats</h2>
-    <div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable table">
-      <table>
-        <thead><tr><th scope="col">File</th><th scope="col">Format</th><th scope="col">Use it for</th></tr></thead>
-        <tbody>
-          {files.map(([f, fmt, use]) => <tr><td class="mono"><a href={href(`feeds/${f}`)}>{f}</a></td><td>{fmt}</td><td class="muted">{use}</td></tr>)}
-        </tbody>
-      </table>
-    </div>
-
-    <h2>Verify what you download</h2>
-    <p>Files are signed with minisign (Ed25519) once the maintainers publish the key, and listed in <a href={href("feeds/SHA256SUMS")}><code>SHA256SUMS</code></a>. See <a href={href("docs/feeds/")}>Feeds documentation</a> and <a href={`${REPO_URL}/tree/main/keys`}>keys/</a>.</p>
-    <CopyBlock text={verify} label="Copy verification commands" />
-
-    <h2>Disputes</h2>
-    <p class="muted">Every entry links to a false-positive review form. Confirmed false positives are removed on the next pipeline run (one-line allowlist PR). Indicators expire after 30 days without a new sighting.</p>
   </div>
 </Base>
 <style>
-  .fresh { display: grid; gap: 8px; margin: 20px 0 8px; }
-  .fresh .value { font-size: 1.8rem; font-weight: 700; color: var(--radar); }
-  h2 { margin-top: 1.8em; }
+  .meta-count { display: inline-flex; align-items: baseline; gap: 10px; color: var(--muted); }
+  .meta-count .mono { font-size: 1.6rem; color: var(--radar); letter-spacing: -0.03em; }
+  .feeds-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: clamp(28px, 5vw, 80px); align-items: start; }
+  .toc { position: sticky; top: calc(var(--header-h) + 32px); }
+  .toc ol { list-style: none; margin: 14px 0 0; padding: 0; border-left: 1px solid var(--border); }
+  .toc a { display: flex; gap: 12px; padding: 7px 0 7px 16px; margin-left: -1px; border-left: 1px solid transparent; color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s, border-color 0.2s; }
+  .toc a:hover { color: var(--text); border-left-color: var(--radar); }
+  .toc .mono { font-size: 0.72rem; padding-top: 3px; }
+  .recipe { margin-top: 0; padding: 0 0 44px; margin-bottom: 44px; border-bottom: 1px solid var(--border); }
+  .recipe:last-child { border-bottom: 0; }
+  .recipe h2 { display: flex; align-items: baseline; gap: 16px; margin: 0 0 14px; font-size: clamp(1.7rem, 2.6vw, 2.2rem); }
+  .recipe .k { font-size: 0.75rem; color: var(--radar); letter-spacing: 0.1em; }
+  .recipe > p { color: var(--text-2); max-width: 62ch; }
+  @media (max-width: 860px) { .feeds-layout { grid-template-columns: minmax(0, 1fr); } .toc { position: static; } .toc ol { display: flex; flex-wrap: wrap; gap: 4px 10px; border: 0; } .toc a { padding: 4px 0; border: 0; } }
 </style>

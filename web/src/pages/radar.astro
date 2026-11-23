@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import TierBadge from "../components/TierBadge.astro";
+import PageHeader from "../components/PageHeader.astro";
 import DemoNotice from "../components/DemoNotice.astro";
 import { all, defang, fmtUtc, fmtDate, safeJson, signed, weightClass, issueUrl } from "../lib/site";
 
@@ -23,11 +24,11 @@ const detail = rows.map((r) => ({
 }));
 ---
 <Base title="Radar: latest launch-lure detections" description="Latest fake GTA 6 download, key-generator and phishing domains detected by LureRadar, with the exact signals and evidence behind every score. All indicators defanged." og="radar">
-  <div class="wrap" style="padding-top:40px">
-    <span class="eyebrow">Radar</span>
-    <h1>Latest detections</h1>
-    <p class="muted">Every indicator with the signals that scored it. Blocklists include LIKELY and CONFIRMED only; SUSPICIOUS stays on watch. Domains are defanged (<code>[.]</code>) so nothing here is clickable.</p>
-    <DemoNotice />
+  <PageHeader eyebrow="Radar" index="RDR" title="Latest" em="detections.">
+    <p>Every indicator with the signals that scored it. Blocklists include LIKELY and CONFIRMED only; SUSPICIOUS stays on watch. Domains are defanged (<code>[.]</code>) so nothing here is clickable.</p>
+    <Fragment slot="meta"><DemoNotice /></Fragment>
+  </PageHeader>
+  <div class="wrap">
     <div class="toolbar" role="toolbar" aria-label="Filter detections">
       <div class="filters" role="group" aria-label="Tier">
         {(["all", "confirmed", "likely", "suspicious"] as const).map((t, i) => (
@@ -36,8 +37,11 @@ const detail = rows.map((r) => ({
           </button>
         ))}
       </div>
-      <label class="visually-hidden" for="search">Search detections</label>
-      <input id="search" type="search" placeholder="Search domain, source or signal" autocomplete="off" />
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>
+        <label class="visually-hidden" for="search">Search detections</label>
+        <input id="search" type="search" placeholder="Search domain, source or signal" autocomplete="off" />
+      </div>
     </div>
     {rows.length ? (
       <div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable table">
@@ -52,7 +56,7 @@ const detail = rows.map((r) => ({
                 <td class="mono">{r.score}</td>
                 <td><div class="sigs">{r.signals.filter((s) => s.weight > 0).slice(0, 3).map((s) => <span class="mono"><span class={weightClass(s.weight)}>{signed(s.weight)}</span> {s.id}</span>)}</div></td>
                 <td class="mono">{fmtDate(r.first_seen)}</td>
-                <td><button type="button" class="btn small open" data-idx={idx} aria-haspopup="dialog">Details<span class="visually-hidden"> for {defang(r.domain)}</span></button></td>
+                <td><button type="button" class="btn small open" data-idx={idx} aria-haspopup="dialog">Details<span class="visually-hidden"> for {defang(r.domain)}</span> <span class="arr" aria-hidden="true">→</span></button></td>
               </tr>
             ))}
           </tbody>
@@ -63,29 +67,34 @@ const detail = rows.map((r) => ({
     )}
     <p id="no-match" class="empty" hidden><strong>No matches</strong>Try another search or tier.</p>
   </div>
-  <dialog id="drawer" aria-labelledby="d-title">
-    <form method="dialog" class="d-close"><button class="btn small" aria-label="Close details">Close</button></form>
+  <dialog id="drawer" class="drawer" aria-labelledby="d-title">
+    <form method="dialog" class="d-close"><button class="icon-btn" aria-label="Close details"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg></button></form>
     <div id="d-body"></div>
   </dialog>
   <script type="application/json" id="radar-data" set:html={safeJson(detail)} />
 </Base>
 <style>
-  .toolbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 20px 0 16px; }
-  .filters { display: flex; gap: 8px; flex-wrap: wrap; }
-  .filter[aria-pressed="true"] { border-color: var(--radar); color: var(--text); background: var(--radar-soft); }
-  .count { font-family: var(--font-mono); color: var(--muted); }
-  #search { flex: 1 1 260px; max-width: 420px; min-height: 40px; }
-  .sigs { display: grid; gap: 2px; font-size: 0.85rem; }
-  dialog { width: min(720px, 100vw - 24px); max-height: 90vh; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: 14px; padding: 24px; box-shadow: var(--shadow); }
-  dialog::backdrop { background: rgb(0 0 0 / 0.6); }
-  .d-close { float: right; }
-  #d-body :global(h2) { margin-top: 0; font-family: var(--font-mono); font-size: 1.15rem; overflow-wrap: anywhere; }
-  #d-body :global(dl) { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; font-size: 0.92rem; }
-  #d-body :global(dt) { color: var(--muted); }
+  .toolbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between; margin: 0 0 18px; }
+  .filters { display: inline-flex; gap: 2px; flex-wrap: wrap; padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+  .filter { border: 0 !important; background: transparent; min-height: 34px; color: var(--muted); }
+  .filter[aria-pressed="true"] { background: var(--surface-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--border-strong); }
+  .count { font-family: var(--font-mono); color: var(--muted); font-size: 0.75rem; }
+  .search { position: relative; flex: 1 1 260px; max-width: 420px; }
+  .search svg { position: absolute; left: 14px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  #search { min-height: 44px; padding-left: 40px; }
+  .sigs { display: grid; gap: 3px; font-size: 0.8rem; }
+  td.mono { white-space: nowrap; }
+  .d-close { position: sticky; top: 0; display: flex; justify-content: flex-end; margin-bottom: 4px; }
+  #d-body :global(h2) { margin: 0 0 6px; font: 400 1.6rem/1.2 var(--font-display); overflow-wrap: anywhere; }
+  #d-body :global(.d-tier) { margin-bottom: 22px; }
+  #d-body :global(dl) { display: grid; grid-template-columns: max-content 1fr; gap: 10px 18px; font-size: 0.88rem; padding: 18px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 0 0 24px; }
+  #d-body :global(dt) { color: var(--muted); font: 500 0.68rem/1.9 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; }
   #d-body :global(dd) { margin: 0; font-family: var(--font-mono); overflow-wrap: anywhere; }
-  #d-body :global(ul.sig) { list-style: none; padding: 0; display: grid; gap: 12px; }
-  #d-body :global(.ev) { color: var(--muted); font-family: var(--font-mono); font-size: 0.82rem; overflow-wrap: anywhere; }
-  #d-body :global(.d-actions) { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  #d-body :global(h3) { font: 500 0.68rem/1.3 var(--font-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  #d-body :global(ul.sig) { list-style: none; padding: 0; margin: 0; }
+  #d-body :global(ul.sig li) { padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 0.92rem; color: var(--text-2); }
+  #d-body :global(.ev) { color: var(--muted); font-family: var(--font-mono); font-size: 0.78rem; overflow-wrap: anywhere; margin-top: 4px; }
+  #d-body :global(.d-actions) { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
 </style>
 <script>
   type Row = { domain: string; url: string | null; tier: string; score: number; first: string; last: string; sources: string[]; packs: string[]; signals: { id: string; weight: number; explanation: string; evidence: string[]; live: boolean }[]; dispute: string };
@@ -120,6 +129,8 @@ const detail = rows.map((r) => ({
     body.replaceChildren();
     const h = el("h2", undefined, r.domain);
     h.id = "d-title";
+    const chip = el("div", "d-tier");
+    chip.append(el("span", `tier tier-${r.tier}`, r.tier === "likely" ? "Likely lure" : r.tier === "confirmed" ? "Confirmed lure" : r.tier[0].toUpperCase() + r.tier.slice(1)));
     const dl = el("dl");
     const add = (k: string, v: string) => dl.append(el("dt", undefined, k), el("dd", undefined, v));
     add("Tier", r.tier.toUpperCase());
@@ -129,7 +140,7 @@ const detail = rows.map((r) => ({
     add("Last seen", r.last);
     add("Sources", r.sources.join(", ") || "-");
     add("Packs", r.packs.join(", ") || "-");
-    body.append(h, dl, el("h3", undefined, "Signals and evidence"));
+    body.append(h, chip, dl, el("h3", undefined, "Signals and evidence"));
     const ul = el("ul", "sig");
     for (const s of r.signals) {
       const li = el("li");

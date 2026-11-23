@@ -1,59 +1,94 @@
 ---
 import Base from "../layouts/Base.astro";
+import PageHeader from "../components/PageHeader.astro";
 import { href, packs, issueUrl } from "../lib/site";
 const gta = packs.find((p) => p.id === "gta6");
 const pcFact = gta?.facts?.find((f: any) => f.id === "pc_release");
 ---
 <Base title="Check a link, domain or message" description="Is this GTA 6 download, key or giveaway a scam? Check any link, domain or message in your browser. Explainable verdict, nothing sent to any server." og="check">
-  <div class="wrap narrow">
-    <span class="eyebrow">Client-side checker</span>
-    <h1>Is this a lure?</h1>
-    <p class="muted">
+  <PageHeader eyebrow="Client-side checker" index="CHK" title="Is this" em="a lure?">
+    <p>
       Paste a URL, a domain (defanged is fine: <code>hxxps://evil[.]test</code>) or a whole message.
       The same offline rules as the <code>lureradar check</code> CLI run <strong>entirely in your browser</strong>:
-      nothing you type leaves this page. The page loads the public rules and feed once, without your input.
+      nothing you type leaves this page.
     </p>
-    <form id="check-form" class="card" autocomplete="off">
-      <label for="q">Link, domain or message</label>
-      <textarea id="q" spellcheck="false" placeholder='e.g. hxxps://rockstar-gta6-pc-download[.]test/free-key  or  "Free GTA 6 PC beta key, DM me on Telegram"'></textarea>
-      <div class="actions">
-        <button class="btn primary" type="submit">Check</button>
-        <button class="btn" type="button" id="example">Try the demo link</button>
-        <button class="btn" type="button" id="example-msg">Try a scam message</button>
-        <span id="status" class="muted" role="status" aria-live="polite">Loading rules…</span>
-      </div>
-    </form>
-    <div id="result" aria-live="polite"></div>
-    <noscript><div class="empty"><strong>JavaScript is off</strong>The checker runs locally with JavaScript. You can use the CLI instead: <code>uvx lureradar check "…"</code></div></noscript>
-    <section aria-labelledby="notes-h">
-      <h2 id="notes-h">Good to know</h2>
-      <ul class="muted">
-        <li>Offline heuristics only: domain age, page content and external reputation need the CLI's <code>--live</code> mode or the daily pipeline.</li>
-        <li>A CLEAR verdict is not a safety guarantee. Download games only from official stores.</li>
-        {pcFact && <li>Fact check: {pcFact.claim} (<a href={href("pc-watch/")}>PC Watch</a>, facts as of {pcFact.as_of}).</li>}
-        <li>Wrong verdict? <a href={issueUrl("false-positive-review.yml")}>Dispute it</a> or <a href={issueUrl("report-a-lure.yml")}>report a lure</a>.</li>
-      </ul>
-    </section>
+  </PageHeader>
+  <div class="wrap check-layout">
+    <div class="check-main">
+      <form id="check-form" class="panel" autocomplete="off">
+        <div class="panel-head">
+          <label for="q">Link, domain or message</label>
+          <span class="muted small kbd-hint"><kbd>Ctrl</kbd> <kbd>Enter</kbd> to check</span>
+        </div>
+        <textarea id="q" spellcheck="false" placeholder='hxxps://rockstar-gta6-pc-download[.]test/free-key   or   "Free GTA 6 PC beta key, DM me on Telegram"'></textarea>
+        <div class="actions">
+          <button class="btn primary" type="submit">Check <span class="arr" aria-hidden="true">→</span></button>
+          <button class="btn" type="button" id="example">Try the demo link</button>
+          <button class="btn" type="button" id="example-msg">Try a scam message</button>
+          <span id="status" class="status" role="status" aria-live="polite"><span class="sdot" aria-hidden="true"></span><span id="status-text">Loading rules…</span></span>
+        </div>
+      </form>
+      <div id="result" aria-live="polite"></div>
+      <noscript><div class="empty"><strong>JavaScript is off</strong>The checker runs locally with JavaScript. You can use the CLI instead: <code>uvx lureradar check "…"</code></div></noscript>
+    </div>
+    <aside class="notes" aria-labelledby="notes-h">
+      <h2 id="notes-h" class="label-caps">Good to know</h2>
+      <ol>
+        <li><span class="n">01</span><p>Offline heuristics only: domain age, page content and external reputation need the CLI's <code>--live</code> mode or the daily pipeline.</p></li>
+        <li><span class="n">02</span><p>A CLEAR verdict is not a safety guarantee. Download games only from official stores.</p></li>
+        {pcFact && <li><span class="n">03</span><p>Fact check: {pcFact.claim} (<a href={href("pc-watch/")}>PC Watch</a>, as of {pcFact.as_of}).</p></li>}
+        <li><span class="n">{pcFact ? "04" : "03"}</span><p>Wrong verdict? <a href={issueUrl("false-positive-review.yml")}>Dispute it</a> or <a href={issueUrl("report-a-lure.yml")}>report a lure</a>.</p></li>
+      </ol>
+    </aside>
   </div>
 </Base>
 <style>
-  .narrow { max-width: 900px; padding-top: 40px; }
-  form label { display: block; margin-bottom: 8px; }
-  .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
-  #result { margin-top: 20px; }
-  #result :global(.verdict) { border-width: 1px; border-style: solid; }
-  #result :global(.v-head) { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
-  #result :global(.v-score) { font: 700 1.6rem/1 var(--font-mono); }
-  #result :global(.v-score small) { color: var(--muted); font-size: 0.95rem; font-weight: 400; }
-  #result :global(.v-target) { font-family: var(--font-mono); overflow-wrap: anywhere; margin: 14px 0 4px; font-weight: 600; }
-  #result :global(.score-bar) { margin-top: 12px; max-width: 420px; }
-  #result :global(.signals) { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 10px; }
-  #result :global(.signals li) { display: grid; grid-template-columns: 48px 1fr; gap: 10px; }
-  #result :global(.sig-id) { font-family: var(--font-mono); color: var(--info); font-size: 0.85rem; display: block; }
-  #result :global(.steps) { margin: 16px 0 0; padding-left: 1.2em; }
-  #result :global(.urls) { margin-top: 14px; }
-  #result :global(.urls p) { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 6px 0; font-family: var(--font-mono); }
-  #result :global(h3) { margin: 18px 0 6px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .check-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: clamp(28px, 4vw, 64px); align-items: start; }
+  @media (max-width: 960px) { .check-layout { grid-template-columns: minmax(0, 1fr); } }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 10px; box-shadow: var(--shadow); }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 10px 12px; }
+  .panel textarea { min-height: 150px; border-radius: 12px; font-size: 1rem; }
+  .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 12px 6px 6px; }
+  .status { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font: 400 0.76rem/1.4 var(--font-mono); }
+  .sdot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }
+  .status[data-ready] .sdot { background: var(--radar); }
+  @media (max-width: 640px) { .status { margin-left: 0; width: 100%; } .kbd-hint { display: none; } }
+  #result { margin-top: 24px; }
+  .notes { position: sticky; top: calc(var(--header-h) + 32px); }
+  .notes h2 { margin: 0 0 16px; }
+  .notes ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
+  .notes li { display: grid; grid-template-columns: 34px 1fr; gap: 8px; padding: 16px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: var(--text-2); }
+  .notes li p { margin: 0; }
+  .notes .n { font: 400 0.72rem/1.9 var(--font-mono); color: var(--muted); }
+  @media (max-width: 960px) { .notes { position: static; } }
+
+  #result :global(.verdict) { padding: 0; overflow: hidden; animation: lr-rise 0.7s var(--ease-out) both; }
+  #result :global(.v-top) { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 28px; align-items: center; padding: clamp(22px, 3vw, 32px); border-bottom: 1px solid var(--border); background: linear-gradient(120deg, color-mix(in srgb, var(--tone) 9%, transparent), transparent 60%); }
+  #result :global(.gauge) { position: relative; width: 128px; height: 128px; }
+  #result :global(.gauge svg) { width: 100%; height: 100%; transform: rotate(-90deg); }
+  #result :global(.gauge .track) { stroke: var(--border); }
+  #result :global(.gauge .arc) { stroke: var(--tone); transition: stroke-dashoffset 1.3s var(--ease-out); }
+  #result :global(.gauge .num) { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; font: 400 2.3rem/1 var(--font-mono); letter-spacing: -0.04em; color: var(--text); }
+  #result :global(.gauge .num small) { display: block; font-size: 0.7rem; letter-spacing: 0.1em; color: var(--muted); margin-top: 6px; }
+  #result :global(.v-headline) { font: 400 clamp(1.6rem, 2.6vw, 2.2rem)/1.1 var(--font-display); margin: 12px 0 10px; color: var(--text); }
+  #result :global(.v-target) { font-family: var(--font-mono); font-size: 0.85rem; overflow-wrap: anywhere; margin: 0; color: var(--muted); }
+  #result :global(.v-body) { padding: clamp(22px, 3vw, 32px); display: grid; gap: 26px; }
+  #result :global(h3) { margin: 0 0 10px; font: 500 0.68rem/1.3 var(--font-mono); text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted); }
+  #result :global(.signals) { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--border); }
+  #result :global(.signals li) { display: grid; grid-template-columns: 52px minmax(0, 1fr) 90px; gap: 14px; align-items: start; padding: 13px 0; border-bottom: 1px solid var(--border); animation: lr-rise 0.6s var(--ease-out) both; animation-delay: calc(var(--i) * 70ms + 200ms); }
+  #result :global(.sig-id) { font-family: var(--font-mono); color: var(--text); font-size: 0.82rem; display: block; margin-bottom: 2px; }
+  #result :global(.sig-text) { color: var(--text-2); font-size: 0.92rem; }
+  #result :global(.wbar) { height: 4px; margin-top: 9px; border-radius: 4px; background: var(--border); overflow: hidden; }
+  #result :global(.wbar i) { display: block; height: 100%; border-radius: 4px; transform-origin: left; animation: lr-grow 0.9s var(--ease-out) both; animation-delay: calc(var(--i) * 70ms + 300ms); }
+  #result :global(.steps) { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  #result :global(.steps li) { display: flex; gap: 10px; color: var(--text-2); }
+  #result :global(.steps li::before) { content: "›"; color: var(--tone); font-family: var(--font-mono); }
+  #result :global(.urls p) { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 8px 0; font-family: var(--font-mono); font-size: 0.85rem; overflow-wrap: anywhere; }
+  @media (max-width: 560px) {
+    #result :global(.v-top) { grid-template-columns: minmax(0, 1fr); }
+    #result :global(.signals li) { grid-template-columns: 44px minmax(0, 1fr); }
+    #result :global(.wbar) { display: none; }
+  }
 </style>
 <script>
   import { createChecker, snapshotFromFeed, type Verdict, type Rules } from "../lib/checker";
@@ -61,8 +96,10 @@ const pcFact = gta?.facts?.find((f: any) => f.id === "pc_release");
   const LABEL: Record<string, string> = { clear: "Clear", suspicious: "Suspicious", likely: "Likely lure", confirmed: "Confirmed lure" };
   const COLOR: Record<string, string> = { clear: "var(--radar)", suspicious: "var(--amber)", likely: "var(--danger)", confirmed: "var(--danger)" };
   const statusEl = document.getElementById("status")!;
+  const statusText = document.getElementById("status-text")!;
   const result = document.getElementById("result")!;
   const input = document.getElementById("q") as HTMLTextAreaElement;
+  const SVGNS = "http://www.w3.org/2000/svg";
   let checker: ReturnType<typeof createChecker> | null = null;
   let snapshot: ReturnType<typeof snapshotFromFeed> | null = null;
   let rulesData: Rules | null = null;
@@ -95,58 +132,101 @@ const pcFact = gta?.facts?.find((f: any) => f.id === "pc_release");
     else out.push("Do not visit, download, enter credentials or pay.", "Block it: subscribe to the LureRadar blocklists (Pi-hole, AdGuard, uBlock Origin).");
     return out;
   }
+  function gauge(score: number): HTMLElement {
+    const wrap = el("div", "gauge");
+    const svg = document.createElementNS(SVGNS, "svg");
+    svg.setAttribute("viewBox", "0 0 120 120");
+    svg.setAttribute("aria-hidden", "true");
+    const r = 52;
+    const c = 2 * Math.PI * r;
+    const mk = (cls: string) => {
+      const ci = document.createElementNS(SVGNS, "circle");
+      ci.setAttribute("cx", "60"); ci.setAttribute("cy", "60"); ci.setAttribute("r", String(r));
+      ci.setAttribute("fill", "none"); ci.setAttribute("stroke-width", cls === "arc" ? "6" : "2");
+      ci.setAttribute("class", cls);
+      return ci;
+    };
+    const arc = mk("arc");
+    arc.setAttribute("stroke-linecap", "round");
+    arc.setAttribute("stroke-dasharray", String(c));
+    arc.setAttribute("stroke-dashoffset", String(c));
+    svg.append(mk("track"), arc);
+    const num = el("div", "num", "0");
+    num.append(el("small", undefined, "/ 100"));
+    wrap.append(svg, num);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      arc.setAttribute("stroke-dashoffset", String(c * (1 - score / 100)));
+    }));
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const t0 = performance.now();
+    const tick = (now: number) => {
+      const p = reduce ? 1 : Math.min(1, (now - t0) / 1300);
+      num.firstChild!.textContent = String(Math.round(score * (1 - (1 - p) ** 3)));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    return wrap;
+  }
   function render(v: Verdict): void {
     result.replaceChildren();
     const card = el("article", "card verdict");
-    card.style.borderColor = COLOR[v.tier];
+    card.style.setProperty("--tone", COLOR[v.tier]);
     card.setAttribute("aria-label", `Verdict: ${LABEL[v.tier]}, score ${v.score} of 100`);
-    const head = el("div", "v-head");
-    head.append(badge(v.tier));
-    const score = el("span", "v-score", String(v.score));
-    score.style.color = COLOR[v.tier];
-    score.append(el("small", undefined, " / 100"));
-    head.append(score);
-    card.append(head);
-    const bar = el("div", "score-bar");
-    const fill = el("span");
-    fill.style.width = `${v.score}%`;
-    fill.style.background = COLOR[v.tier];
-    bar.append(fill);
-    card.append(bar, el("p", "v-target", v.target), el("p", "muted", headline(v)));
+    const top = el("div", "v-top");
+    const info = el("div");
+    info.append(badge(v.tier), el("p", "v-headline", headline(v)), el("p", "v-target", v.target));
+    top.append(gauge(v.score), info);
+    card.append(top);
+    const bodyEl = el("div", "v-body");
     const shown = v.signals.filter((s) => s.weight !== 0 || s.id === "user_content_platform" || s.id === "feed_listed");
     if (shown.length) {
-      card.append(el("h3", undefined, "Why"));
+      const sec = el("div");
+      sec.append(el("h3", undefined, "Why"));
       const ul = el("ul", "signals");
-      for (const s of shown) {
+      shown.forEach((s, i) => {
         const li = el("li");
-        const w = el("span", s.weight >= 20 ? "w-pos" : s.weight > 0 ? "w-mid" : s.weight < 0 ? "w-neg" : "w-zero", s.weight > 0 ? `+${s.weight}` : String(s.weight));
+        li.style.setProperty("--i", String(i));
+        const cls = s.weight >= 20 ? "w-pos" : s.weight > 0 ? "w-mid" : s.weight < 0 ? "w-neg" : "w-zero";
+        const w = el("span", cls, s.weight > 0 ? `+${s.weight}` : String(s.weight));
         const body = el("div");
-        body.append(el("span", "sig-id", s.id), el("span", undefined, s.explanation));
-        li.append(w, body);
+        body.append(el("span", "sig-id", s.id), el("span", "sig-text", s.explanation));
+        const bar = el("div", "wbar");
+        const fill = el("i");
+        fill.style.width = `${Math.min(100, (Math.abs(s.weight) / 40) * 100)}%`;
+        fill.style.background = s.weight >= 20 ? "var(--danger)" : s.weight > 0 ? "var(--amber)" : "var(--radar)";
+        bar.setAttribute("aria-hidden", "true");
+        bar.append(fill);
+        li.append(w, body, bar);
         ul.append(li);
-      }
-      card.append(ul);
+      });
+      sec.append(ul);
+      bodyEl.append(sec);
     }
     if (v.kind === "text" && v.urls.length) {
-      card.append(el("h3", undefined, "Links in the message"));
-      const box = el("div", "urls");
+      const sec = el("div", "urls");
+      sec.append(el("h3", undefined, "Links in the message"));
       for (const u of v.urls.slice(0, 5)) {
         const p = el("p");
         p.append(badge(u.tier), el("span", undefined, `${u.score} ${u.target}`));
-        box.append(p);
+        sec.append(p);
       }
-      card.append(box);
+      bodyEl.append(sec);
     }
-    card.append(el("h3", undefined, "What to do next"));
+    const next = el("div");
+    next.append(el("h3", undefined, "What to do next"));
     const ol = el("ul", "steps");
     for (const s of steps(v)) ol.append(el("li", undefined, s));
-    card.append(ol);
+    next.append(ol);
+    bodyEl.append(next);
+    card.append(bodyEl);
     result.append(card);
   }
   function run(): void {
     const q = input.value.trim();
     if (!q) {
-      result.replaceChildren(Object.assign(el("div", "empty"), { innerHTML: "<strong>Nothing to check yet</strong>Paste a link, domain or message above." }));
+      const box = el("div", "empty");
+      box.append(el("strong", undefined, "Nothing to check yet"), el("span", undefined, "Paste a link, domain or message above."));
+      result.replaceChildren(box);
       return;
     }
     if (!checker) return;
@@ -159,6 +239,7 @@ const pcFact = gta?.facts?.find((f: any) => f.id === "pc_release");
     }
   }
   document.getElementById("check-form")!.addEventListener("submit", (ev) => { ev.preventDefault(); run(); });
+  input.addEventListener("keydown", (ev) => { if (ev.key === "Enter" && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); run(); } });
   document.getElementById("example")!.addEventListener("click", () => { input.value = "hxxps://rockstar-gta6-pc-download[.]test/free-key"; run(); });
   document.getElementById("example-msg")!.addEventListener("click", () => { input.value = "FREE GTA 6 PC beta keys!! DM me on Telegram, only 20 left"; run(); });
 
@@ -171,11 +252,12 @@ const pcFact = gta?.facts?.find((f: any) => f.id === "pc_release");
         const feed = await fetch(`${base}feeds/latest.json`);
         if (feed.ok) snapshot = snapshotFromFeed(await feed.json());
       } catch { /* feed optional */ }
-      statusEl.textContent = `Rules v${rulesData.version} loaded${snapshot ? " · feed snapshot loaded" : ""}. Runs locally.`;
+      statusText.textContent = `Rules v${rulesData.version}${snapshot ? " · feed snapshot" : ""} · runs locally`;
+      statusEl.dataset.ready = "";
       const hash = new URLSearchParams(location.hash.slice(1)).get("q");
       if (hash) { input.value = hash; run(); }
     } catch {
-      statusEl.textContent = "Could not load the rules file. Use the CLI: uvx lureradar check";
+      statusText.textContent = "Could not load the rules file. Use the CLI: uvx lureradar check";
     }
   }
   init();

@@ -1,12 +1,14 @@
 ---
 import Base from "../layouts/Base.astro";
+import PageHeader from "../components/PageHeader.astro";
 import { renderDoc } from "../lib/docs";
 const doc = renderDoc("ETHICS_AND_ABUSE.md");
 ---
 <Base title="Ethics and abuse policy" description="LureRadar's defensive scope: what we do, what we refuse, how we avoid false accusations and how anyone can dispute a listing." og="about">
-  <div class="wrap" style="padding-top:40px">
-    <span class="eyebrow">Ethics</span>
-    <h1>{doc?.title ?? "Ethics and abuse policy"}</h1>
+  <PageHeader eyebrow="Ethics" index="ETH" title="Defensive" em="by design.">
+    <p>What LureRadar does, what it refuses to do, how it avoids false accusations, and how anyone can dispute a listing.</p>
+  </PageHeader>
+  <div class="wrap">
     {doc ? <article class="prose" set:html={doc.html} /> : (
       <article class="prose">
         <p>LureRadar is defensive only. It analyses public data passively, never executes or detonates anything, and publishes only its own derived indicators.</p>

@@ -3,11 +3,26 @@ import Base from "../layouts/Base.astro";
 import { href } from "../lib/site";
 ---
 <Base title="Not found" description="This page does not exist." noindex>
-  <div class="wrap" style="padding-top:64px">
-    <div class="empty">
-      <strong>Nothing on the radar here (404)</strong>
-      <p>The page you asked for does not exist. If you followed a link promising a free download, that is a good reason to be suspicious.</p>
-      <p><a class="btn primary" href={href("")}>Go home</a> <a class="btn" href={href("check/")}>Check a link</a></p>
-    </div>
+  <div class="wrap nf">
+    <p class="eyebrow intro">Error 404 · no contact</p>
+    <h1 class="lines"><span class="line"><span>Nothing on the</span></span><span class="line"><span style="--i:1"><em>radar</em> here.</span></span></h1>
+    <p class="lede intro" style="--i:2">The page you asked for does not exist. If you followed a link promising a free download, that alone is a good reason to be suspicious.</p>
+    <p class="actions intro" style="--i:3">
+      <a class="btn primary" href={href("check/")}>Check that link <span class="arr" aria-hidden="true">→</span></a>
+      <a class="btn" href={href("")}>Go home</a>
+    </p>
+    <div class="ring" aria-hidden="true"><span></span><span></span><span></span></div>
   </div>
 </Base>
+<style>
+  .nf { position: relative; padding-top: clamp(64px, 10vw, 140px); min-height: 62vh; isolation: isolate; }
+  .nf h1 { font-size: clamp(3.2rem, 9vw, 7.5rem); line-height: 0.94; margin: 0 0 28px; }
+  .nf h1 em { color: var(--radar); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 32px; }
+  .ring { position: absolute; right: 0; top: 40px; width: min(46vw, 520px); aspect-ratio: 1; z-index: -1; opacity: 0.7; }
+  .ring span { position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--border-strong); }
+  .ring span:nth-child(2) { inset: 18%; border-style: dashed; }
+  .ring span:nth-child(3) { inset: 1px; background: conic-gradient(from 0deg, transparent 0 300deg, color-mix(in srgb, var(--radar) 25%, transparent) 360deg); border: 0; animation: nf-spin 6s linear infinite; }
+  @keyframes nf-spin { to { transform: rotate(360deg); } }
+  @media (max-width: 760px) { .ring { opacity: 0.35; width: 80vw; right: -20vw; } }
+</style>

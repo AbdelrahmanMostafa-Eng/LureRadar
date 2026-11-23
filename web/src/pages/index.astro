@@ -2,14 +2,25 @@
 import Base from "../layouts/Base.astro";
 import Radar from "../components/Radar.astro";
 import TierBadge from "../components/TierBadge.astro";
-import { abs, href, latest, stats, pcwatch, meta, defang, fmtUtc, REPO_URL } from "../lib/site";
+import CopyBlock from "../components/CopyBlock.astro";
+import { abs, href, latest, stats, pcwatch, meta, defang, fmtUtc, fmtDate, REPO_URL, TIER_COLOR } from "../lib/site";
 
-const recent = [...latest.indicators].sort((a, b) => b.first_seen.localeCompare(a.first_seen)).slice(0, 5);
+const recent = [...latest.indicators].sort((a, b) => b.first_seen.localeCompare(a.first_seen)).slice(0, 6);
 const new24 = stats.new_24h ?? 0;
 const shareText = new24
   ? `Today: ${new24} new fake GTA 6 download site${new24 === 1 ? "" : "s"} caught by LureRadar${meta.demo ? " (demo data)" : ""}.`
   : "LureRadar: free blocklists and an offline checker for fake GTA 6 downloads and launch scams.";
 const pcStatus = String(pcwatch.status ?? "UNKNOWN");
+const pcTone = pcStatus === "NOT_ANNOUNCED" ? "var(--radar)" : pcStatus === "UNKNOWN" ? "var(--muted)" : "var(--amber)";
+const pcWord = pcStatus.replaceAll("_", " ").toLowerCase();
+const confirmed = String(pcwatch.confirmed_status ?? "unknown").replaceAll("_", " ").toLowerCase();
+const feed = (f: string) => abs(`feeds/${f}`);
+const recipes = [
+  { id: "pihole", name: "Pi-hole", steps: "Settings → Lists → add this address → Update Gravity (or pihole -g).", url: feed("hosts.txt") },
+  { id: "adguard", name: "AdGuard", steps: "AdGuard Home: Filters → DNS blocklists → Add blocklist → Add a custom list.", url: feed("adguard.txt") },
+  { id: "ubo", name: "uBlock Origin", steps: "Dashboard → Filter lists → Import → paste the address → Apply changes.", url: feed("adguard.txt") },
+  { id: "rpz", name: "DNS (RPZ)", steps: "Response Policy Zone for Unbound, BIND, Knot and PowerDNS. Names answer NXDOMAIN, subdomains included.", url: feed("rpz.zone") },
+];
 const jsonld = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -25,101 +36,280 @@ const jsonld = {
 };
 ---
 <Base title="LureRadar: GTA 6 scam & fake download blocklist" description="Is that GTA 6 PC download real? LureRadar detects fake GTA 6 downloads, key-gen traps and phishing lures. Free GTA 6 blocklist for Pi-hole, AdGuard and uBlock Origin, plus an offline checker." og="stats" jsonld={jsonld}>
+  <div class="hero-shell">
+  <div class="hero-bg" aria-hidden="true"></div>
   <div class="wrap hero">
     <div class="hero-copy">
-      <span class="eyebrow">Open threat radar for hyped-launch scams</span>
-      <h1>See the lure <span class="accent">before you bite.</span></h1>
-      <p class="lead">
+      <p class="eyebrow intro">Open threat radar · hyped-launch scams</p>
+      <h1 class="hero-title lines">
+        <span class="line"><span style="--i:0">See the lure</span></span>
+        <span class="line"><span style="--i:1">before you <em>bite.</em></span></span>
+      </h1>
+      <p class="lede intro" style="--i:2">
         LureRadar spots <strong>fake GTA 6 PC downloads</strong>, key-generator traps and phishing lures around big releases,
         explains every verdict, and turns them into a free <strong>GTA 6 scam blocklist</strong> for Pi-hole, AdGuard and uBlock Origin.
       </p>
-      <form class="check-form" id="home-check" action={href("check/")} method="get" role="search">
+      <form class="hero-form intro" style="--i:3" id="home-check" action={href("check/")} method="get" role="search">
         <label for="home-q" class="visually-hidden">Link, domain or message to check</label>
-        <div class="field-row">
+        <div class="command">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4" /><path d="M12 12 18 6" /></svg>
           <input id="home-q" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a link, domain or message" />
-          <button class="btn primary" type="submit">Check it</button>
+          <button class="btn primary" type="submit">Check <span class="arr" aria-hidden="true">→</span></button>
         </div>
-        <p class="hint muted">Runs in your browser. Nothing you type is sent anywhere.</p>
+        <p class="hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2" /><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" /></svg>
+          Runs in your browser. Nothing you type is sent anywhere.
+        </p>
       </form>
-      <div class="cta-row">
-        <a class="btn" href={href("feeds/")}>Get the blocklists</a>
-        <a class="btn" href={href("pc-watch/")}>Is GTA 6 coming to PC?</a>
+      <div class="hero-links intro" style="--i:4">
+        <a class="arrow-link" href={href("feeds/")}><span class="txt">Get the blocklists</span> <span class="arr" aria-hidden="true">→</span></a>
+        <a class="arrow-link" href={href("pc-watch/")}><span class="txt">Is GTA 6 coming to PC?</span> <span class="arr" aria-hidden="true">→</span></a>
       </div>
     </div>
-    <Radar />
+    <div class="hero-radar intro" style="--i:3">
+      <Radar />
+    </div>
+  </div>
   </div>
 
   <section class="wrap" aria-labelledby="stats-h">
     <h2 id="stats-h" class="visually-hidden">Live statistics</h2>
-    <div class="grid grid-4">
-      <div class="card stat"><div class="value" style="color:var(--danger)">{new24}</div><div class="label">new lure sites in 24 h</div></div>
-      <div class="card stat"><div class="value">{stats.active_listed ?? 0}</div><div class="label">active indicators (LIKELY+) in the blocklists</div></div>
-      <div class="card stat"><div class="value" style="color:var(--amber)">{stats.suspicious ?? 0}</div><div class="label">suspicious, on watch (not blocked)</div></div>
-      <div class="card stat"><div class="value mono" style="font-size:1.15rem;padding-top:.6rem">{fmtUtc(stats.generated_at)}</div><div class="label">feed generated</div></div>
+    <div class="readout" data-reveal>
+      <div>
+        <div class="value" style={new24 ? "color:var(--danger)" : undefined} data-count={new24}>{new24}</div>
+        <div class="label label-caps">New lure sites · 24 h</div>
+      </div>
+      <div>
+        <div class="value" data-count={stats.active_listed ?? 0}>{stats.active_listed ?? 0}</div>
+        <div class="label label-caps">In the blocklists</div>
+      </div>
+      <div>
+        <div class="value" style="color:var(--amber)" data-count={stats.suspicious ?? 0}>{stats.suspicious ?? 0}</div>
+        <div class="label label-caps">On watch, not blocked</div>
+      </div>
+      <div>
+        <div class="value date"><time datetime={stats.generated_at ?? ""}>{fmtUtc(stats.generated_at)}</time></div>
+        <div class="label label-caps">Feed generated</div>
+      </div>
     </div>
-    <div class="share-row">
+    <div class="share-row" data-reveal>
       {meta.demo && <span class="pill demo">Demo data: synthetic fixtures, reserved .test domains</span>}
-      <button type="button" class="btn small" id="share" data-text={shareText} data-url={abs("")}>Share these stats</button>
+      <button type="button" class="btn small" id="share" data-text={shareText} data-url={abs("")}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" /></svg>
+        Share these stats
+      </button>
     </div>
   </section>
 
-  <section class="wrap grid grid-2" aria-label="Latest detections and PC Watch">
-    <div class="card">
-      <div class="card-head"><h2>Latest detections</h2><a href={href("radar/")}>Open the radar</a></div>
+  <section class="wrap dispatch-grid" aria-label="Latest detections and PC Watch">
+    <div class="dispatch">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="eyebrow"><span class="idx">01</span>Latest detections</p>
+          <h2>Fresh off <em>the scope.</em></h2>
+        </div>
+        <a class="arrow-link" href={href("radar/")}><span class="txt">Open the radar</span> <span class="arr" aria-hidden="true">→</span></a>
+      </div>
       {recent.length ? (
-        <ul class="recent">
-          {recent.map((i) => (
-            <li><TierBadge tier={i.tier} /> <span class="mono">{defang(i.domain)}</span> <span class="muted mono">{i.score}/100</span></li>
+        <ol class="log">
+          {recent.map((i, n) => (
+            <li data-reveal style={`--i:${n}`}>
+              <TierBadge tier={i.tier} />
+              <span class="dom mono">{defang(i.domain)}</span>
+              <span class="sc mono"><span class="bar" aria-hidden="true"><i style={`width:${i.score}%;background:${TIER_COLOR[i.tier] ?? "var(--muted)"}`}></i></span><span class="num">{i.score}</span></span>
+              <time class="mono muted" datetime={i.first_seen}>{fmtDate(i.first_seen)}</time>
+            </li>
           ))}
-        </ul>
+        </ol>
       ) : (
-        <div class="empty"><strong>No active detections</strong>The radar is quiet. New indicators appear after each daily run.</div>
+        <div class="empty"><strong>The radar is quiet</strong>No active detections. New indicators appear after each daily run.</div>
       )}
     </div>
-    <div class="card pc-mini">
-      <div class="card-head"><h2>PC Watch</h2><a href={href("pc-watch/")}>Details</a></div>
-      <p class="pc-status mono" data-status={pcStatus}>{pcStatus.replaceAll("_", " ")}</p>
-      <p>{pcStatus === "UNKNOWN"
-        ? `No recent automated check yet. Maintainer-confirmed status: ${String(pcwatch.confirmed_status ?? "unknown").replaceAll("_", " ").toLowerCase()} (as of ${pcwatch.confirmed_as_of ?? "?"}).`
+    <aside class="bulletin card" aria-labelledby="pc-h" data-reveal style="--i:2">
+      <p class="label-caps" id="pc-h">PC Watch · official sources only</p>
+      <p class="pc-word" style={`--tone:${pcTone}`}><span class="pc-dot" aria-hidden="true"></span>{pcWord}</p>
+      <p class="pc-text">{pcStatus === "UNKNOWN"
+        ? `No successful automated check in the last 36 hours, so we won't repeat an old answer. Maintainer-confirmed status: ${confirmed} (as of ${pcwatch.confirmed_as_of ?? "?"}).`
         : (pcwatch.answer ?? "Official sources only.")}</p>
-      <p class="muted small">Official sources only. A status change always needs a maintainer to confirm it.</p>
+      <p class="muted small">Rockstar Newswire, Take-Two releases and filings, official stores. A status change always needs a maintainer to confirm it.</p>
+      <a class="arrow-link" href={href("pc-watch/")}><span class="txt">Read the evidence</span> <span class="arr" aria-hidden="true">→</span></a>
+    </aside>
+  </section>
+
+  <section class="wrap method" aria-labelledby="how-h">
+    <div class="method-head" data-reveal>
+      <p class="eyebrow"><span class="idx">02</span>Method</p>
+      <h2 id="how-h">Three steps. <em>No black box.</em></h2>
+      <p class="muted">Every score is a sum of named signals with fixed weights and the evidence behind them. No machine-learning model and no LLM decides anything.</p>
+      <a class="arrow-link" href={href("methodology/")}><span class="txt">Read the methodology</span> <span class="arr" aria-hidden="true">→</span></a>
+    </div>
+    <ol class="steps">
+      <li data-reveal>
+        <span class="n" aria-hidden="true">01</span>
+        <div>
+          <h3>Watch</h3>
+          <p>Certificate Transparency, public phishing feeds and community reports surface new launch-themed domains every day.</p>
+          <p class="artifact mono">crt.sh · OpenPhish · URLhaus · urlscan.io · CT stream · community reports</p>
+        </div>
+      </li>
+      <li data-reveal>
+        <span class="n" aria-hidden="true">02</span>
+        <div>
+          <h3>Explain</h3>
+          <p>Named signals with fixed weights: fake PC version, brand impersonation, new domain, lure page patterns. Keywords alone never flag a site.</p>
+          <p class="artifact mono"><span class="w-pos">+30</span> claims_unreleased_platform<br /><span class="w-pos">+25</span> brand_impersonation<br /><span class="w-pos">+20</span> keyword_intent_combo<br /><span class="eq">= 75 · likely lure</span></p>
+        </div>
+      </li>
+      <li data-reveal>
+        <span class="n" aria-hidden="true">03</span>
+        <div>
+          <h3>Block</h3>
+          <p>LIKELY and CONFIRMED indicators become signed, CC0 blocklists. Suspicious ones stay on watch, never blocked.</p>
+          <p class="artifact mono">hosts · domains · adblock · RPZ · STIX 2.1 · CSV · JSON · minisign</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="wrap cli" aria-labelledby="cli-h">
+    <div class="cli-copy" data-reveal>
+      <p class="eyebrow"><span class="idx">03</span>Command line</p>
+      <h2 id="cli-h">Same engine, <em>in your terminal.</em></h2>
+      <p class="muted">Offline by default: no network connection unless you ask for <code>--live</code>. Exit codes 0 / 10 / 20 / 30 make it easy to wire into scripts, bots and CI.</p>
+      <CopyBlock text={`uvx lureradar check "hxxps://rockstar-gta6-pc-download[.]test/free-key"`} label="Copy CLI example" />
+    </div>
+    <div class="terminal" data-reveal style="--i:1">
+      <div class="terminal-bar"><span>lureradar check</span><span>exit 20</span></div>
+<pre tabindex="0" role="region" aria-label="Example lureradar check output"><span class="t-dim">$</span> <span class="t-hi">uvx lureradar check "hxxps://rockstar-gta6-pc-download[.]test/free-key"</span>
+
+  <span class="t-bad">LIKELY LURE</span>   <span class="t-hi">75</span><span class="t-dim">/100</span>  <span class="t-meter" aria-hidden="true"><i style="width:22ch"></i><b style="left:27ch"></b></span>
+
+  <span class="t-hi">hxxps://rockstar-gta6-pc-download[.]test/free-key</span>
+  Looks like a launch lure: unreleased platform + brand impersonation
+
+  <span class="t-dim">WHY</span>
+    <span class="t-bad">+30</span>  <span class="t-hi">claims_unreleased_platform</span>  Promises "download" of GTA VI for PC:
+                                     no official PC release exists
+    <span class="t-bad">+25</span>  <span class="t-hi">brand_impersonation</span>         Combosquat: "rockstar" plus other words
+    <span class="t-bad">+20</span>  <span class="t-hi">keyword_intent_combo</span>        Keyword "gta6" + intent "pc", "download"
+
+  <span class="t-dim">WHAT TO DO NEXT</span>
+  <span class="t-ok">›</span> Do not visit, download, enter credentials or pay.
+  <span class="t-ok">›</span> Block it: subscribe to the LureRadar feeds.
+
+  <span class="t-dim">packs: gta6 · offline · exit 20 · v{meta.version}</span></pre>
     </div>
   </section>
 
-  <section class="wrap" aria-labelledby="how-h">
-    <h2 id="how-h">How it works</h2>
-    <div class="grid grid-3">
-      <div class="card"><h3>1 · Watch</h3><p class="muted">Certificate Transparency, public phishing feeds and community reports surface new launch-themed domains every day.</p></div>
-      <div class="card"><h3>2 · Explain</h3><p class="muted">Named signals with fixed weights (fake PC version, brand impersonation, new domain, lure page patterns). No black box, no AI scoring.</p></div>
-      <div class="card"><h3>3 · Block</h3><p class="muted">LIKELY+ indicators become signed, CC0 blocklists for Pi-hole, AdGuard, uBlock Origin, hosts, RPZ and STIX.</p></div>
+  <section class="wrap block" aria-labelledby="block-h">
+    <div class="section-head" data-reveal>
+      <div>
+        <p class="eyebrow"><span class="idx">04</span>Blocklists</p>
+        <h2 id="block-h">Block the campaign <em>in a minute.</em></h2>
+      </div>
+      <a class="arrow-link" href={href("feeds/")}><span class="txt">All formats and verification</span> <span class="arr" aria-hidden="true">→</span></a>
     </div>
-    <div class="copy-cta card">
-      <p class="mono"><span style="color:var(--radar)">$</span> uvx lureradar check "hxxps://rockstar-gta6-pc-download[.]test/free-key"</p>
-      <p class="muted">Offline by default. Exit codes 0/10/20/30 make it script-friendly.</p>
+    <div class="tabs card" data-tabs data-reveal>
+      <div class="tablist" role="tablist" aria-label="Blocklist setup">
+        {recipes.map((r, i) => <button type="button" role="tab" id={`tab-${r.id}`} aria-controls={`panel-${r.id}`} aria-selected={i === 0 ? "true" : "false"}>{r.name}</button>)}
+        <span class="tab-ink" aria-hidden="true"></span>
+      </div>
+      {recipes.map((r) => (
+        <div class="tabpanel" role="tabpanel" id={`panel-${r.id}`} aria-labelledby={`tab-${r.id}`} tabindex="0">
+          <h3 class="panel-title">{r.name}</h3>
+          <p>{r.steps}</p>
+          <CopyBlock text={r.url} label={`Copy ${r.name} list URL`} />
+        </div>
+      ))}
     </div>
   </section>
 </Base>
 <style>
-  .hero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; align-items: center; padding-top: 48px; }
-  @media (max-width: 900px) { .hero { grid-template-columns: 1fr; } .hero :global(.radar) { max-width: 360px; margin: 0 auto; } }
-  .accent { color: var(--radar); }
-  .lead { font-size: 1.15rem; color: var(--muted); max-width: 40em; }
-  .lead strong { color: var(--text); font-weight: 600; }
-  .check-form { margin: 24px 0 16px; }
-  .hint { font-size: 0.88rem; margin: 8px 0 0; }
-  .cta-row { display: flex; gap: 10px; flex-wrap: wrap; }
-  .share-row { display: flex; gap: 12px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
-  .card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-  .card-head h2 { margin: 0 0 12px; font-size: 1.2rem; }
-  .recent { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
-  .recent li { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .pc-status { font-size: 1.4rem; font-weight: 700; margin: 0 0 6px; color: var(--amber); }
-  .pc-status[data-status="NOT_ANNOUNCED"] { color: var(--radar); }
-  .pc-status[data-status="UNKNOWN"] { color: var(--muted); }
-  .small { font-size: 0.85rem; }
-  .copy-cta { margin-top: 16px; }
-  .copy-cta p { margin: 0; overflow-wrap: anywhere; }
-  .copy-cta p + p { margin-top: 6px; }
+  .hero-bg {
+    position: absolute; inset: -120px 0 -80px 0; pointer-events: none; z-index: -1;
+    background:
+      radial-gradient(ellipse 60% 50% at 78% 30%, color-mix(in srgb, var(--radar) 7%, transparent), transparent 70%),
+      repeating-radial-gradient(circle at 78% 34%, transparent 0 79px, color-mix(in srgb, var(--border) 55%, transparent) 79px 80px);
+    mask-image: radial-gradient(ellipse 70% 60% at 70% 30%, #000 20%, transparent 75%);
+  }
+  .hero-shell { position: relative; isolation: isolate; }
+  .hero { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr); gap: clamp(32px, 5vw, 72px); align-items: center; padding-top: clamp(40px, 6vw, 88px); }
+  .hero-title { font-size: clamp(3.3rem, 8.2vw, 7.4rem); line-height: 0.93; letter-spacing: -0.025em; margin: 0 0 30px; }
+  .hero-title em { color: var(--radar); padding-right: 0.06em; }
+  .hero-form { margin: 34px 0 0; max-width: 620px; }
+  .hint { display: flex; align-items: center; gap: 8px; margin: 12px 2px 0; color: var(--muted); font-size: 0.84rem; }
+  .hint svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .hero-links { display: flex; gap: 14px 28px; flex-wrap: wrap; margin-top: 30px; }
+  .hero-radar { min-width: 0; }
+  @media (max-width: 960px) {
+    .hero { grid-template-columns: minmax(0, 1fr); }
+    .hero-radar { max-width: 440px; width: 100%; margin: 8px auto 0; }
+  }
+
+  .share-row { display: flex; gap: 12px; align-items: center; margin-top: 18px; flex-wrap: wrap; }
+
+  .dispatch-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+  @media (max-width: 960px) { .dispatch-grid { grid-template-columns: minmax(0, 1fr); } }
+  .log { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
+  .log li {
+    display: grid; grid-template-columns: 150px minmax(0, 1fr) 120px 96px; gap: 16px; align-items: center;
+    padding: 15px 4px; border-bottom: 1px solid var(--border); font-size: 0.9rem;
+    transition: background-color 0.25s, padding-left 0.45s var(--ease-out);
+  }
+  .log li:hover { background: color-mix(in srgb, var(--surface) 60%, transparent); padding-left: 10px; }
+  .log .dom { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+  .log .sc { display: flex; align-items: center; gap: 10px; justify-content: flex-end; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .log .sc::after { content: ""; }
+  .log .num { min-width: 3ch; text-align: right; }
+  .log .bar { width: 64px; height: 4px; border-radius: 4px; background: var(--border); overflow: hidden; }
+  .log .bar i { display: block; height: 100%; border-radius: 4px; }
+  .log time { text-align: right; font-size: 0.8rem; }
+  @media (max-width: 640px) {
+    .log li { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; }
+    .log .dom { grid-column: 1 / -1; grid-row: 1; }
+    .log time { display: none; }
+  }
+  .bulletin { display: grid; gap: 14px; align-content: start; margin-top: 8px; background: linear-gradient(180deg, var(--surface), var(--bg-2)); }
+  .bulletin p { margin: 0; }
+  .pc-word { display: flex; align-items: center; gap: 14px; font: 400 clamp(2.4rem, 4vw, 3.3rem)/1 var(--font-display); color: var(--tone); text-transform: capitalize; margin: 6px 0 2px !important; }
+  .pc-dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 5px color-mix(in srgb, currentColor 15%, transparent); flex-shrink: 0; }
+  .pc-text { color: var(--text-2); }
+
+  .method { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
+  .method-head { position: sticky; top: calc(var(--header-h) + 40px); }
+  .method-head h2 { margin-top: 0; }
+  .method-head p.muted { max-width: 34em; }
+  @media (max-width: 960px) { .method { grid-template-columns: minmax(0, 1fr); } .method-head { position: static; } }
+  .steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
+  .steps li { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 20px; padding: 34px 0 36px; border-bottom: 1px solid var(--border); }
+  .steps .n { font: 400 3.4rem/0.9 var(--font-display); color: var(--muted); font-style: italic; }
+  .steps h3 { margin: 4px 0 10px; font: 400 2rem/1.1 var(--font-display); letter-spacing: -0.01em; }
+  .steps p { color: var(--text-2); margin-bottom: 16px; }
+  .artifact { margin: 0 !important; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-2); color: var(--muted) !important; font-size: 0.78rem; line-height: 1.75; }
+  .artifact .eq { display: inline-block; margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--border-strong); color: var(--danger); }
+  @media (max-width: 560px) { .steps li { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
+
+  .cli { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
+  .cli h2 { margin-top: 0; }
+  .cli-copy code { white-space: nowrap; }
+  @media (max-width: 960px) { .cli { grid-template-columns: minmax(0, 1fr); } }
+
+  .tabs { padding: 0; overflow: hidden; }
+  .tablist { position: relative; display: none; gap: 4px; padding: 8px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  :global(.js) .tablist { display: flex; }
+  .tablist [role="tab"] {
+    position: relative; z-index: 1; border: 0; background: none; color: var(--muted); cursor: pointer;
+    font: 500 0.9rem/1 var(--font-ui); padding: 12px 16px; border-radius: 9px; white-space: nowrap; transition: color 0.3s;
+  }
+  .tablist [role="tab"][aria-selected="true"] { color: var(--text); }
+  .tab-ink { position: absolute; z-index: 0; top: 8px; bottom: 8px; left: 0; width: 0; border-radius: 9px; background: var(--surface-2); border: 1px solid var(--border-strong); transition: transform 0.5s var(--ease-out), width 0.5s var(--ease-out); }
+  .tabpanel { padding: clamp(20px, 3vw, 32px); }
+  .tabpanel + .tabpanel { border-top: 1px solid var(--border); }
+  :global(.js) .tabpanel + .tabpanel { border-top: 0; }
+  .tabpanel p { color: var(--text-2); margin: 0; }
+  .panel-title { margin: 0 0 8px; }
+  :global(.js) .panel-title { display: none; }
+  .tabpanel:not([hidden]) { animation: lr-fade 0.5s ease both; }
 </style>
 <script>
   const form = document.getElementById("home-check") as HTMLFormElement | null;

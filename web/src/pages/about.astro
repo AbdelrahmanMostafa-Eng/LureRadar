@@ -1,12 +1,13 @@
 ---
 import Base from "../layouts/Base.astro";
+import PageHeader from "../components/PageHeader.astro";
 import { href, REPO_URL, meta } from "../lib/site";
 ---
 <Base title="About LureRadar" description="LureRadar is an independent, open-source, defensive project: explainable detection of hyped-launch scams, free CC0 blocklists, no trackers and no accounts." og="about">
-  <div class="wrap narrow" style="padding-top:40px">
-    <span class="eyebrow">About</span>
-    <h1>About LureRadar</h1>
+  <PageHeader eyebrow="About" index="ABT" title="Every launch casts" em="a shadow.">
     <p>Every hyped launch brings a wave of fake downloads, “free beta keys”, key generators and phishing pages. LureRadar watches for them, explains every verdict in plain language, and publishes free blocklists so anyone can protect a home network or a company in a minute.</p>
+  </PageHeader>
+  <div class="wrap narrow">
     <div class="grid grid-2">
       <div class="card"><h2>Principles</h2><ul><li>Explainable by construction: named signals, fixed weights.</li><li>Precision first: keywords alone never flag a site.</li><li>Defensive only: passive analysis, nothing is ever executed.</li><li>Honest claims: “detected” and “likely”, with dates and sources.</li></ul></div>
       <div class="card"><h2>What it is not</h2><ul><li>Not affiliated with any publisher or platform holder.</li><li>Not an AI product: no LLM decides anything.</li><li>No accounts, no servers to trust, no browsing data.</li><li>No warranty: detections may contain false positives.</li></ul></div>
@@ -18,4 +19,4 @@ import { href, REPO_URL, meta } from "../lib/site";
     <p class="muted">LureRadar is an independent project, not affiliated with, endorsed by, or sponsored by Rockstar Games, Take-Two Interactive, or any platform holder. All trademarks belong to their owners. Names are used only to describe the launches and the brands that scammers impersonate.</p>
   </div>
 </Base>
-<style>.narrow { max-width: 960px; } .card h2 { margin-top: 0; font-size: 1.15rem; } .card ul { padding-left: 1.1em; margin: 0; }</style>
+<style>.narrow { max-width: 1040px; } .card h2 { margin: 0 0 16px; } .card ul { list-style: none; padding: 0; margin: 0; } .card li { padding: 11px 0; border-top: 1px solid var(--border); color: var(--text-2); } p { color: var(--text-2); max-width: 70ch; }</style>

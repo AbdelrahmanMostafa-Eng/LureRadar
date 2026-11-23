@@ -24,7 +24,7 @@ Open threat radar for hyped-launch scams: fake downloads, key-gen traps and phis
 
 <p align="center">
   <img src="assets/screenshots/dashboard.png" alt="LureRadar dashboard with the radar sweep, live stats and a link checker (screenshot shows synthetic demo data)" width="560">
-  <img src="assets/screenshots/radar.gif" alt="Animated radar sweep: blips resolve into fishing-hook marks" width="256">
+  <img src="assets/screenshots/radar.gif" alt="Animated radar sweep: contacts sit closer to the centre the higher their score; likely and confirmed lures are locked with reticles" width="256">
 </p>
 
 ## Why this exists

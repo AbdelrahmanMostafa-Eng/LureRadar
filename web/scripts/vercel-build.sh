@@ -55,7 +55,7 @@ if [ -f "$feeds/latest.json" ]; then
 else
   echo "no published feeds yet: building with labelled demo data"
 fi
-(cd "$ROOT" && uv run --locked python scripts/build_site_data.py "${feeds_arg[@]}")
+(cd "$ROOT" && uv run --locked --no-dev --extra render python scripts/build_site_data.py "${feeds_arg[@]}")
 
 # 4. Static build (output: web/dist). The parity test fails the deploy if the
 #    browser checker drifted from the Python engine.

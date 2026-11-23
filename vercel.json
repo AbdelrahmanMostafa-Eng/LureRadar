@@ -4,10 +4,25 @@
     "web": {
       "root": "web/",
       "framework": "astro",
-      "buildCommand": "bash scripts/vercel-build.sh"
+      "buildCommand": "bash scripts/vercel-build.sh",
+      "routes": [
+        {
+          "handle": "error"
+        },
+        {
+          "src": "/(.*)",
+          "status": 404,
+          "dest": "/404.html"
+        }
+      ]
     }
   },
   "rewrites": [
-    { "source": "/(.*)", "destination": { "service": "web" } }
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "web"
+      }
+    }
   ]
 }

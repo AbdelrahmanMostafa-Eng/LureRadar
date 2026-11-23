@@ -251,3 +251,16 @@ Accepted residual items, tracked in the release checklist: workflows assume
 the `lure-report`, `false-positive`, `pc-watch` and `reports` labels exist;
 signed feeds need the maintainer-generated key; live source verification
 happens on the first scheduled CI run.
+
+## ADR-022: Vercel deployment as a single static `web` service
+
+The repository was proposed for Vercel "services" with a Python `app` service
+at the root receiving all traffic. The code has no Python HTTP application
+(the package is a Typer CLI and library), and the site is a fully static Astro
+build whose only runtime requests are same-origin files, so that layout would
+route every request to a service with nothing to serve. `vercel.json`
+therefore declares one public service, `web`, with a catch-all rewrite and no
+bindings (bindings only resolve inside functions, and nothing calls another
+service). The Vercel build derives `LURERADAR_BASE_URL` from Vercel's system
+variables, because the default base URL is the GitHub Pages sub-path. GitHub
+Pages stays the canonical deployment unless maintainers decide otherwise.

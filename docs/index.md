@@ -21,4 +21,5 @@ starting with GTA 6.
 | [Threat model](THREAT_MODEL.md) | Hardened fetcher, feed integrity, supply chain |
 | [Privacy](PRIVACY.md) | What is (not) collected or contacted |
 | [Ethics and abuse](ETHICS_AND_ABUSE.md) | Scope and what we refuse |
+| [Deploying the site](DEPLOY.md) | GitHub Pages (canonical) and Vercel |
 | [Decisions](DECISIONS.md) | Architecture decision records |

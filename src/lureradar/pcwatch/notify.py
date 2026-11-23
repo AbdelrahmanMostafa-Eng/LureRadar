@@ -12,6 +12,11 @@ from lureradar.pcwatch.timeline import pending_entry_yaml
 ISSUE_TITLE = "PC Watch: possible PC announcement detected (maintainer review needed)"
 
 
+def _inert(text: str) -> str:
+    """Fetched text is untrusted: stop @mentions and #references from notifying anyone."""
+    return text.replace("@", "@\u200b").replace("#", "#\u200b").replace("`", "'")
+
+
 def issue_body(state: PcWatchState, check: CheckResult) -> str:
     suggested = state.suggested_status.value if state.suggested_status else "?"
     lines = [
@@ -27,7 +32,8 @@ def issue_body(state: PcWatchState, check: CheckResult) -> str:
     for src in check.sources:
         for f in src.findings:
             flag = " (negated wording, likely not an announcement)" if f.negated else ""
-            lines.append(f'- **{src.name}**: [{f.title}]({f.url}) - "{f.snippet}"{flag}')
+            title, snippet = _inert(f.title), _inert(f.snippet)
+            lines.append(f'- **{src.name}**: [{title}]({f.url}) - "{snippet}"{flag}')
     lines += [
         "",
         "## What a maintainer must do",
@@ -47,7 +53,8 @@ def issue_body(state: PcWatchState, check: CheckResult) -> str:
     ]
     for src in check.sources:
         for f in src.findings:
-            lines.append(pending_entry_yaml(f).rstrip())
+            safe = f.model_copy(update={"title": _inert(f.title), "snippet": _inert(f.snippet)})
+            lines.append(pending_entry_yaml(safe).rstrip())
     lines += ["```", "", "---", "_Opened automatically by the `pc-watch` workflow._"]
     return "\n".join(lines) + "\n"
 

@@ -233,3 +233,21 @@ Home, Radar, Check and PC Watch; 0 axe violations on 16 pages in both themes
 (`web/audit-results.json`). A clean-checkout build exposed that the Python
 `.gitignore` template's `lib/` rule hid `web/src/lib/`; it is now anchored to
 the repository root.
+
+## ADR-021: Fresh-eyes review before release
+
+A final review as a skeptical maintainer and a hostile reviewer, run from a
+fresh clone (`make install check bench demo smoke-wheel site` all green, the
+tree unchanged afterwards, so the GIF and benchmark report are reproducible
+byte for byte), found and fixed:
+
+- the template `lib/` ignore rule hid `web/src/lib/` (anchored to the root);
+- PC Watch review issues embedded fetched titles/snippets verbatim, so an
+  `@handle` or `#123` on a fetched page could ping people or link issues;
+  mentions and references are now neutralised (test added);
+- PC Watch's UNKNOWN sentence repeated itself (reworded).
+
+Accepted residual items, tracked in the release checklist: workflows assume
+the `lure-report`, `false-positive`, `pc-watch` and `reports` labels exist;
+signed feeds need the maintainer-generated key; live source verification
+happens on the first scheduled CI run.

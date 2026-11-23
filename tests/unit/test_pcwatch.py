@@ -299,3 +299,16 @@ def test_cli_check_status_history(tmp_path: Path) -> None:
     hist = orjson.loads(runner.invoke(app, ["pcwatch", "history", "--json"]).output)
     assert hist[0]["date"] >= hist[-1]["date"]
     assert "Grand Theft Auto VI" in runner.invoke(app, ["pcwatch", "history"]).output
+
+
+def test_issue_body_neutralises_mentions_from_fetched_text() -> None:
+    from lureradar.pcwatch.status import Finding
+
+    finding = Finding(source="rockstar-newswire", status=Status.ANNOUNCED_UNDATED,
+                      url="https://www.rockstargames.com/n/9", title="GTA VI on PC @everyone #1",
+                      snippet="ping @maintainer now")  # fmt: skip
+    src = SourceCheck(id="rockstar-newswire", name="Rockstar Games Newswire", kind="publisher",
+                      status="ok", required=True, findings=[finding])  # fmt: skip
+    result = CheckResult(checked_at=NOW, sources=[src])
+    body = issue_body(resolve(PACK, CONFIG, result, None, NOW), result)
+    assert "@everyone" not in body and "@maintainer" not in body and "#1" not in body

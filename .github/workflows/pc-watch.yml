@@ -75,3 +75,10 @@ jobs:
       contents: read
       pages: write
       id-token: write
+
+  vercel:
+    needs: check
+    uses: ./.github/workflows/vercel-redeploy.yml
+    permissions: {}
+    secrets:
+      VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}

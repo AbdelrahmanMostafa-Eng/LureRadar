@@ -44,6 +44,32 @@ There are no service bindings: the site has no server-side functions and no
 service calls another at runtime; the browser fetches `data/rules.json` and
 `feeds/*` from the same origin.
 
+### Creating the Vercel project
+
+1. Vercel dashboard -> **Add New... -> Project** -> import
+   `AbdelrahmanMostafa-Eng/LureRadar`.
+2. Leave **Root Directory** at the repository root (`vercel.json` lives there)
+   and set **Framework Preset** to **Services**. Build settings come from
+   `vercel.json`; do not override them in the dashboard.
+3. Deploy. Production deploys follow `main`; every other branch gets a preview.
+
+Optional project environment variable: `LURERADAR_BASE_URL` (only to pin a
+custom domain).
+
+### Keeping the Vercel copy fresh
+
+The site reads feeds at build time, so it needs a rebuild after each data run.
+`feed-refresh.yml` (daily) and `pc-watch.yml` (every 4 hours) both call
+`.github/workflows/vercel-redeploy.yml`, which POSTs a Vercel deploy hook
+**only if** the repository secret `VERCEL_DEPLOY_HOOK_URL` is set:
+
+1. Vercel project -> **Settings -> Git -> Deploy Hooks** -> create a hook for
+   branch `main`.
+2. GitHub repository -> **Settings -> Secrets and variables -> Actions** ->
+   new secret `VERCEL_DEPLOY_HOOK_URL` = the hook URL.
+
+Without the secret the job is a no-op and the Vercel copy only updates on push.
+
 Local check of the Vercel build (simulated system variables):
 
 ```bash

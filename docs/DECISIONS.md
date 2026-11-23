@@ -264,3 +264,7 @@ bindings (bindings only resolve inside functions, and nothing calls another
 service). The Vercel build derives `LURERADAR_BASE_URL` from Vercel's system
 variables, because the default base URL is the GitHub Pages sub-path. GitHub
 Pages stays the canonical deployment unless maintainers decide otherwise.
+Because the Vercel build pulls feeds from the rolling releases, the data
+workflows request a rebuild through an optional deploy hook
+(`vercel-redeploy.yml`, secret `VERCEL_DEPLOY_HOOK_URL`) rather than giving
+Vercel any write access to the repository.

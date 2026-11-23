@@ -1,0 +1,5 @@
+# Maintainers review everything; detection, facts and feeds need extra care.
+*                                  @AbdelrahmanMostafa-Eng
+/src/lureradar/scoring/            @AbdelrahmanMostafa-Eng
+/packs/                            @AbdelrahmanMostafa-Eng
+/.github/workflows/                @AbdelrahmanMostafa-Eng

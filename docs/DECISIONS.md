@@ -187,3 +187,31 @@ intent), both fixed with regression tests. Offline recall at LIKELY+ is
 therefore low by design and reported as such; the newly-registered
 simulation shows how live signals lift it. The benchmark exits non-zero if a
 benign domain, hard negative or benign message reaches LIKELY.
+
+## ADR-017: Demo GIF without vhs
+
+`vhs` (and its `ttyd`/`ffmpeg` dependencies) is not installable in the build
+sandbox. `make demo` runs `vhs assets/demo.tape` when vhs is present and
+otherwise falls back to `scripts/render_demo.py`: the real verdict card is
+rendered by Rich, exported to SVG with a terminal theme built from the design
+tokens, rasterised with resvg and assembled into a GIF with Pillow (about
+6 s, about 65 KiB). The GIF shows the exact offline README command.
+
+## ADR-018: Release and container details
+
+Releases build once and publish the same artifacts to GitHub Releases
+(with SHA256SUMS, CycloneDX SBOM, Sigstore bundles and provenance
+attestations) and to PyPI through Trusted Publishing. The container image is
+`ghcr.io/abdelrahmanmostafa-eng/lureradar` (GHCR requires lowercase names),
+runs as UID 10001, keeps its cache in `/tmp` so `--read-only` works, and is
+attested. Base images are tracked by Dependabot rather than pinned by digest,
+because the build sandbox could not query a registry to resolve digests.
+
+## ADR-019: Community reports go through a PR, never straight to feeds
+
+The "Report a lure" form triggers `community-report.yml`, which passes the
+untrusted issue body to `scripts/community_report.py` through an environment
+variable (never shell interpolation), validates and defangs it, writes
+`data/reports/<date>-issue<N>.yaml` and opens a pull request with the offline
+verdict. A maintainer merges; the pipeline then scores it like any other
+candidate, so a report cannot list a domain by itself.

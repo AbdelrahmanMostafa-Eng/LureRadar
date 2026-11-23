@@ -5,7 +5,7 @@ RUN := $(UV) run
 CORE := '*/lureradar/detectors/*,*/lureradar/scoring/*,*/lureradar/export/*,*/lureradar/util/*,*/lureradar/textlure/*'
 
 .PHONY: help install lint fmt typecheck test coverage packs secrets fixtures links hostnames schemas \
-        check bench demo scan-fixtures site wheel smoke-wheel clean
+        check bench demo scan-fixtures site og wheel smoke-wheel clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -59,8 +59,12 @@ demo: ## Re-record assets/demo.gif
 scan-fixtures: ## Run the full pipeline offline against recorded fixtures
 	$(RUN) lureradar scan --fixtures --out build/site/feeds --state build/state.db
 
-site: ## Build the static site into web/dist
-	cd web && npm ci && npm run build
+site: ## Build the static site into web/dist (demo data unless FEEDS=dir)
+	$(RUN) python scripts/build_site_data.py $(if $(FEEDS),--feeds $(FEEDS),)
+	cd web && npm ci && npm test && npm run build
+
+og: ## Regenerate brand images (social preview, favicons, OG cards)
+	$(RUN) python scripts/gen_og.py
 
 wheel: ## Build sdist + wheel into dist/
 	$(UV) build

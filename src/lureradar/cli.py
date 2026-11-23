@@ -580,6 +580,71 @@ def pcwatch_history(
         console.print(f"            [{theme.MUTED}]{verified}[/]")
 
 
+# -------------------------------------------------------------------- report
+@app.command()
+def report(
+    stats: Annotated[
+        Path | None, typer.Option(help="stats.json from a feed directory (default: fixture demo).")
+    ] = None,
+    out: Annotated[Path, typer.Option(help="Output directory.")] = Path("build/report"),
+    abuse: Annotated[
+        str | None, typer.Option("--abuse", help="Draft an abuse report for this domain/URL.")
+    ] = None,
+    live: Annotated[bool, typer.Option("--live", help="Look up the RDAP abuse contact.")] = False,
+) -> None:
+    """Shareable daily lure-report card (SVG/HTML/PNG), or an abuse-report draft."""
+    from lureradar.models import Tier
+    from lureradar.report.abuse import build_abuse_report
+    from lureradar.report.card import share_text, write_report
+    from lureradar.scoring.engine import Engine
+
+    console = _console()
+    if abuse:
+        try:
+            verdict = Engine().check(abuse)
+        except LureRadarError as exc:
+            raise _fail(str(exc)) from exc
+        rdap = None
+        if live:
+            import asyncio
+
+            from lureradar.enrich.rdap import RdapClient
+            from lureradar.util.domains import parse_target
+
+            try:
+                rdap = asyncio.run(RdapClient().lookup(parse_target(abuse).registrable_domain))
+            except LureRadarError as exc:
+                console.print(f"[{theme.AMBER}]RDAP lookup failed: {escape_markup(str(exc))}[/]")
+        if verdict.tier < Tier.LIKELY:
+            console.print(
+                f"[{theme.AMBER}]Verdict is {verdict.tier.value.upper()}: LureRadar does not "
+                "consider this a likely lure. Verify it yourself before reporting anything.[/]"
+            )
+        draft = build_abuse_report(verdict, rdap)
+        console.print(
+            f"[bold]To:[/] {', '.join(draft.to) or '(registrar/host abuse contact; use --live)'}"
+        )
+        console.print(f"[bold]Subject:[/] {escape_markup(draft.subject)}\n")
+        sys.stdout.write(draft.body)
+        console.print(f"[{theme.MUTED}]Draft only: LureRadar never sends reports automatically.[/]")
+        return
+    demo = stats is None
+    if stats is None:
+        from lureradar.pipeline.orchestrator import ScanConfig, run_scan
+        from lureradar.util.time import parse_iso
+
+        fixtures = Path(__file__).resolve().parents[2] / "tests" / "fixtures"
+        tmp = out / "demo-feeds"
+        run_scan(ScanConfig(state_path=out / "demo.db", out_dir=tmp, fixtures=fixtures,
+                            now=parse_iso("2026-11-21T12:00:00Z")))  # fmt: skip
+        stats = tmp / "stats.json"
+    data = orjson.loads(stats.read_bytes())
+    paths = write_report(data, out, demo=demo)
+    for p in paths:
+        console.print(f"[{theme.RADAR}]wrote[/] {p}")
+    console.print(f"share text: {escape_markup(share_text(data, demo=demo))}")
+
+
 # -------------------------------------------------------------------- doctor
 @app.command()
 def doctor(

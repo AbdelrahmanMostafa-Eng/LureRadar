@@ -1,0 +1,11 @@
+.git
+.venv
+build
+dist
+node_modules
+web/node_modules
+web/dist
+extension/node_modules
+**/__pycache__
+.lureradar
+*.db

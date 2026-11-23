@@ -1,0 +1,25 @@
+# Path-based PR labels (actions/labeler v5+ format).
+detection:
+  - changed-files:
+      - any-glob-to-any-file: ["src/lureradar/detectors/**", "src/lureradar/scoring/**", "src/lureradar/textlure/**"]
+packs:
+  - changed-files:
+      - any-glob-to-any-file: ["packs/**"]
+pc-watch:
+  - changed-files:
+      - any-glob-to-any-file: ["src/lureradar/pcwatch/**", "packs/*/pc_watch.yaml", "packs/*/facts.yaml"]
+feeds:
+  - changed-files:
+      - any-glob-to-any-file: ["src/lureradar/export/**", "src/lureradar/pipeline/**"]
+web:
+  - changed-files:
+      - any-glob-to-any-file: ["web/**", "assets/**"]
+docs:
+  - changed-files:
+      - any-glob-to-any-file: ["docs/**", "*.md"]
+reports:
+  - changed-files:
+      - any-glob-to-any-file: ["data/reports/**"]
+ci:
+  - changed-files:
+      - any-glob-to-any-file: [".github/**"]

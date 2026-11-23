@@ -1,0 +1,29 @@
+# Example: fail a PR when its diff adds a likely launch-lure link.
+# Copy to .github/workflows/lure-links.yml in your repository.
+name: Lure link check
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  lure-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      - name: Check URLs added by this PR (offline)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git diff "$BASE_SHA"...HEAD -U0 | grep '^+' | grep -oE 'https?://[^ )"'"'"'<>]+' | sort -u > urls.txt || true
+          status=0
+          while read -r url; do
+            uvx lureradar check "$url" --json > verdict.json || code=$?
+            code=${code:-0}
+            if [ "$code" -ge 20 ]; then echo "::error::likely lure link: $(jq -r .target verdict.json)"; status=1; fi
+            unset code
+          done < urls.txt
+          exit $status

@@ -1,0 +1,45 @@
+name: Report a lure
+description: Report a fake download, key generator or phishing site around a launch.
+title: "[Lure] "
+labels: ["lure-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping protect players. **Defang the link** so nobody clicks it by accident:
+        `https://evil.example/x` becomes `hxxps://evil[.]example/x`. Our bot validates the
+        report, runs LureRadar's scoring on it and opens a pull request for a maintainer.
+        A report never bypasses scoring: it adds a candidate, it does not blocklist anything by itself.
+  - type: input
+    id: indicator
+    attributes:
+      label: Indicator (defanged URL or domain)
+      placeholder: "hxxps://gta6-pc-download[.]example/free-key"
+    validations:
+      required: true
+  - type: dropdown
+    id: pack
+    attributes:
+      label: Campaign pack
+      options: ["gta6"]
+    validations:
+      required: true
+  - type: input
+    id: where_seen
+    attributes:
+      label: Where did you see it?
+      placeholder: "YouTube comment, Discord DM, search ad..."
+  - type: textarea
+    id: notes
+    attributes:
+      label: What did it promise?
+      description: Short description. Do not paste personal data or anything from victims.
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Before you submit
+      options:
+        - label: The link is defanged and I did not include personal data.
+          required: true
+        - label: I dedicate this report to the public domain (CC0-1.0).
+          required: true

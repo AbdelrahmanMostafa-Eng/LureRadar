@@ -1,0 +1,34 @@
+name: Bug report
+description: Something in the CLI, pipeline, feeds or website does not work.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Include the command and its output. Defang any URLs.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `lureradar version`
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: ["Linux", "macOS", "Windows", "Docker", "Other"]
+  - type: textarea
+    id: doctor
+    attributes:
+      label: "`lureradar doctor` output (optional)"
+      render: text

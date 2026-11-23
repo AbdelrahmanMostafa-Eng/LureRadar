@@ -1,0 +1,43 @@
+name: Dispute a listing (false positive)
+description: A legitimate domain or URL was flagged. We aim to triage within 2 business days.
+title: "[FP] "
+labels: ["false-positive"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Sorry about that. Precision is our top priority. A confirmed false positive is fixed by
+        an allowlist pull request and disappears from every feed on the next pipeline run.
+  - type: input
+    id: indicator
+    attributes:
+      label: Listed domain or URL (defanged is fine)
+      placeholder: "my-legit-site[.]example"
+    validations:
+      required: true
+  - type: dropdown
+    id: relationship
+    attributes:
+      label: Your relationship to the site
+      options: ["Owner / operator", "User / reader", "Researcher", "Other"]
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is it legitimate?
+      description: Who runs it, how long it has existed, links to official references.
+    validations:
+      required: true
+  - type: input
+    id: feed
+    attributes:
+      label: Where did you see the listing?
+      placeholder: "hosts.txt, dashboard, lureradar check output, third-party blocklist..."
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: I understand maintainers verify disputes before removing a listing.
+          required: true

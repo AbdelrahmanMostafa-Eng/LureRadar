@@ -1,0 +1,58 @@
+name: Community lure report
+
+# "Report a lure" issue form -> validate + defang -> PR into data/reports/.
+# The issue body is untrusted input: it reaches Python only through an
+# environment variable and is never interpolated into shell commands.
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    if: contains(github.event.issue.labels.*.name, 'lure-report')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      - name: Install
+        run: uv sync --locked --python 3.12
+      - name: Validate and write report
+        id: validate
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set +e
+          uv run python scripts/community_report.py --issue "$ISSUE_NUMBER" --out data/reports --summary report-summary.md
+          echo "ok=$?" >> "$GITHUB_OUTPUT"
+      - name: Open pull request
+        if: steps.validate.outputs.ok == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          branch="community-report/issue-${ISSUE_NUMBER}"
+          git config user.name "lureradar-bot"
+          git config user.email "lureradar-bot@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add data/reports/
+          git commit -m "data(reports): community lure report from #${ISSUE_NUMBER}"
+          git push --force-with-lease origin "$branch"
+          gh pr view "$branch" >/dev/null 2>&1 || gh pr create --head "$branch" \
+            --title "data(reports): community lure report (#${ISSUE_NUMBER})" \
+            --body-file report-summary.md --label reports
+      - name: Comment on the issue
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          [ -f report-summary.md ] && gh issue comment "$ISSUE_NUMBER" --body-file report-summary.md || true

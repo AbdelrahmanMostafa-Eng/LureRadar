@@ -120,8 +120,10 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S", "PLR", "T20", "N802", "DTZ", "PTH", "PERF", "TRY", "E501"]
 "bench/**" = ["T20", "S311", "PTH", "E501"]
-"scripts/**" = ["T20", "S603", "S607", "S311"]
+"scripts/**" = ["T20", "S603", "S607", "S311", "E501"]
 "src/lureradar/cli.py" = ["B008", "PLR0913", "PLR0917"]
+"src/lureradar/report/card.py" = ["E501"]
+"examples/**" = ["T20"]
 
 [tool.ruff.format]
 quote-style = "double"

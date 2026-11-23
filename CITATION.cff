@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use LureRadar or its data in research, please cite it."
+title: "LureRadar: open threat radar for hyped-launch scams"
+abstract: >-
+  Explainable detection of fake downloads, key-generator traps and phishing
+  lures around hyped product launches, with daily public blocklists,
+  reproducible benchmarks and a source-cited PC release tracker.
+type: software
+authors:
+  - name: "LureRadar contributors"
+repository-code: "https://github.com/AbdelrahmanMostafa-Eng/LureRadar"
+url: "https://abdelrahmanmostafa-eng.github.io/LureRadar/"
+license: MIT
+version: 0.1.0
+date-released: 2026-11-23
+keywords:
+  - threat intelligence
+  - phishing
+  - scam detection
+  - blocklist
+  - typosquatting

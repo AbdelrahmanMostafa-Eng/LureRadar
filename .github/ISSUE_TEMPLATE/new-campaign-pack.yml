@@ -1,0 +1,29 @@
+name: New campaign pack
+description: Propose a pack for another hyped launch (a game, a console, a device).
+title: "[Pack] "
+labels: ["campaign-pack"]
+body:
+  - type: input
+    id: launch
+    attributes:
+      label: Launch
+      placeholder: "e.g. Example Console 2"
+    validations:
+      required: true
+  - type: textarea
+    id: keywords
+    attributes:
+      label: Keywords lures use
+    validations:
+      required: true
+  - type: textarea
+    id: facts
+    attributes:
+      label: Dated facts with official sources
+      description: For example, which platforms are (not) released, with links and dates.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence of lures (defanged)

@@ -366,6 +366,12 @@
       "description": "What is launching, e.g. a game title",
       "title": "Subject"
     },
+    "template": {
+      "default": false,
+      "description": "Template/example pack: validated but not loaded by default",
+      "title": "Template",
+      "type": "boolean"
+    },
     "version": {
       "minimum": 1,
       "title": "Version",

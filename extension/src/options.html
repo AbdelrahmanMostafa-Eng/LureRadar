@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LureRadar</title>
+  <link rel="stylesheet" href="ui.css">
+</head>
+<body class="popup">
+  <main class="card">
+    <p class="brand">◉ LureRadar</p>
+    <label class="row"><input type="checkbox" id="enabled"> Warn me before opening listed sites</label>
+    <label class="row"><input type="checkbox" id="suspicious"> Also warn on SUSPICIOUS sites (more false positives)</label>
+    <p class="muted small" id="status">Loading…</p>
+    <button id="refresh" type="button">Update the list now</button>
+    <p class="muted small">Only the public LureRadar feed is downloaded. The sites you visit are checked on your device and never leave it.</p>
+  </main>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+# Self-hosted Certificate Transparency watcher.
+#   docker compose up -d
+#   docker compose logs -f watch      # JSON-line alerts
+# Feeds are re-published hourly into the `lureradar-data` volume (data/feeds).
+services:
+  watch:
+    image: ghcr.io/abdelrahmanmostafa-eng/lureradar:latest
+    build: .
+    command:
+      - watch
+      - --state=/data/watch.db
+      - --feeds-out=/data/feeds
+      - --publish-every=60
+      - --alert-tier=likely
+    environment:
+      # Public CertStream endpoints come and go: point this at one you trust
+      # or at your own certstream-server.
+      LURERADAR_CERTSTREAM_URL: ${LURERADAR_CERTSTREAM_URL:-wss://certstream.calidog.io/}
+      # Optional: sign the feeds you publish (see keys/README.md)
+      LURERADAR_SIGNING_KEY: ${LURERADAR_SIGNING_KEY:-}
+    volumes:
+      - lureradar-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    user: "10001:10001"
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+    mem_limit: 512m
+
+volumes:
+  lureradar-data:

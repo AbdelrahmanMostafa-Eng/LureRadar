@@ -1,0 +1,42 @@
+# TEMPLATE PACK for contributors: a fictional launch ("Nimbus Quest II" by the
+# fictional studio "Example Studios"). Copy this folder, rename it, replace the
+# data. `template: true` keeps it out of default checks; use it explicitly:
+#   lureradar check "nimbus-quest-2-pc-download[.]test" --pack example-launch
+id: example-launch
+name: "Nimbus Quest II launch lures (fictional template)"
+subject: "Nimbus Quest II"
+template: true
+version: 1
+as_of: 2026-11-21
+description: >-
+  Fictional example showing every pack feature in one file. All names and
+  domains are invented or reserved (example.com/.org, .test).
+keywords: [nimbus quest 2, nimbus quest ii, nimbusquest2]
+intents: [download, free, key, keygen, crack, apk, pc, steam, beta, early-access, generator, giveaway]
+brands:
+  - name: examplestudios
+    display: "Example Studios (fictional)"
+    aliases: [examplestudio]
+    official: [example.com]
+allowlist:
+  outlets: [example.org]
+  platforms: [example.net]
+facts:
+  as_of: 2026-11-21
+  facts:
+    - id: pc_release
+      claim: "Fictional: no PC version of Nimbus Quest II has been announced as of 2026-11-21."
+      status: not_announced
+      as_of: 2026-11-21
+      sources:
+        - {url: "https://example.com/nimbus-quest-2/faq", title: "Fictional official FAQ", accessed: 2026-11-21}
+  platforms:
+    console:
+      label: "console"
+      status: released
+      terms: [console]
+    pc:
+      label: "PC"
+      status: unreleased
+      fact: pc_release
+      terms: [pc, windows, steam]

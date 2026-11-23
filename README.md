@@ -72,7 +72,9 @@ Blocklists only contain **LIKELY** and **CONFIRMED** indicators.
 | 📡 **Pipeline** | Certificate Transparency + public feeds → prefilter → hardened enrichment → score → feeds, on GitHub Actions |
 | 🌐 **Dashboard** | Radar, detections, client-side link checker (sends nothing anywhere), subscribe snippets |
 | 💬 **Message analyzer** | Scores DMs, comments and ads: fake platforms, gift-card payment, "disable your antivirus", shorteners |
-| 🧩 **Campaign packs** | Add a new launch in ~20 lines of YAML |
+| 🧩 **Campaign packs** | Add a new launch in ~20 lines of YAML ([template pack](packs/example-launch/)) |
+| 🧭 **Browser extension** | Local-only MV3 extension warns before a listed site loads ([extension/](extension/README.md)) |
+| 🐳 **Self-hosted watch** | `lureradar watch` consumes a CT stream and publishes feeds; `docker compose up -d` |
 
 ## How it works
 
@@ -195,7 +197,7 @@ Your first PR can take 10 minutes: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Roadmap
 
-Browser extension store listings, more campaign packs, Telegram/Discord lure
+Browser-store listings for the extension, more campaign packs, Telegram/Discord lure
 intelligence, SIEM connectors and multilingual message patterns. See
 [ROADMAP.md](ROADMAP.md).
 

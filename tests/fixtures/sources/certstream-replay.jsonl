@@ -1,0 +1,6 @@
+{"message_type": "certificate_update", "data": {"seen": 1795327200.0, "leaf_cert": {"all_domains": ["rockstar-gta6-pc-download.test", "www.rockstar-gta6-pc-download.test"], "issuer": {"O": "Example CA"}}}}
+{"message_type": "certificate_update", "data": {"seen": 1795327201.0, "leaf_cert": {"all_domains": ["mail.example.com"], "issuer": {"O": "Example CA"}}}}
+{"message_type": "heartbeat", "timestamp": 1795327202.0}
+{"message_type": "certificate_update", "data": {"seen": 1795327203.0, "leaf_cert": {"all_domains": ["gta6-free-download.test"], "issuer": {"O": "Example CA"}}}}
+not json at all
+{"message_type": "certificate_update", "data": {"seen": 1795327204.0, "leaf_cert": {"all_domains": ["gtavi-android-apk-download.test"], "issuer": {"O": "Example CA"}}}}

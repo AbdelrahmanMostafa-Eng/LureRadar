@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `lureradar watch`: Certificate Transparency stream consumer for self-hosters
+  (CertStream-compatible websocket, reconnect with backoff, JSON-line alerts,
+  periodic feed publication, `--replay` for recorded streams).
+- `docker-compose.yml` for `watch` (read-only filesystem, non-root, no capabilities).
+- MV3 browser extension (Chrome/Edge/Firefox): local-only checks against the
+  public feed, warning page with reasons and dispute link, optional SUSPICIOUS tier.
+- `example-launch`: a fictional template campaign pack (`template: true`,
+  validated but opt-in) showing every pack feature.
+
 ## [0.1.0] - 2026-11-23
 
 First public release.

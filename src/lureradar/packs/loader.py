@@ -120,7 +120,11 @@ def load_packs(ids: Iterable[str] | None = None, root: Path | None = None) -> li
         raise PackError(
             f"unknown pack(s): {', '.join(missing)} (available: {', '.join(sorted(available))})"
         )
-    return [_load_cached(str(available[i])) for i in wanted]
+    packs = [_load_cached(str(available[i])) for i in wanted]
+    if ids:
+        return packs
+    # template packs (e.g. example-launch) are only used when requested explicitly
+    return [p for p in packs if not p.template]
 
 
 @lru_cache(maxsize=64)

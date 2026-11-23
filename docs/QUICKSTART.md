@@ -55,6 +55,30 @@ See [FEEDS.md](FEEDS.md) and the copy-paste guides for
 [Pi-hole](../examples/pihole.md), [AdGuard](../examples/adguard.md),
 [uBlock Origin](../examples/ublock.md) and [Unbound RPZ](../examples/unbound-rpz.md).
 
+## Self-host a Certificate Transparency watcher
+
+```bash
+docker compose up -d
+```
+
+`docker-compose.yml` runs `lureradar watch` (read-only filesystem, non-root,
+no capabilities): it consumes a CertStream-compatible stream, prints JSON-line
+alerts and re-publishes feeds hourly into a volume. Without Docker:
+
+```bash
+pipx install 'lureradar[watch]'
+```
+
+```bash
+lureradar watch --feeds-out ./feeds --alert-tier likely
+```
+
+## Browser extension
+
+Load `extension/` unpacked in Chrome, Edge, Brave or Firefox (see
+[extension/README.md](../extension/README.md)). It checks sites locally
+against the public feed and warns before a listed site loads.
+
 ## Is GTA 6 coming to PC?
 
 ```bash

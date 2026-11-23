@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LureRadar warning</title>
+  <link rel="stylesheet" href="ui.css">
+</head>
+<body>
+  <main class="card" role="alert" aria-labelledby="title">
+    <p class="brand">◉ LureRadar</p>
+    <h1 id="title">This site looks like a launch lure</h1>
+    <p class="target"><code id="target">…</code></p>
+    <p id="tier" class="tier"></p>
+    <ul id="why"></ul>
+    <p class="muted">Fake downloads and "free keys" for hyped games are used to steal accounts and spread malware.
+      LureRadar checked this address on your device; nothing was sent anywhere.</p>
+    <div class="actions">
+      <button id="back" class="primary" type="button">Go back to safety</button>
+      <button id="proceed" type="button">I understand the risk, continue once</button>
+    </div>
+    <p class="muted small"><a id="dispute" href="#" rel="noopener">Think this is wrong? Dispute it</a></p>
+  </main>
+  <script type="module" src="warning.js"></script>
+</body>
+</html>

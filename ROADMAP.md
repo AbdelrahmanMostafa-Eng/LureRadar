@@ -9,7 +9,8 @@ GitHub Discussions.
 - [ ] Verify every source live from CI and update `docs/SOURCES.md` (first
       scheduled `feed-refresh` run).
 - [ ] Publish the feed signing public key and enable signed feeds by default.
-- [ ] Browser extension store listings (Chrome Web Store, Firefox Add-ons).
+- [ ] Browser extension store listings (Chrome Web Store, Firefox Add-ons); the
+      extension itself ships in `extension/` (load unpacked).
 - [ ] More hard negatives and real, licence-verified lure samples in the benchmark.
 - [ ] Re-verify `abused_tlds.yaml` against current public rankings.
 
@@ -17,7 +18,7 @@ GitHub Discussions.
 
 - [ ] Next major console launch pack (hardware "early access" and fake pre-order lures).
 - [ ] Big live-service season launches (fake currency generators).
-- [ ] `example-launch` template pack (fictional) for contributors.
+- [x] `example-launch` template pack (fictional) for contributors.
 
 ## Features
 

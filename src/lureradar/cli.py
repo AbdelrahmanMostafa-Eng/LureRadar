@@ -199,6 +199,62 @@ def escape_markup(text: str) -> str:
     return escape(text)
 
 
+# --------------------------------------------------------------------- watch
+@app.command()
+def watch(
+    url: Annotated[str | None, typer.Option(help="CertStream-compatible websocket URL.")] = None,
+    state: Annotated[Path, typer.Option(help="SQLite state file.")] = Path(".lureradar/watch.db"),
+    alert_tier: Annotated[
+        str, typer.Option(help="Print alerts at or above this tier.")
+    ] = "suspicious",
+    feeds_out: Annotated[
+        Path | None, typer.Option(help="Re-publish feeds into this directory.")
+    ] = None,
+    publish_every: Annotated[int, typer.Option(help="Minutes between feed publications.")] = 60,
+    replay: Annotated[
+        Path | None, typer.Option(help="Replay recorded messages (JSON lines).")
+    ] = None,
+    max_messages: Annotated[int | None, typer.Option(help="Stop after N messages.")] = None,
+) -> None:
+    """Consume a Certificate Transparency stream and alert on launch lures (self-hosting)."""
+    import asyncio
+
+    from lureradar.config import Settings
+    from lureradar.export.signing import signing_key_from_env
+    from lureradar.models import Tier
+    from lureradar.pipeline.watch import WatchConfig, run_watch
+
+    try:
+        tier = Tier.parse(alert_tier)
+    except ValueError as exc:
+        raise _fail(str(exc)) from exc
+    cfg = WatchConfig(
+        url=url or Settings.from_env().certstream_url,
+        state_path=state,
+        alert_tier=tier,
+        feeds_out=feeds_out,
+        publish_every_s=publish_every * 60.0,
+        replay=replay,
+        max_messages=max_messages,
+        signer=signing_key_from_env(),
+    )
+
+    def emit(alert: dict[str, object]) -> None:
+        sys.stdout.write(orjson.dumps(alert).decode() + "\n")
+        sys.stdout.flush()
+
+    try:
+        stats = asyncio.run(run_watch(cfg, emit))
+    except KeyboardInterrupt:  # pragma: no cover - interactive
+        return
+    except RuntimeError as exc:
+        raise _fail(str(exc)) from exc
+    _console(stderr=True).print(
+        f"[{theme.MUTED}]watch stopped: {stats['messages']} messages, {stats['names']} names, "
+        f"{stats['alerts']} alerts[/]"
+    )
+
+
 # ---------------------------------------------------------------------- feed
 @feed_app.command("build")
 def feed_build(
@@ -390,6 +446,7 @@ def pack_list(
                     "as_of": p.as_of.isoformat(),
                     "keywords": len(p.keywords),
                     "brands": len(p.brands),
+                    "template": p.template,
                 }
                 for p in packs
             ]
@@ -400,7 +457,7 @@ def pack_list(
         table.add_column(col)
     for p in packs:
         table.add_row(
-            p.id,
+            p.id + (" (template)" if p.template else ""),
             p.name,
             str(p.version),
             p.as_of.isoformat(),

@@ -179,3 +179,9 @@ def test_pack_model_roundtrip() -> None:
     (pack,) = load_packs(["gta6"])
     again = Pack.model_validate(pack.model_dump())
     assert again == pack
+
+
+def test_template_packs_are_opt_in() -> None:
+    assert [p.id for p in load_packs()] == ["gta6"]
+    (example,) = load_packs(["example-launch"])
+    assert example.template and example.facts is not None

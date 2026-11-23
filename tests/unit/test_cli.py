@@ -71,8 +71,10 @@ def test_unknown_pack_is_error() -> None:
 def test_pack_commands(tmp_path: Path) -> None:
     listed = runner.invoke(app, ["pack", "list"])
     assert listed.exit_code == 0 and "gta6" in listed.output
-    as_json = json.loads(runner.invoke(app, ["pack", "list", "--json"]).output)
-    assert as_json[0]["id"] == "gta6"
+    as_json = {
+        p["id"]: p for p in json.loads(runner.invoke(app, ["pack", "list", "--json"]).output)
+    }
+    assert not as_json["gta6"]["template"] and as_json["example-launch"]["template"]
     assert runner.invoke(app, ["pack", "validate"]).exit_code == 0
     created = runner.invoke(app, ["pack", "new", "console-x", "--root", str(tmp_path)])
     assert created.exit_code == 0

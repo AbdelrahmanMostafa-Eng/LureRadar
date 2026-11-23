@@ -204,6 +204,9 @@ class Pack(BaseModel):
     id: str
     name: str
     subject: str | None = Field(default=None, description="What is launching, e.g. a game title")
+    template: bool = Field(
+        default=False, description="Template/example pack: validated but not loaded by default"
+    )
     version: int = Field(ge=1)
     as_of: date
     description: str = ""
@@ -279,6 +282,7 @@ class PackFile(BaseModel):
     id: str
     name: str
     subject: str | None = None
+    template: bool = False
     version: int
     as_of: date
     description: str = ""

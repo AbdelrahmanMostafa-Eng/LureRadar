@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "LureRadar",
+  "version": "0.1.0",
+  "description": "Warns before you open known or likely launch-lure sites (fake downloads, key generators, phishing). Checks happen on your device.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "background": {
+    "service_worker": "src/background.js",
+    "scripts": [
+      "src/background.js"
+    ],
+    "type": "module"
+  },
+  "permissions": [
+    "storage",
+    "alarms",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "https://abdelrahmanmostafa-eng.github.io/*"
+  ],
+  "action": {
+    "default_title": "LureRadar",
+    "default_popup": "src/options.html"
+  },
+  "options_ui": {
+    "page": "src/options.html",
+    "open_in_tab": false
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "lureradar@lureradar.invalid",
+      "strict_min_version": "121.0"
+    }
+  }
+}

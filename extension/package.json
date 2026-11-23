@@ -1,0 +1,12 @@
+{
+  "name": "lureradar-extension",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "LureRadar MV3 browser extension (no dependencies).",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/match.test.mjs",
+    "zip": "cd .. && rm -f extension.zip && cd extension && zip -qr ../build/lureradar-extension.zip manifest.json icons src -x '*.test.*'"
+  }
+}

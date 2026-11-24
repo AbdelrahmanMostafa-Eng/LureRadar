@@ -9,10 +9,10 @@ Open threat radar for hyped-launch scams: fake downloads, key-gen traps and phis
 
 <p align="center">
   <a href="https://github.com/AbdelrahmanMostafa-Eng/LureRadar/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/AbdelrahmanMostafa-Eng/LureRadar/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="https://abdelrahmanmostafa-eng.github.io/LureRadar/pc-watch/"><img alt="PC version status" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fabdelrahmanmostafa-eng.github.io%2FLureRadar%2Ffeeds%2Fshields-pc-watch.json"></a>
-  <a href="https://abdelrahmanmostafa-eng.github.io/LureRadar/radar/"><img alt="Detections in the last 24 hours" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fabdelrahmanmostafa-eng.github.io%2FLureRadar%2Ffeeds%2Fshields-detections-24h.json"></a>
-  <a href="https://abdelrahmanmostafa-eng.github.io/LureRadar/feeds/"><img alt="Active indicators" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fabdelrahmanmostafa-eng.github.io%2FLureRadar%2Ffeeds%2Fshields-active.json"></a>
-  <a href="docs/BENCHMARKS.md"><img alt="False-positive rate on the benign corpus" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fabdelrahmanmostafa-eng.github.io%2FLureRadar%2Ffeeds%2Fshields-fpr.json"></a>
+  <a href="https://lureradar.vercel.app/pc-watch/"><img alt="PC version status" src="https://img.shields.io/endpoint?url=https%3A%2F%2Flureradar.vercel.app%2Ffeeds%2Fshields-pc-watch.json"></a>
+  <a href="https://lureradar.vercel.app/radar/"><img alt="Detections in the last 24 hours" src="https://img.shields.io/endpoint?url=https%3A%2F%2Flureradar.vercel.app%2Ffeeds%2Fshields-detections-24h.json"></a>
+  <a href="https://lureradar.vercel.app/feeds/"><img alt="Active indicators" src="https://img.shields.io/endpoint?url=https%3A%2F%2Flureradar.vercel.app%2Ffeeds%2Fshields-active.json"></a>
+  <a href="docs/BENCHMARKS.md"><img alt="False-positive rate on the benign corpus" src="https://img.shields.io/endpoint?url=https%3A%2F%2Flureradar.vercel.app%2Ffeeds%2Fshields-fpr.json"></a>
   <a href="https://scorecard.dev/viewer/?uri=github.com/AbdelrahmanMostafa-Eng/LureRadar"><img alt="OpenSSF Scorecard" src="https://api.scorecard.dev/projects/github.com/AbdelrahmanMostafa-Eng/LureRadar/badge"></a>
   <a href="https://pypi.org/project/lureradar/"><img alt="PyPI" src="https://img.shields.io/pypi/v/lureradar"></a>
   <a href="LICENSE"><img alt="License: MIT (code), CC0 (data)" src="https://img.shields.io/badge/license-MIT%20%7C%20data%20CC0-3CFFB0"></a>
@@ -52,10 +52,10 @@ More in the [quickstart](docs/QUICKSTART.md).
 
 | Where | Subscribe to |
 |---|---|
-| **Pi-hole** (Adlists) | `https://abdelrahmanmostafa-eng.github.io/LureRadar/feeds/hosts.txt` |
-| **AdGuard / AdGuard Home** (custom list) | `https://abdelrahmanmostafa-eng.github.io/LureRadar/feeds/adguard.txt` |
-| **uBlock Origin** (Filter lists → Import) | `https://abdelrahmanmostafa-eng.github.io/LureRadar/feeds/adguard.txt` |
-| **Unbound / BIND** (RPZ) | `https://abdelrahmanmostafa-eng.github.io/LureRadar/feeds/rpz.zone` |
+| **Pi-hole** (Adlists) | `https://lureradar.vercel.app/feeds/hosts.txt` |
+| **AdGuard / AdGuard Home** (custom list) | `https://lureradar.vercel.app/feeds/adguard.txt` |
+| **uBlock Origin** (Filter lists → Import) | `https://lureradar.vercel.app/feeds/adguard.txt` |
+| **Unbound / BIND** (RPZ) | `https://lureradar.vercel.app/feeds/rpz.zone` |
 
 Step-by-step: [Pi-hole](examples/pihole.md) · [AdGuard](examples/adguard.md) ·
 [uBlock Origin](examples/ublock.md) · [Unbound RPZ](examples/unbound-rpz.md).
@@ -122,7 +122,7 @@ Details: [how it works](docs/HOW_IT_WORKS.md) · [signals and weights](docs/SIGN
 ## Live stats
 
 The badges above read live JSON published with every feed run
-(`feeds/shields-*.json`, `feeds/stats.json`). The [dashboard](https://abdelrahmanmostafa-eng.github.io/LureRadar/)
+(`feeds/shields-*.json`, `feeds/stats.json`). The [dashboard](https://lureradar.vercel.app/)
 shows the latest detections, each with its signals and a dispute link. Feeds
 refresh daily on a best-effort GitHub Actions schedule; every file carries
 `generated_at`. The dashboard screenshot above shows synthetic demo data.

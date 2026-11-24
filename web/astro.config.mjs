@@ -4,7 +4,7 @@
 // LURERADAR_BASE_URL, e.g. for a custom domain or local audits.
 import { defineConfig } from "astro/config";
 
-const DEFAULT_BASE_URL = "https://abdelrahmanmostafa-eng.github.io/LureRadar/";
+const DEFAULT_BASE_URL = "https://lureradar.vercel.app/";
 
 const raw = (process.env.LURERADAR_BASE_URL || DEFAULT_BASE_URL).trim();
 const url = new URL(raw.endsWith("/") ? raw : `${raw}/`);

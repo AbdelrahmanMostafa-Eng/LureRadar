@@ -8,7 +8,7 @@ from your own scheduler or a forked GitHub Action.
 #!/usr/bin/env bash
 # pcwatch-notify.sh - post to a Discord/Slack webhook when the PC Watch status changes.
 set -euo pipefail
-FEED="https://abdelrahmanmostafa-eng.github.io/LureRadar/feeds/pc-watch.json"
+FEED="https://lureradar.vercel.app/feeds/pc-watch.json"
 STATE_FILE="${STATE_FILE:-$HOME/.cache/pcwatch-last-status}"
 WEBHOOK_URL="${WEBHOOK_URL:?set WEBHOOK_URL to your Discord or Slack incoming webhook}"
 

@@ -24,7 +24,7 @@ Body:
 > download" sites are lures. LureRadar publishes a daily list of likely and
 > confirmed lure domains, precision-first (0 false positives on a 522-domain
 > benign benchmark). Add to Adlists:
-> `https://abdelrahmanmostafa-eng.github.io/LureRadar/feeds/hosts.txt`
+> `https://lureradar.vercel.app/feeds/hosts.txt`
 > Every entry has a dispute link; signatures and checksums are published.
 
 ## r/uBlockOrigin

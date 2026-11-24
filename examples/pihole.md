@@ -4,7 +4,7 @@
 2. Add this address and give it a comment such as `LureRadar launch lures`:
 
    ```text
-   https://abdelrahmanmostafa-eng.github.io/LureRadar/feeds/hosts.txt
+   https://lureradar.vercel.app/feeds/hosts.txt
    ```
 
 3. Update gravity: **Tools → Update Gravity**, or:

@@ -57,7 +57,7 @@ in advance.
   "schema_version": "1.0",
   "generated_at": "2026-11-21T12:00:00Z",
   "generator": "LureRadar/0.1.0",
-  "base_url": "https://abdelrahmanmostafa-eng.github.io/LureRadar/",
+  "base_url": "https://lureradar.vercel.app/",
   "license": "CC0-1.0",
   "min_tier": "likely",
   "count": 1,

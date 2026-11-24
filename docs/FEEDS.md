@@ -2,7 +2,7 @@
 
 LureRadar publishes static, cacheable feeds from GitHub Pages. Every URL
 below is relative to the site's `BASE_URL`
-(`https://abdelrahmanmostafa-eng.github.io/LureRadar/` for the canonical
+(`https://lureradar.vercel.app/` for the canonical
 deployment, configured once in `src/lureradar/config.py`).
 
 ## Endpoints

@@ -236,6 +236,7 @@ node_modules/
 web/dist/
 web/.astro/
 web/public/feeds/
+web/public/schemas/
 web/public/data/generated/
 extension/dist/
 # Secrets: only .env.example is tracked

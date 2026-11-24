@@ -5,12 +5,20 @@ feeds) plus files produced by GitHub Actions. There is no application server:
 the browser checker runs client-side and the Python package is a CLI/library
 used at build time and in scheduled workflows.
 
-## GitHub Pages (canonical)
+## Canonical site: Vercel
+
+The canonical URL is `https://lureradar.vercel.app/` (`DEFAULT_BASE_URL` in
+`src/lureradar/config.py`, mirrored in `web/astro.config.mjs`; a test keeps
+them equal). Feeds, the crawler's User-Agent, schema `$id`s, the browser
+extension and the README all derive from it.
+
+## GitHub Pages (optional mirror)
 
 `pages.yml` builds `web/` with real feeds from the rolling `feeds-latest` and
-`pcwatch-latest` releases and deploys it. The base URL is
-`DEFAULT_BASE_URL` in `src/lureradar/config.py` (a sub-path deployment,
-`/LureRadar/`). Enable it under Settings → Pages → Source: *GitHub Actions*.
+`pcwatch-latest` releases and deploys it under `/<repo>/`. It first checks
+whether Pages is enabled for the repository and skips cleanly if not, so the
+data workflows that call it stay green. To publish the mirror, enable
+Settings → Pages → Source: *GitHub Actions*.
 
 ## Vercel
 

@@ -11,7 +11,7 @@ server:
 
 rpz:
     name: rpz.lureradar.invalid.
-    url: https://abdelrahmanmostafa-eng.github.io/LureRadar/feeds/rpz.zone
+    url: https://lureradar.vercel.app/feeds/rpz.zone
     zonefile: /var/lib/unbound/lureradar.rpz
     rpz-log: yes
     rpz-log-name: lureradar

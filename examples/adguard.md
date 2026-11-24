@@ -3,7 +3,7 @@
 **AdGuard Home:** Filters → DNS blocklists → *Add blocklist* → *Add a custom list*:
 
 ```text
-https://abdelrahmanmostafa-eng.github.io/LureRadar/feeds/adguard.txt
+https://lureradar.vercel.app/feeds/adguard.txt
 ```
 
 **AdGuard browser extension / apps:** Settings → Filters → Custom → *Add

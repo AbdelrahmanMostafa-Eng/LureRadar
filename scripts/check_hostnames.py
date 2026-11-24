@@ -9,7 +9,8 @@ import sys
 
 from _common import ROOT, repo_files
 
-SITE_HOST = re.compile(r"abdelrahmanmostafa-eng\.github\.io", re.IGNORECASE)
+# The canonical host, plus the retired GitHub Pages host so stale links are caught too.
+SITE_HOST = re.compile(r"lureradar\.vercel\.app|abdelrahmanmostafa-eng\.github\.io", re.IGNORECASE)
 CODE_EXT = {
     ".py",
     ".ts",

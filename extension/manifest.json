@@ -22,7 +22,7 @@
     "webNavigation"
   ],
   "host_permissions": [
-    "https://abdelrahmanmostafa-eng.github.io/*"
+    "https://lureradar.vercel.app/*"
   ],
   "action": {
     "default_title": "LureRadar",

@@ -16,7 +16,7 @@ from lureradar import __version__
 
 #: The canonical public site. Sub-path deployments (GitHub Pages project sites)
 #: are supported: keep the trailing slash.
-DEFAULT_BASE_URL = "https://abdelrahmanmostafa-eng.github.io/LureRadar/"
+DEFAULT_BASE_URL = "https://lureradar.vercel.app/"
 
 #: GitHub ``owner/name`` of the canonical repository.
 REPO = "AbdelrahmanMostafa-Eng/LureRadar"

@@ -57,8 +57,8 @@ watch = ["websockets>=13"]
 lureradar = "lureradar.cli:main"
 
 [project.urls]
-Homepage = "https://abdelrahmanmostafa-eng.github.io/LureRadar/"
-Documentation = "https://abdelrahmanmostafa-eng.github.io/LureRadar/docs/"
+Homepage = "https://lureradar.vercel.app/"
+Documentation = "https://lureradar.vercel.app/docs/"
 Repository = "https://github.com/AbdelrahmanMostafa-Eng/LureRadar"
 Issues = "https://github.com/AbdelrahmanMostafa-Eng/LureRadar/issues"
 Changelog = "https://github.com/AbdelrahmanMostafa-Eng/LureRadar/blob/main/CHANGELOG.md"

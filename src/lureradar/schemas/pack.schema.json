@@ -279,7 +279,7 @@
       "type": "object"
     }
   },
-  "$id": "https://abdelrahmanmostafa-eng.github.io/LureRadar/schemas/pack-1.schema.json",
+  "$id": "https://lureradar.vercel.app/schemas/pack-1.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "A campaign pack, fully resolved (file references already loaded).",

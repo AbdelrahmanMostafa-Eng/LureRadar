@@ -16,7 +16,7 @@ from the tier (LIKELY 75, CONFIRMED 95).
 The CSV starts with one `#` metadata line; skip it when loading:
 
 ```bash
-curl -fsS https://abdelrahmanmostafa-eng.github.io/LureRadar/feeds/indicators.csv | grep -v '^#' > lureradar_indicators.csv
+curl -fsS https://lureradar.vercel.app/feeds/indicators.csv | grep -v '^#' > lureradar_indicators.csv
 ```
 
 ```text
@@ -28,7 +28,7 @@ curl -fsS https://abdelrahmanmostafa-eng.github.io/LureRadar/feeds/indicators.cs
 ```python
 import httpx
 
-feed = httpx.get("https://abdelrahmanmostafa-eng.github.io/LureRadar/feeds/latest.json").json()
+feed = httpx.get("https://lureradar.vercel.app/feeds/latest.json").json()
 bad = {i["domain"] for i in feed["indicators"]}
 ```
 

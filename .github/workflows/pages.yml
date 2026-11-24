@@ -1,7 +1,7 @@
 name: Pages
 
-# The single deployer for https://<owner>.github.io/<repo>/: site + docs +
-# feeds + PC Watch in one artifact. Called by feed-refresh and pc-watch, and
+# Optional mirror on GitHub Pages (https://<owner>.github.io/<repo>/): site +
+# docs + feeds + PC Watch in one artifact. The canonical site is on Vercel. Called by feed-refresh and pc-watch, and
 # on pushes that change the site or docs.
 on:
   push:
@@ -18,7 +18,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Pages is optional: the live site is on Vercel (docs/DEPLOY.md). When Pages
+  # is not enabled for the repository, skip cleanly instead of failing every
+  # caller (feed-refresh, pc-watch). Enabling Pages turns this back on.
+  check:
+    name: Is GitHub Pages enabled?
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pages: read
+    outputs:
+      enabled: ${{ steps.pages.outputs.enabled }}
+    steps:
+      - id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${GITHUB_REPOSITORY}/pages" --silent 2>/dev/null; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=GitHub Pages is not enabled::Skipping the Pages deploy (the Vercel site is unaffected). To also publish on Pages: Settings > Pages > Source: GitHub Actions."
+          fi
+
   build:
+    needs: check
+    if: needs.check.outputs.enabled == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -47,6 +72,9 @@ jobs:
       - name: Build site
         if: hashFiles('web/package-lock.json') != ''
         run: |
+          # Pages serves the site under /<repo>/, not at the canonical (Vercel) root.
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          export LURERADAR_BASE_URL="https://${owner}.github.io/${GITHUB_REPOSITORY#*/}/"
           (cd web && npm ci)
           uv run python scripts/build_site_data.py --feeds build/public/feeds
           cd web && npm run build && npm test
@@ -61,7 +89,8 @@ jobs:
           path: web/dist
 
   deploy:
-    needs: build
+    needs: [check, build]
+    if: needs.check.outputs.enabled == 'true'
     runs-on: ubuntu-latest
     permissions:
       pages: write

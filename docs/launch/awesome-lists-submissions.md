@@ -9,7 +9,7 @@
 | sbilly/awesome-security | Threat Intelligence | `- [LureRadar](https://github.com/AbdelrahmanMostafa-Eng/LureRadar) - Explainable detection of hyped-launch scams with free blocklists (Pi-hole, uBlock, RPZ) and STIX feeds.` |
 | jivoi/awesome-osint | Domain and IP Research | `- [LureRadar](https://github.com/AbdelrahmanMostafa-Eng/LureRadar) - Certificate Transparency and feed-driven radar for launch-lure domains, with explainable scores.` |
 | hslatman/awesome-threat-intelligence | Sources | `- [LureRadar](https://github.com/AbdelrahmanMostafa-Eng/LureRadar) - Daily CC0 feed of launch-lure domains (JSON, CSV, STIX 2.1, RPZ), signed and disputable.` |
-| awesome-pihole lists (e.g. community curated "awesome-pihole") | Blocklists | `- [LureRadar](https://abdelrahmanmostafa-eng.github.io/LureRadar/feeds/hosts.txt) - Fake game-launch download and key-generator domains (LIKELY+ only).` |
+| awesome-pihole lists (e.g. community curated "awesome-pihole") | Blocklists | `- [LureRadar](https://lureradar.vercel.app/feeds/hosts.txt) - Fake game-launch download and key-generator domains (LIKELY+ only).` |
 | vinta/awesome-python | Security | `- [LureRadar](https://github.com/AbdelrahmanMostafa-Eng/LureRadar) - Explainable scam-domain detection CLI with an SSRF-hardened fetcher.` |
 
 Notes:

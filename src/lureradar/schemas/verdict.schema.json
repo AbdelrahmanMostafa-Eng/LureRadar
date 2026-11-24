@@ -194,7 +194,7 @@
       "type": "object"
     }
   },
-  "$id": "https://abdelrahmanmostafa-eng.github.io/LureRadar/schemas/verdict-1.0.schema.json",
+  "$id": "https://lureradar.vercel.app/schemas/verdict-1.0.schema.json",
   "$ref": "#/$defs/Verdict",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "x-schema-version": "1.0"

@@ -305,3 +305,17 @@ keep a slim themed scrollbar so their overflow stays discoverable. The pass
 also fixed horizontal overflow on phones (a closed `<details>` menu panel, an
 invisible radar tooltip, visually-hidden table labels escaping their scroll
 container), now checked at 360/390/768/1024/1440 px on every page.
+
+## ADR-025: The Vercel URL is canonical; GitHub Pages is an optional mirror
+
+GitHub Pages was never enabled on the repository, so every link to the Pages
+URL (README badges and blocklist URLs, setup examples, the browser extension's
+feed source, schema `$id`s and the crawler's User-Agent "bot" page) returned
+404, and every data workflow failed at its final Pages step. `DEFAULT_BASE_URL`
+is now `https://lureradar.vercel.app/`; derived files were regenerated
+(`scripts/gen_schemas.py`, `scripts/sync_extension.py`) and the hostname guard
+now also rejects the retired host outside documented exceptions. The site
+publishes the JSON Schemas at their `$id` URLs, and always ships
+`pc-watch.atom` and its badge (generated from the honest status when no PC
+Watch release exists yet). `pages.yml` checks whether Pages is enabled and
+skips cleanly if not; when enabled it builds for its own `/<repo>/` URL.

@@ -70,6 +70,24 @@ def pcwatch_state(feeds: Path | None) -> dict[str, Any]:
     return json.loads(to_json(state))
 
 
+def ensure_pcwatch_outputs(feeds: Path | None, out: Path) -> None:
+    """pc-watch.atom and its badge always exist on the site (linked from every
+    page), even before the first published PC Watch run. Published files win."""
+    from lureradar.packs.loader import load_packs
+    from lureradar.pcwatch.config import load_config
+    from lureradar.pcwatch.feed import badge, load_state, to_atom
+    from lureradar.pcwatch.status import resolve
+
+    state = load_state(feeds / "pc-watch.json") if feeds is not None else None
+    if state is None:
+        (pack,) = load_packs(["gta6"])
+        state = resolve(pack, load_config(pack), None, None, datetime.now(UTC))
+    if not (out / "pc-watch.atom").is_file():
+        (out / "pc-watch.atom").write_text(to_atom(state), encoding="utf-8")
+    if not (out / "shields-pc-watch.json").is_file():
+        (out / "shields-pc-watch.json").write_bytes(badge(state))
+
+
 # --------------------------------------------------------------------- rules
 def psl_rules() -> dict[str, list[str]]:
     """PSL rules in ASCII form; ``private`` holds private-section rules (``*.x`` / ``!x`` kept)."""
@@ -442,6 +460,14 @@ def main(argv: list[str] | None = None) -> int:
             if path.is_file():
                 shutil.copyfile(path, preview / path.name)
         shutil.copyfile(GEN / "pc-watch.json", preview / "pc-watch.json")
+        ensure_pcwatch_outputs(args.feeds, preview)
+    # Serve the JSON Schemas at the URLs their "$id"s promise.
+    schemas_out = PUBLIC / "schemas"
+    schemas_out.mkdir(parents=True, exist_ok=True)
+    for schema in (ROOT / "src" / "lureradar" / "schemas").glob("*.schema.json"):
+        doc = json.loads(schema.read_text("utf-8"))
+        published = doc.get("$id", "").rsplit("/", 1)[-1] or schema.name
+        shutil.copyfile(schema, schemas_out / published)
 
     from lureradar import __version__
     from lureradar.config import REPO_URL, base_url

@@ -72,21 +72,30 @@ class CrtShSource(HttpSource):
     ) -> None:
         super().__init__(settings, **kw)
         self.terms = keywords or DEFAULT_TERMS
+        self.failed_queries = 0
 
     def probe_url(self) -> str:
         return "https://crt.sh/?q=example.com&output=json&exclude=expired"
 
     def fetch(self, since: datetime) -> Iterable[Candidate]:
+        self.failed_queries = 0
         if self.fixtures is not None:
             yield from parse_entries(orjson.loads(self.fixture_bytes()), since)
             return
+        last_error = ""
         for i, term in enumerate(self.terms):
             if i:
                 time.sleep(self.interval_s)
             url = f"https://crt.sh/?q={quote('%' + term + '%')}&output=json&exclude=expired"
             try:
                 data = orjson.loads(self.request("GET", url).content)
-            except (SourceError, orjson.JSONDecodeError):
-                continue  # one failed term must not stop the others
+            except (SourceError, orjson.JSONDecodeError) as exc:
+                # One failed term must not stop the others, but it is counted:
+                # an outage must never be reported as "ok, nothing found".
+                self.failed_queries += 1
+                last_error = str(exc)[:120]
+                continue
             if isinstance(data, list):
                 yield from parse_entries(data, since)
+        if self.terms and self.failed_queries == len(self.terms):
+            raise SourceError(f"all {len(self.terms)} crt.sh queries failed (last: {last_error})")

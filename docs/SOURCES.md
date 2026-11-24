@@ -47,12 +47,13 @@ recorded by running `lureradar doctor` (see
 
 | Source | last_verified (live) | Verified by |
 |---|---|---|
-| crt.sh | pending first CI run | `feed-refresh` doctor report |
-| OpenPhish | pending first CI run | `feed-refresh` doctor report |
-| URLhaus | pending (needs `LURERADAR_URLHAUS_KEY` secret) | `feed-refresh` doctor report |
-| Safe Browsing | pending (needs `LURERADAR_SAFEBROWSING_KEY` secret) | `feed-refresh` doctor report |
-| urlscan.io | pending first CI run | `feed-refresh` doctor report |
-| RDAP | pending first CI run | `feed-refresh` doctor report |
+| crt.sh | 2026-11-24: reachable but unreliable (doctor probe timed out; scan queries finished in 131 s with 0 candidates). Partial or total query failures are now reported as `partial` / `failed`, never as an empty `ok`. | `feed-refresh` doctor + scan report |
+| OpenPhish | 2026-11-24: OK (HTTP 200; 265 entries, none launch-themed) | `feed-refresh` doctor + scan report |
+| URLhaus | not enabled (needs the `LURERADAR_URLHAUS_KEY` secret) | `feed-refresh` doctor report |
+| Safe Browsing | not enabled (needs the `LURERADAR_SAFEBROWSING_KEY` secret) | `feed-refresh` doctor report |
+| urlscan.io | 2026-11-24: OK (HTTP 200) | `feed-refresh` doctor + scan report |
+| RDAP | not exercised yet: no candidate passed the campaign prefilter, so nothing needed enrichment | `feed-refresh` scan report |
+| PC Watch: Take-Two press releases, SEC EDGAR, Steam | 2026-11-24: OK (5, 40 and 1 relevant items; 0 PC findings) | `pc-watch` run |
 
 ## Terms notes (re-check before enabling in production)
 

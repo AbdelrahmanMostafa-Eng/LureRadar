@@ -61,6 +61,20 @@ def test_crtsh_live_path_with_mock_client() -> None:
     src.interval_s = 0
     src.backoff_s = 0
     assert len(list(src.fetch(SINCE))) >= 7
+    assert src.failed_queries == 1  # the 503 term is counted, not hidden
+
+
+def test_crtsh_total_outage_is_an_error_not_an_empty_result() -> None:
+    def handler(req: httpx.Request) -> httpx.Response:
+        raise httpx.ReadTimeout("timed out", request=req)
+
+    src = CrtShSource(
+        keywords=["gta6", "gtavi"], client=httpx.Client(transport=httpx.MockTransport(handler))
+    )
+    src.interval_s = 0
+    src.backoff_s = 0
+    with pytest.raises(SourceError, match=r"all 2 crt\.sh queries failed"):
+        list(src.fetch(SINCE))
 
 
 def test_retry_then_source_error() -> None:

@@ -81,6 +81,8 @@ def collect(
         try:
             got = list(src.fetch(since))
             report[name] = {"status": "ok", "candidates": len(got)}
+            if failed := int(getattr(src, "failed_queries", 0) or 0):
+                report[name] |= {"status": "partial", "failed_queries": failed}
             candidates.extend(got)
         except LureRadarError as exc:
             report[name] = {"status": "failed", "error": str(exc)[:200]}

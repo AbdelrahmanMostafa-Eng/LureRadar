@@ -307,7 +307,8 @@ label { font-weight: 500; font-size: 0.92rem; }
 .command svg { width: 18px; height: 18px; color: var(--muted); flex-shrink: 0; }
 .command input { border: 0; background: transparent; box-shadow: none !important; min-height: 46px; padding: 0 6px; flex: 1; min-width: 0; text-overflow: ellipsis; }
 .command .btn { flex-shrink: 0; }
-@media (max-width: 480px) { .command { padding-left: 12px; } .command input { font-size: 0.86rem; padding: 0 4px; } }
+@media (max-width: 480px) { .command { padding-left: 12px; gap: 4px; } .command input { font-size: 0.82rem; padding: 0 4px; } .command .btn { padding: 0 14px; } }
+@media (max-width: 380px) { .command .btn-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } .command .btn { padding: 0 16px; } }
 
 /* =========================================================================
    Cards, readouts

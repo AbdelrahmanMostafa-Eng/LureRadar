@@ -4,13 +4,13 @@
 # Base images are tracked by Dependabot (docker ecosystem); pin by digest in
 # your own deployments if you need fully reproducible pulls.
 
-FROM python:3.12-slim AS build
+FROM python:3.15-slim AS build
 COPY --from=ghcr.io/astral-sh/uv:0.11 /uv /usr/local/bin/uv
 WORKDIR /src
 COPY . .
 RUN uv build --wheel --out-dir /dist
 
-FROM python:3.12-slim
+FROM python:3.15-slim
 LABEL org.opencontainers.image.title="LureRadar" \
       org.opencontainers.image.description="Open threat radar for hyped-launch scams" \
       org.opencontainers.image.source="https://github.com/AbdelrahmanMostafa-Eng/LureRadar" \

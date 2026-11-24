@@ -121,6 +121,30 @@ h1 em.warn, h2 em.warn, .display em.warn { color: var(--danger); }
 }
 
 /* =========================================================================
+   Cursor: a radar reticle; interactive things get lock-on brackets.
+   Outlined so it reads on both themes. Touch devices are untouched.
+   ========================================================================= */
+:root { --cur-default: auto; --cur-pointer: pointer; }
+@media (hover: hover) and (pointer: fine) {
+  :root {
+    --cur-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E %3Cg fill='none' stroke='%23080a09' stroke-opacity='.7' stroke-width='3'%3E%3Ccircle cx='12' cy='12' r='5.5'/%3E%3Cpath d='M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4'/%3E%3C/g%3E %3Cg fill='none' stroke='%23e8ebe5' stroke-width='1.3'%3E%3Ccircle cx='12' cy='12' r='5.5'/%3E%3Cpath d='M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4'/%3E%3C/g%3E %3Ccircle cx='12' cy='12' r='1.7' fill='%235be6a7' stroke='%23080a09' stroke-width='.8'/%3E%3C/svg%3E") 12 12, crosshair;
+    --cur-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E %3Cpath d='M3 9V3h6M19 3h6v6M25 19v6h-6M9 25H3v-6' fill='none' stroke='%23080a09' stroke-opacity='.7' stroke-width='3.2' stroke-linecap='square'/%3E %3Cpath d='M3 9V3h6M19 3h6v6M25 19v6h-6M9 25H3v-6' fill='none' stroke='%235be6a7' stroke-width='1.6' stroke-linecap='square'/%3E %3Ccircle cx='14' cy='14' r='2.3' fill='%235be6a7' stroke='%23080a09' stroke-width='.9'/%3E%3C/svg%3E") 14 14, pointer;
+  }
+  html { cursor: var(--cur-default); }
+  a, button, summary, label[for], select, [role="tab"], [data-copy] { cursor: var(--cur-pointer); }
+  input, textarea, [contenteditable] { cursor: text; }
+  :disabled { cursor: not-allowed; }
+}
+/* Lock-on brackets that snap around the control under the pointer (chrome.ts). */
+.lockon { position: fixed; left: 0; top: 0; z-index: 70; pointer-events: none; opacity: 0; transition: opacity 0.25s; }
+.lockon.on { opacity: 1; }
+.lockon i { position: absolute; left: 0; top: 0; width: 9px; height: 9px; border: 0 solid var(--radar); transition: transform 0.42s var(--ease-out); will-change: transform; }
+.lockon i:nth-child(1) { border-top-width: 1.5px; border-left-width: 1.5px; }
+.lockon i:nth-child(2) { border-top-width: 1.5px; border-right-width: 1.5px; }
+.lockon i:nth-child(3) { border-bottom-width: 1.5px; border-right-width: 1.5px; }
+.lockon i:nth-child(4) { border-bottom-width: 1.5px; border-left-width: 1.5px; }
+
+/* =========================================================================
    Layout
    ========================================================================= */
 .wrap { width: min(var(--max), 100% - 2 * var(--gutter)); margin-inline: auto; }
@@ -163,13 +187,17 @@ section { margin-top: clamp(72px, 9vw, 128px); }
    ========================================================================= */
 .site-header {
   position: sticky; top: 0; z-index: 50;
-  background: color-mix(in srgb, var(--bg) 80%, transparent);
-  backdrop-filter: saturate(1.4) blur(14px);
-  -webkit-backdrop-filter: saturate(1.4) blur(14px);
-  border-bottom: 1px solid transparent;
+  /* Frosted, not see-through: content passing underneath is blurred and
+     dimmed so it never mixes with the header's own text. */
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  /* standard property last: the minifier keeps only the last of the pair */
+  -webkit-backdrop-filter: saturate(1.6) blur(24px);
+  backdrop-filter: saturate(1.6) blur(24px);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
   transition: background-color 0.4s, border-color 0.4s, box-shadow 0.4s;
 }
-.site-header[data-elevated] { border-bottom-color: var(--border); box-shadow: 0 10px 30px -20px rgb(0 0 0 / 0.5); }
+.site-header[data-elevated] { background: color-mix(in srgb, var(--bg) 96%, transparent); -webkit-backdrop-filter: saturate(1.6) blur(32px); backdrop-filter: saturate(1.6) blur(32px); border-bottom-color: var(--border); box-shadow: 0 12px 32px -22px rgb(0 0 0 / 0.6); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .site-header, .site-header[data-elevated] { background: var(--bg); } }
 .scroll-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; pointer-events: none; overflow: hidden; }
 .scroll-progress > span { display: block; height: 100%; background: linear-gradient(90deg, color-mix(in srgb, var(--radar) 30%, transparent), var(--radar)); transform-origin: left center; transform: scaleX(0); will-change: transform; }
 .header-inner { display: flex; align-items: center; gap: 20px; height: var(--header-h); }
@@ -195,7 +223,7 @@ section { margin-top: clamp(72px, 9vw, 128px); }
 .header-actions { display: flex; align-items: center; gap: 8px; }
 .icon-btn {
   display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 10px;
-  border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer;
+  border: 1px solid var(--border); background: transparent; color: var(--text); cursor: var(--cur-pointer);
   transition: border-color 0.25s, background-color 0.25s;
 }
 .icon-btn:hover { border-color: var(--border-strong); background: var(--surface); }
@@ -254,27 +282,39 @@ html.menu-open { overflow: hidden; }
    ========================================================================= */
 .btn {
   --btn-bg: transparent; --btn-fg: var(--text); --btn-bd: var(--border-strong);
-  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  min-height: 44px; padding: 0 18px; border-radius: 10px;
+  --btn-fill: var(--surface-2); --btn-fill-fg: var(--text);
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+  min-height: 46px; padding: 0 20px; border-radius: 10px;
   border: 1px solid var(--btn-bd); background: var(--btn-bg); color: var(--btn-fg);
-  font: 500 0.92rem/1 var(--font-ui); letter-spacing: -0.005em; text-decoration: none; white-space: nowrap;
-  cursor: pointer; isolation: isolate; overflow: hidden;
-  transition: transform 0.35s var(--ease-out), border-color 0.25s, background-color 0.25s, color 0.25s, box-shadow 0.35s;
+  /* engraved panel-key labels, set in the display face */
+  font: 600 0.8rem/1 var(--font-display); font-stretch: 86%; letter-spacing: 0.1em; text-transform: uppercase;
+  text-decoration: none; white-space: nowrap;
+  cursor: var(--cur-pointer); isolation: isolate; overflow: hidden;
+  transition: transform 0.35s var(--ease-out), border-color 0.3s, color 0.35s var(--ease-out), box-shadow 0.45s var(--ease-out);
 }
-.btn:hover { --btn-bd: var(--muted); color: var(--btn-fg); }
-.btn:active { transform: translateY(1px) scale(0.99); }
-.btn.primary { --btn-bg: var(--paper); --btn-fg: var(--bg); --btn-bd: var(--paper); box-shadow: 0 10px 30px -14px color-mix(in srgb, var(--paper) 50%, transparent); }
-.btn.primary:hover { --btn-bd: var(--paper); box-shadow: 0 16px 36px -16px color-mix(in srgb, var(--paper) 65%, transparent); }
-.btn.primary::before {
-  content: ""; position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.35) 50%, transparent 70%);
-  transform: translateX(-120%); transition: transform 0.9s var(--ease-out);
+/* Hover: a fill sweeps across like the radar arm passing over a contact. */
+.btn::before {
+  content: ""; position: absolute; inset: -1px; z-index: -1; background: var(--btn-fill);
+  transform: scaleX(0); transform-origin: right center; transition: transform 0.55s var(--ease-out);
 }
-.btn.primary:hover::before { transform: translateX(120%); }
-.btn.accent { --btn-bg: var(--radar); --btn-fg: var(--on-accent); --btn-bd: var(--radar); }
-.btn.small { min-height: 32px; padding: 0 12px; font-size: 0.8rem; border-radius: 8px; gap: 6px; }
-.btn .arr, .arrow-link .arr { display: inline-block; transition: transform 0.45s var(--ease-out); }
-.btn:hover .arr, .arrow-link:hover .arr { transform: translateX(4px); }
+.btn:hover::before, .btn:focus-visible::before { transform: scaleX(1); transform-origin: left center; }
+.btn:hover, .btn:focus-visible { --btn-bd: color-mix(in srgb, var(--radar) 55%, var(--border-strong)); color: var(--btn-fill-fg); }
+.btn:active { transform: translateY(1px) scale(0.985); }
+.btn.primary {
+  --btn-bg: var(--paper); --btn-fg: var(--bg); --btn-bd: var(--paper);
+  --btn-fill: var(--radar); --btn-fill-fg: var(--on-accent);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 12px 32px -16px color-mix(in srgb, var(--paper) 55%, transparent);
+}
+.btn.primary:hover, .btn.primary:focus-visible { --btn-bd: var(--radar); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3), 0 16px 40px -14px color-mix(in srgb, var(--radar) 60%, transparent); }
+.btn.accent { --btn-bg: var(--radar); --btn-fg: var(--on-accent); --btn-bd: var(--radar); --btn-fill: var(--paper); --btn-fill-fg: var(--bg); }
+.btn.small { min-height: 32px; padding: 0 12px; font-size: 0.7rem; letter-spacing: 0.08em; border-radius: 8px; gap: 7px; }
+/* Label roll: each letter slides up and a copy (its own text-shadow) slides in,
+   staggered. Screen readers get the plain text (see initButtons in chrome.ts). */
+.btn .lbl { display: inline-flex; overflow: hidden; height: 1.25em; line-height: 1.25; padding-top: 0.04em; }
+.btn .lbl > span { display: inline-block; white-space: pre; text-shadow: 0 1.25em currentColor; transition: transform 0.5s var(--ease-out); transition-delay: calc(var(--n, 0) * 14ms); }
+.btn:hover .lbl > span, .btn:focus-visible .lbl > span { transform: translateY(-1.25em); }
+.btn .arr, .arrow-link .arr { display: inline-block; font-family: var(--font-ui); letter-spacing: 0; transition: transform 0.45s var(--ease-out); }
+.btn:hover .arr, .btn:focus-visible .arr, .arrow-link:hover .arr { transform: translateX(4px); }
 .arrow-link { display: inline-flex; align-items: center; gap: 8px; color: var(--text); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
 .arrow-link .txt { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size 0.5s var(--ease-out); padding-bottom: 2px; }
 .arrow-link:hover .txt { background-size: 100% 1px; }
@@ -500,6 +540,7 @@ dialog.drawer::backdrop { background: var(--scrim); backdrop-filter: blur(3px); 
   .site-header { view-transition-name: site-header; }
   .freshness { view-transition-name: status-rail; }
 }
+.theme-anim, .theme-anim *, .theme-anim *::before, .theme-anim *::after { transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, fill 0.35s ease, stroke 0.35s ease, box-shadow 0.35s ease !important; }
 @keyframes vt-out { to { opacity: 0; transform: translateY(-6px); } }
 @keyframes vt-in { from { opacity: 0; transform: translateY(10px); } }
 

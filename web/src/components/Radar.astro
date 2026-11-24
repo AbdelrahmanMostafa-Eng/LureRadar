@@ -5,7 +5,7 @@
 // on the tier thresholds (90 CONFIRMED, 70 LIKELY, 40 SUSPICIOUS). Likely and
 // confirmed contacts are marked (ring / lock brackets) as the sweep passes.
 // Respects prefers-reduced-motion (static frame).
-import { all, polar, defang } from "../lib/site";
+import { all, polar, defang, href, TIER_LABEL } from "../lib/site";
 
 const PERIOD = 7;
 const C = 220;
@@ -18,6 +18,7 @@ const contacts = items
     const r = range(i.score);
     const rad = ((angle - 90) * Math.PI) / 180;
     return {
+      id: 0,
       x: C + Math.cos(rad) * R * r,
       y: C + Math.sin(rad) * R * r,
       angle,
@@ -26,10 +27,13 @@ const contacts = items
       color: i.tier === "suspicious" ? "var(--amber)" : "var(--danger)",
       label: defang(i.domain),
       score: i.score,
+      tier: TIER_LABEL[i.tier] ?? i.tier,
     };
   })
-  .sort((a, b) => b.score - a.score);
+  .sort((a, b) => b.score - a.score)
+  .map((c, i) => ({ ...c, id: i }));
 const top = contacts.slice(0, 3);
+const radarPage = href("radar/");
 const rings = [
   { score: 90, label: "90 · CONFIRMED" },
   { score: 70, label: "70 · LIKELY" },
@@ -41,7 +45,7 @@ const pt = (deg: number, rr: number) => {
   return [C + Math.cos(a) * rr, C + Math.sin(a) * rr];
 };
 ---
-<figure class="radar" aria-labelledby="radar-cap">
+<figure class="radar" aria-labelledby="radar-cap" data-radar-page={radarPage}>
   <div class="scope frame" style={`--period:${PERIOD}s`}>
     <div class="glass" aria-hidden="true"></div>
     <div class="sweep" aria-hidden="true"></div>
@@ -73,7 +77,7 @@ const pt = (deg: number, rr: number) => {
     </svg>
     <div class="layer" aria-hidden="true">
       {contacts.map((b) => (
-        <span class={`c ${b.kind}`} style={`left:${(b.x / 4.4).toFixed(2)}%;top:${(b.y / 4.4).toFixed(2)}%;--d:${b.delay.toFixed(2)}s;--c:${b.color}`}>
+        <span class={`c ${b.kind}`} data-id={b.id} data-dom={b.label} data-score={b.score} data-tier={b.tier} data-brg={String(b.angle).padStart(3, "0")} style={`left:${(b.x / 4.4).toFixed(2)}%;top:${(b.y / 4.4).toFixed(2)}%;--d:${b.delay.toFixed(2)}s;--c:${b.color}`}>
           <i class="halo"></i>
           <i class="blip"></i>
           {b.kind === "likely" && <i class="mark ring"></i>}
@@ -86,15 +90,23 @@ const pt = (deg: number, rr: number) => {
     </div>
   </div>
   <figcaption>
-    <p id="radar-cap" class="cap">
-      <span>{contacts.length} contact{contacts.length === 1 ? "" : "s"}</span>
-      <span aria-hidden="true">·</span>
-      <span>range = score · rings at 90 / 70 / 40</span>
-    </p>
+    <div class="cap-row">
+      <p id="radar-cap" class="cap">
+        <span>{contacts.length} contact{contacts.length === 1 ? "" : "s"}</span>
+        <span aria-hidden="true">·</span>
+        <span>range = score</span>
+      </p>
+      <button type="button" class="sweep-toggle" aria-pressed="false" data-sweep-toggle>
+        <svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9M11 3.5v9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+        <svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3.5v9l7-4.5z" fill="currentColor" /></svg>
+        <span class="t">Pause sweep</span>
+      </button>
+    </div>
+    <p class="lock-readout" aria-live="polite" data-lock-readout><span class="idle">Select a contact to lock on</span></p>
     {top.length > 0 && (
       <ol class="contacts">
         {top.map((c) => (
-          <li><span class="brg">{String(c.angle).padStart(3, "0")}°</span><span class="dom">{c.label}</span><span class="sc" style={`color:${c.color}`}>{c.score}</span></li>
+          <li><button type="button" data-lock={c.id} aria-pressed="false"><span class="brg">{String(c.angle).padStart(3, "0")}°</span><span class="dom">{c.label}</span><span class="sc" style={`color:${c.color}`}>{c.score}</span></button></li>
         ))}
       </ol>
     )}
@@ -123,7 +135,7 @@ const pt = (deg: number, rr: number) => {
   /* Contacts are HTML so their animations run on the compositor, not the main thread. */
   .layer { position: absolute; inset: 0; pointer-events: none; }
   .c { position: absolute; width: 0; height: 0; color: var(--c); pointer-events: auto; }
-  .c::before { content: ""; position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; cursor: crosshair; }
+  .c::before { content: ""; position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; cursor: var(--cur-pointer); }
   .c > * { position: absolute; display: block; border-radius: 50%; animation-duration: var(--period); animation-timing-function: linear; animation-iteration-count: infinite; animation-delay: var(--d); will-change: transform, opacity; }
   .blip { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; background: currentColor; animation-name: lr-blip; }
   .suspicious .blip { background: var(--bg); box-shadow: inset 0 0 0 1.6px currentColor; }
@@ -147,15 +159,125 @@ const pt = (deg: number, rr: number) => {
   @keyframes lr-blip { 0% { opacity: 1; transform: scale(1.7); } 6% { opacity: 1; transform: scale(1); } 65% { opacity: 0.55; } 100% { opacity: 0.4; transform: scale(1); } }
   @keyframes lr-halo { 0% { opacity: 0.9; transform: scale(1); } 20%, 100% { opacity: 0; transform: scale(4); } }
   @keyframes lr-mark { 0%, 3% { opacity: 0; transform: scale(1.8); } 11% { opacity: 1; transform: scale(1); } 70% { opacity: 0.8; } 100% { opacity: 0.3; transform: scale(1); } }
+  /* Interaction: tilt toward the pointer, sonar ping, contact lock, pause. */
+  .scope { transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform 0.7s var(--ease-out); transform-style: flat; }
+  .scope.paused .sweep, .scope.paused .c > * { animation-play-state: paused; }
+  .scope :global(.ping) { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; border: 1px solid var(--radar); pointer-events: none; animation: lr-ping 1.4s var(--ease-out) forwards; }
+  .scope :global(.ping)::after { content: ""; position: absolute; inset: -1px; border-radius: 50%; border: 1px solid var(--radar); animation: lr-ping 1.4s 0.18s var(--ease-out) forwards; opacity: 0; }
+  @keyframes lr-ping { from { opacity: 0.9; transform: scale(1); } to { opacity: 0; transform: scale(9); } }
+  .c.hl > .blip, .c.locked > .blip { animation: none; opacity: 1; transform: scale(1.35); }
+  .c.locked::after { content: ""; position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 1px dashed currentColor; animation: lr-spin 6s linear infinite; }
+  @keyframes lr-spin { to { transform: rotate(360deg); } }
   figcaption { width: 100%; max-width: 440px; }
+  .cap-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .cap-row .cap { margin: 0; justify-content: flex-start; }
+  .sweep-toggle { display: inline-flex; align-items: center; gap: 7px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--muted); font: 500 0.66rem/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; cursor: var(--cur-pointer); transition: color 0.25s, border-color 0.25s; flex-shrink: 0; }
+  .sweep-toggle:hover { color: var(--text); border-color: var(--border-strong); }
+  .sweep-toggle svg { width: 12px; height: 12px; }
+  .sweep-toggle .i-play, .sweep-toggle[aria-pressed="true"] .i-pause { display: none; }
+  .sweep-toggle[aria-pressed="true"] .i-play { display: block; }
+  .lock-readout { min-height: 3.4em; margin: 0 0 10px; padding: 9px 12px; border: 1px dashed var(--border-strong); border-radius: 8px; font: 400 0.74rem/1.45 var(--font-mono); color: var(--muted); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 12px; align-content: center; }
+  .lock-readout :global(.idle) { grid-column: 1 / -1; }
+  .lock-readout :global(.r1) { grid-column: 1 / -1; }
+  .lock-readout :global(.d) { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lock-readout.on { border-style: solid; border-color: color-mix(in srgb, var(--radar) 45%, var(--border-strong)); color: var(--text-2); background: var(--radar-soft); }
+  .lock-readout :global(b) { font-weight: 500; color: var(--radar); letter-spacing: 0.12em; }
+  .lock-readout :global(a) { color: var(--text); white-space: nowrap; }
   .cap { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 0 0 12px; font: 400 0.72rem/1.4 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
   .contacts { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); font: 400 0.78rem/1.4 var(--font-mono); }
-  .contacts li { display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; padding: 9px 2px; border-bottom: 1px solid var(--border); }
+  .contacts li { border-bottom: 1px solid var(--border); }
+  .contacts button { width: 100%; display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; padding: 9px 6px; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: var(--cur-pointer); border-radius: 6px; transition: background-color 0.2s, padding-left 0.4s var(--ease-out); }
+  .contacts button:hover, .contacts button:focus-visible, .contacts button[aria-pressed="true"] { background: var(--surface); padding-left: 10px; }
+  .contacts button[aria-pressed="true"] .brg { color: var(--radar); }
   .brg { color: var(--muted); }
   .dom { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   @media (prefers-reduced-motion: reduce) {
     .sweep { animation: none; transform: rotate(70deg); }
     .c > *:not(.tip) { animation: none !important; }
+    .scope { transform: none !important; }
     .blip, .mark { opacity: 0.9; }
   }
 </style>
+<script>
+  // Hero radar interactions. Everything is optional polish: the figure is
+  // complete without JavaScript, and the list buttons are the keyboard path.
+  const fig = document.querySelector<HTMLElement>("figure.radar");
+  const scope = fig?.querySelector<HTMLElement>(".scope");
+  if (fig && scope) {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const contacts = [...scope.querySelectorAll<HTMLElement>(".c")];
+    const readout = fig.querySelector<HTMLElement>("[data-lock-readout]")!;
+    const listBtns = [...fig.querySelectorAll<HTMLButtonElement>("[data-lock]")];
+    const radarPage = fig.dataset.radarPage ?? "radar/";
+    let locked: HTMLElement | null = null;
+
+    const showIdle = () => {
+      readout.classList.remove("on");
+      readout.replaceChildren(Object.assign(document.createElement("span"), { className: "idle", textContent: "Select a contact to lock on" }));
+    };
+    const lock = (c: HTMLElement | null) => {
+      locked?.classList.remove("locked");
+      locked = c && c !== locked ? c : null;
+      listBtns.forEach((b) => b.setAttribute("aria-pressed", String(!!locked && b.dataset.lock === locked.dataset.id)));
+      if (!locked) return showIdle();
+      locked.classList.add("locked");
+      const d = locked.dataset;
+      const row1 = document.createElement("span");
+      row1.className = "r1";
+      row1.append(Object.assign(document.createElement("b"), { textContent: "LOCKED" }), ` ${d.brg}° · score ${d.score} · ${d.tier}`);
+      const dom = Object.assign(document.createElement("span"), { className: "d", textContent: d.dom ?? "" });
+      const link = Object.assign(document.createElement("a"), { href: `${radarPage}#q=${encodeURIComponent(d.dom ?? "")}`, textContent: "Inspect →" });
+      readout.replaceChildren(row1, dom, link);
+      readout.classList.add("on");
+    };
+
+    // Contacts: click to lock; list rows cross-highlight their blip.
+    contacts.forEach((c) => c.addEventListener("click", (e) => { e.stopPropagation(); lock(c); }));
+    listBtns.forEach((b) => {
+      const c = contacts.find((x) => x.dataset.id === b.dataset.lock) ?? null;
+      b.addEventListener("click", () => lock(c));
+      const on = () => c?.classList.add("hl");
+      const off = () => c?.classList.remove("hl");
+      b.addEventListener("pointerenter", on); b.addEventListener("pointerleave", off);
+      b.addEventListener("focus", on); b.addEventListener("blur", off);
+    });
+
+    // Sonar ping where the scope is clicked.
+    scope.addEventListener("click", (e) => {
+      if (reduce) return;
+      const r = scope.getBoundingClientRect();
+      const ping = document.createElement("span");
+      ping.className = "ping";
+      ping.style.left = `${((e.clientX - r.left) / r.width) * 100}%`;
+      ping.style.top = `${((e.clientY - r.top) / r.height) * 100}%`;
+      scope.append(ping);
+      ping.addEventListener("animationend", () => ping.remove(), { once: true });
+    });
+
+    // Tilt toward the pointer.
+    if (fine && !reduce) {
+      const zone = fig.closest<HTMLElement>(".hero-radar") ?? fig;
+      let raf = 0;
+      zone.addEventListener("pointermove", (e) => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          const r = scope.getBoundingClientRect();
+          const dx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width / 2)));
+          const dy = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (r.height / 2)));
+          scope.style.setProperty("--ry", `${(dx * 7).toFixed(2)}deg`);
+          scope.style.setProperty("--rx", `${(-dy * 6).toFixed(2)}deg`);
+        });
+      });
+      zone.addEventListener("pointerleave", () => { scope.style.setProperty("--rx", "0deg"); scope.style.setProperty("--ry", "0deg"); });
+    }
+
+    // WCAG 2.2.2: the sweep runs forever, so it can be paused.
+    const toggle = fig.querySelector<HTMLButtonElement>("[data-sweep-toggle]");
+    toggle?.addEventListener("click", () => {
+      const paused = scope.classList.toggle("paused");
+      toggle.setAttribute("aria-pressed", String(paused));
+      toggle.querySelector(".t")!.textContent = paused ? "Resume sweep" : "Pause sweep";
+    });
+  }
+</script>

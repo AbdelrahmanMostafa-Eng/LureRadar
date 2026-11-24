@@ -301,7 +301,7 @@ const jsonld = {
   .tablist { position: relative; display: none; gap: 4px; padding: 8px; border-bottom: 1px solid var(--border); overflow-x: auto; }
   :global(.js) .tablist { display: flex; }
   .tablist [role="tab"] {
-    position: relative; z-index: 1; border: 0; background: none; color: var(--muted); cursor: pointer;
+    position: relative; z-index: 1; border: 0; background: none; color: var(--muted); cursor: var(--cur-pointer);
     font: 500 0.9rem/1 var(--font-ui); padding: 12px 16px; border-radius: 9px; white-space: nowrap; transition: color 0.3s;
   }
   .tablist [role="tab"][aria-selected="true"] { color: var(--text); }

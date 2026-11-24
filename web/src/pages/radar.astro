@@ -120,6 +120,16 @@ const detail = rows.map((r) => ({
     apply();
   }));
   search.addEventListener("input", apply);
+  // Deep link from the home radar ("Inspect on the radar"): #q=<defanged domain>.
+  const fromHash = () => {
+    const hq = new URLSearchParams(location.hash.slice(1)).get("q");
+    if (!hq) return;
+    search.value = hq;
+    apply();
+    document.querySelector(".toolbar")?.scrollIntoView({ block: "start" });
+  };
+  fromHash();
+  window.addEventListener("hashchange", fromHash);
 
   const dialog = document.getElementById("drawer") as HTMLDialogElement;
   const body = document.getElementById("d-body")!;

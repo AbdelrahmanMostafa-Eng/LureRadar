@@ -30,15 +30,67 @@ function applyTheme(t: Theme): void {
   }
 }
 
+let fadeTimer = 0;
 function initTheme(): void {
-  applyTheme(currentTheme());
+  // Track the mode synchronously: the view transition applies it a frame
+  // later, and fast double-clicks must still advance one step each.
+  let mode: Theme = currentTheme();
+  applyTheme(mode);
   document.getElementById("theme-toggle")?.addEventListener("click", () => {
-    const next = THEMES[(THEMES.indexOf(currentTheme()) + 1) % THEMES.length];
-    const swap = () => applyTheme(next);
-    const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
-    if (doc.startViewTransition && !reduceMotion()) doc.startViewTransition(swap);
-    else swap();
+    const next = THEMES[(THEMES.indexOf(mode) + 1) % THEMES.length];
+    mode = next;
+    // A short colour crossfade. (A view transition would swallow clicks while
+    // it plays, so quick repeated toggles would be lost.)
+    const root = document.documentElement;
+    if (!reduceMotion()) {
+      root.classList.add("theme-anim");
+      window.clearTimeout(fadeTimer);
+      fadeTimer = window.setTimeout(() => root.classList.remove("theme-anim"), 450);
+    }
+    applyTheme(next);
   });
+}
+
+/** Give a .btn a letter-by-letter roll label. The letters are aria-hidden;
+ *  a visually-hidden copy keeps the accessible name exactly the same. */
+export function rollLabel(btn: HTMLElement, text?: string): void {
+  const host = btn.querySelector<HTMLElement>(":scope > .btn-label") ?? btn;
+  if (text === undefined) {
+    if (btn.dataset.rolled) return;
+    const node = [...host.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && n.textContent?.trim());
+    if (!node) return;
+    text = node.textContent!.trim();
+    node.replaceWith(document.createTextNode(""));
+  }
+  host.querySelectorAll(":scope > .lbl, :scope > .lbl-sr").forEach((n) => n.remove());
+  const lbl = document.createElement("span");
+  lbl.className = "lbl";
+  lbl.setAttribute("aria-hidden", "true");
+  [...text].forEach((ch, i) => {
+    const span = document.createElement("span");
+    span.textContent = ch;
+    span.style.setProperty("--n", String(i));
+    lbl.append(span);
+  });
+  const sr = document.createElement("span");
+  sr.className = "lbl-sr visually-hidden";
+  sr.textContent = text;
+  host.prepend(lbl, sr);
+  btn.dataset.rolled = text;
+}
+
+function initButtons(): void {
+  document.querySelectorAll<HTMLElement>(".btn").forEach((b) => rollLabel(b));
+  // Buttons created later (drawer actions, verdict cards) get the same label.
+  new MutationObserver((records) => {
+    for (const r of records) {
+      r.addedNodes.forEach((n) => {
+        if (!(n instanceof HTMLElement)) return;
+        if (n.matches(".btn")) rollLabel(n);
+        n.querySelectorAll?.<HTMLElement>(".btn").forEach((b) => rollLabel(b));
+      });
+    }
+  }).observe(document.body, { childList: true, subtree: true });
 }
 
 function initCopy(): void {
@@ -46,19 +98,62 @@ function initCopy(): void {
     const target = (ev.target as HTMLElement | null)?.closest<HTMLElement>("[data-copy]");
     if (!target) return;
     const text = target.dataset.copy ?? "";
-    const old = target.textContent;
+    const label = target.dataset.rolled ?? target.textContent ?? "Copy";
+    const set = (t: string) => (target.classList.contains("btn") ? rollLabel(target, t) : (target.textContent = t));
     try {
       await navigator.clipboard.writeText(text);
-      target.textContent = "Copied";
+      set("Copied");
       target.dataset.copied = "";
     } catch {
-      target.textContent = "Select & copy";
+      set("Select & copy");
     }
     setTimeout(() => {
-      target.textContent = old;
+      set(label);
       delete target.dataset.copied;
     }, 1600);
   });
+}
+
+/** Radar lock-on: brackets fly from the pointer and frame the control under it. */
+function initLockOn(): void {
+  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+  const SEL = ".btn, .icon-btn, .nav a, .arrow-link, [role='tab'], .faq summary, .doclist a, .toc a, .doc-nav a, .brand, .site-footer a, .contacts button, .radar .c";
+  const box = document.createElement("div");
+  box.className = "lockon";
+  box.setAttribute("aria-hidden", "true");
+  const corners = [0, 1, 2, 3].map(() => box.appendChild(document.createElement("i")));
+  document.body.append(box);
+  const S = 9; // corner size
+  let target: HTMLElement | null = null;
+  let px = 0, py = 0;
+  const place = (x: number, y: number, w: number, h: number, pad: number) => {
+    const pts = [[x - pad, y - pad], [x + w + pad - S, y - pad], [x + w + pad - S, y + h + pad - S], [x - pad, y + h + pad - S]];
+    corners.forEach((c, i) => (c.style.transform = `translate3d(${pts[i][0]}px, ${pts[i][1]}px, 0)`));
+  };
+  const collapse = () => place(px - 8, py - 8, 16, 16, 0);
+  const frame = () => {
+    if (!target) return;
+    const r = target.getBoundingClientRect();
+    if (target.matches(".radar .c")) place(r.left - 11, r.top - 11, 22, 22, 0);
+    else place(r.left, r.top, r.width, r.height, 5);
+  };
+  document.addEventListener("pointermove", (e) => { px = e.clientX; py = e.clientY; if (!target) collapse(); }, { passive: true });
+  document.addEventListener("pointerover", (e) => {
+    const t = (e.target as HTMLElement).closest<HTMLElement>(SEL);
+    if (!t || t === target) return;
+    if (!target) collapse();
+    target = t;
+    requestAnimationFrame(() => { frame(); box.classList.add("on"); });
+  });
+  document.addEventListener("pointerout", (e) => {
+    if (!target) return;
+    const to = e.relatedTarget as Node | null;
+    if (to && target.contains(to)) return;
+    target = null;
+    collapse();
+    box.classList.remove("on");
+  });
+  window.addEventListener("scroll", () => requestAnimationFrame(frame), { passive: true });
 }
 
 function initFreshness(): void {
@@ -200,7 +295,9 @@ function initMenu(): void {
 
 export function initChrome(): void {
   initTheme();
+  initButtons();
   initCopy();
+  initLockOn();
   initFreshness();
   initHeader();
   initReveal();

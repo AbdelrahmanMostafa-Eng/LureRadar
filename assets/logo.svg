@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-labelledby="t">
   <title id="t">LureRadar</title>
   <style>
-    .lr-ring { stroke: #3CFFB0; } .lr-fill { fill: #3CFFB0; } .lr-hook { stroke: #FFB020; }
-    .lr-text { fill: #E6EDF3; } .lr-accent { fill: #3CFFB0; }
+    .lr-ring { stroke: #5BE6A7; } .lr-fill { fill: #5BE6A7; } .lr-hook { stroke: #F2B84B; }
+    .lr-text { fill: #E8EBE5; } .lr-accent { fill: #5BE6A7; }
     @media (prefers-color-scheme: light) {
       .lr-ring { stroke: #00805A; } .lr-fill { fill: #00805A; }
-      .lr-hook { stroke: #A35F00; } .lr-text { fill: #0D1117; }
+      .lr-hook { stroke: #A35F00; } .lr-text { fill: #0F1311; }
       .lr-accent { fill: #00805A; }
     }
   </style>
-  <style>svg { color: #3CFFB0; } @media (prefers-color-scheme: light) { svg { color: #00805A; } }</style>
+  <style>svg { color: #5BE6A7; } @media (prefers-color-scheme: light) { svg { color: #00805A; } }</style>
   
   <defs>
     <linearGradient id="lr-sweep" x1="32" y1="32" x2="54" y2="12" gradientUnits="userSpaceOnUse">

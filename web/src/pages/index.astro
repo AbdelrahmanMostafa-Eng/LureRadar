@@ -86,7 +86,7 @@ const jsonld = {
         <div class="label label-caps">In the blocklists</div>
       </div>
       <div>
-        <div class="value" style="color:var(--amber)" data-count={stats.suspicious ?? 0}>{stats.suspicious ?? 0}</div>
+        <div class="value" style={(stats.suspicious ?? 0) ? "color:var(--amber)" : undefined} data-count={stats.suspicious ?? 0}>{stats.suspicious ?? 0}</div>
         <div class="label label-caps">On watch, not blocked</div>
       </div>
       <div>
@@ -133,7 +133,7 @@ const jsonld = {
       <p class="pc-text">{pcStatus === "UNKNOWN"
         ? `No successful automated check in the last 36 hours, so we won't repeat an old answer. Maintainer-confirmed status: ${confirmed} (as of ${pcwatch.confirmed_as_of ?? "?"}).`
         : (pcwatch.answer ?? "Official sources only.")}</p>
-      <p class="muted small">Rockstar Newswire, Take-Two releases and filings, official stores. A status change always needs a maintainer to confirm it.</p>
+      <p class="muted small">Take-Two press releases (which carry Rockstar's announcements), SEC filings, Steam. A status change always needs a maintainer to confirm it.</p>
       <a class="arrow-link" href={href("pc-watch/")}><span class="txt">Read the evidence</span> <span class="arr" aria-hidden="true">→</span></a>
     </aside>
   </section>

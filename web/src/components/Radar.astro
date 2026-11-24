@@ -102,7 +102,7 @@ const pt = (deg: number, rr: number) => {
         <span class="t">Pause sweep</span>
       </button>
     </div>
-    <p class="lock-readout" aria-live="polite" data-lock-readout><span class="idle">Select a contact to lock on</span></p>
+    <p class="lock-readout" aria-live="polite" data-lock-readout data-idle={contacts.length ? "Select a contact to lock on" : "Scope clear: no active contacts right now"}><span class="idle">{contacts.length ? "Select a contact to lock on" : "Scope clear: no active contacts right now"}</span></p>
     {top.length > 0 && (
       <ol class="contacts">
         {top.map((c) => (
@@ -214,7 +214,7 @@ const pt = (deg: number, rr: number) => {
 
     const showIdle = () => {
       readout.classList.remove("on");
-      readout.replaceChildren(Object.assign(document.createElement("span"), { className: "idle", textContent: "Select a contact to lock on" }));
+      readout.replaceChildren(Object.assign(document.createElement("span"), { className: "idle", textContent: readout.dataset.idle ?? "" }));
     };
     const lock = (c: HTMLElement | null) => {
       locked?.classList.remove("locked");

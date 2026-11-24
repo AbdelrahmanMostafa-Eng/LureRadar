@@ -18,7 +18,7 @@ const faq = [
   },
   {
     q: "How will I know when PC is announced?",
-    a: "Subscribe to the PC Watch Atom feed or poll pc-watch.json. LureRadar checks official sources (Rockstar Newswire, Take-Two press releases and filings, official stores) every few hours. When an official announcement appears, a maintainer verifies it and the status changes here.",
+    a: "Subscribe to the PC Watch Atom feed or poll pc-watch.json. LureRadar checks official sources (Take-Two press releases, which carry Rockstar's announcements, SEC filings and the Steam store) every few hours. When an official announcement appears, a maintainer verifies it and the status changes here.",
   },
   {
     q: "Why does the status sometimes say UNKNOWN?",
@@ -85,7 +85,7 @@ const jsonld = {
         </table>
       </div>
     ) : (
-      <div class="empty"><strong>No automated check has run yet</strong>The <code>pc-watch</code> workflow checks Rockstar Newswire, Take-Two press releases and SEC filings, and Steam every 4 hours. Until its first successful run the status above stays UNKNOWN.</div>
+      <div class="empty"><strong>No automated check has run yet</strong>The <code>pc-watch</code> workflow checks Take-Two press releases (which carry Rockstar's announcements), SEC filings and Steam every 4 hours. Until its first successful run the status above stays UNKNOWN.</div>
     )}
     <p class="muted small">Press articles, leaks, rumours and non-official social posts never change the status. Only a maintainer-approved commit to <a href={`${REPO_URL}/blob/main/packs/gta6/facts.yaml`}>facts.yaml</a> does.</p>
 

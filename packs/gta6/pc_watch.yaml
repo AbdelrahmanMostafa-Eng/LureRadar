@@ -29,22 +29,24 @@ sources:
     name: "Rockstar Games Newswire"
     kind: publisher
     url: https://www.rockstargames.com/newswire
-    format: html
+    format: unsupported
     official_domains: [rockstargames.com]
-    required: true
-    expect_min_items: 1
     terms_url: https://www.rockstargames.com/legal
-    notes: "No official RSS/Atom feed found; the HTML listing is parsed for article links."
+    notes: >-
+      Renders client-side: the server returns an app shell with no article list
+      and no RSS/Atom feed (verified 2026-11-24), and the fetcher never runs
+      JavaScript. Rockstar's announcements are republished as Take-Two press
+      releases and SEC filings, which are checked.
   - id: take-two-ir
     name: "Take-Two Interactive press releases"
     kind: investor_relations
-    url: https://www.take2games.com/ir/news
+    url: https://www.take2games.com/ir/press-releases
     format: html
     official_domains: [take2games.com]
     required: true
     expect_min_items: 1
     terms_url: https://www.take2games.com/legal
-    notes: "HTML press-release listing."
+    notes: "HTML press-release listing (moved from /ir/news; verified 2026-11-24). Carries Rockstar's announcements."
   - id: sec-edgar
     name: "SEC EDGAR filings (Take-Two, CIK 0000946581)"
     kind: regulatory
@@ -92,7 +94,7 @@ sources:
     url: https://www.rockstargames.com/
     format: unsupported
     official_domains: [rockstargames.com]
-    notes: "Social APIs need credentials; announcements are mirrored on the Newswire."
+    notes: "Social APIs need credentials; announcements are mirrored by Take-Two press releases."
 
 # Evidence timeline. Seed ONLY entries verified at build time with a live
 # lookup; paraphrase in our own words, quote at most 15 words.

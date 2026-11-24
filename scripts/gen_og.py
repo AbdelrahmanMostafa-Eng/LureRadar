@@ -32,10 +32,13 @@ ASSETS = ROOT / "assets"
 WEB = ROOT / "web"
 PUBLIC = WEB / "public"
 
+sys.path.insert(0, str(ROOT / "src"))
+from lureradar import theme as _theme  # noqa: E402  (single source, pinned to tokens.css by a test)
+
 T = {
-    "bg": "#07090D", "surface": "#0D1117", "border": "#1B232C", "text": "#E6EDF3",
-    "muted": "#8B98A5", "radar": "#3CFFB0", "amber": "#FFB020", "danger": "#FF4D5E",
-    "info": "#4CC2FF",
+    "bg": _theme.BG, "surface": _theme.SURFACE, "border": _theme.BORDER, "text": _theme.TEXT,
+    "muted": _theme.MUTED, "radar": _theme.RADAR, "amber": _theme.AMBER, "danger": _theme.DANGER,
+    "info": _theme.INFO,
 }  # fmt: skip
 TIER = {
     "clear": ("CLEAR", T["radar"]),

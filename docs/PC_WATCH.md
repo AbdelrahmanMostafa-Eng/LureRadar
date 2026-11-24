@@ -33,12 +33,12 @@ the timeline only as "Reported / unconfirmed" items, off by default.
 
 | Source | Endpoint | Format | Required | Status at build time |
 |---|---|---|---|---|
-| Rockstar Games Newswire | `rockstargames.com/newswire` | HTML listing | yes | adapter + fixtures; live check pending first CI run |
-| Take-Two press releases | `take2games.com/ir/news` | HTML listing | yes | adapter + fixtures; live check pending first CI run |
-| SEC EDGAR (Take-Two 8-K) | `sec.gov` Atom feed | Atom | no | adapter + fixtures; SEC may require a contact User-Agent |
-| Steam store search | `store.steampowered.com/api/storesearch` | JSON | no | adapter + fixtures |
+| Rockstar Games Newswire | `rockstargames.com/newswire` | unsupported | no | renders client-side: no server-rendered list and no RSS/Atom (verified 2026-11-24); its announcements are republished by Take-Two and SEC filings |
+| Take-Two press releases | `take2games.com/ir/press-releases` | HTML listing | yes | live OK 2026-11-24 (5 GTA VI items, 0 PC findings); moved from `/ir/news` |
+| SEC EDGAR (Take-Two 8-K) | `sec.gov` Atom feed | Atom | no | live OK 2026-11-24 (40 items) |
+| Steam store search | `store.steampowered.com/api/storesearch` | JSON | no | live OK 2026-11-24 |
 | Epic Games Store, Microsoft Store, PlayStation Store | none verified | unsupported | no | shown as UNKNOWN for that source |
-| Rockstar official social accounts | APIs need credentials | unsupported | no | mirrored by the Newswire |
+| Rockstar official social accounts | APIs need credentials | unsupported | no | announcements are mirrored by Take-Two press releases |
 
 The build sandbox for v0.1.0 had no egress, so live structure checks run in
 the `pc-watch` workflow. Every source declares `expect_min_items`: if a page

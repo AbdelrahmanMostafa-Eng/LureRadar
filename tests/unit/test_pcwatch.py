@@ -50,7 +50,9 @@ def with_pc_fact(status: str, value: str | None = None) -> Pack:
 # ---------------------------------------------------------------- config
 def test_config_and_timeline_are_verified() -> None:
     assert CONFIG.stale_after_hours == 36
-    assert {s.id for s in CONFIG.sources if s.required} == {"rockstar-newswire", "take-two-ir"}
+    assert {s.id for s in CONFIG.sources if s.required} == {"take-two-ir"}
+    # The Newswire renders client-side (no list, no feed): reported, never parsed.
+    assert next(s for s in CONFIG.sources if s.id == "rockstar-newswire").format == "unsupported"
     assert CONFIG.timeline, "timeline must be seeded with verified entries"
     for e in CONFIG.timeline:
         assert e.kind == "official" and e.url and e.date and e.verified_on
@@ -134,7 +136,7 @@ def test_failures_never_produce_not_announced() -> None:
     assert state.status is Status.UNKNOWN and state.stale
     assert state.note.startswith("UNKNOWN (last confirmed NOT_ANNOUNCED")
     failed = {s.id: s.status for s in state.sources}
-    assert failed["rockstar-newswire"] == "failed" and failed["take-two-ir"] == "failed"
+    assert failed["take-two-ir"] == "failed" and failed["rockstar-newswire"] == "unsupported"
 
 
 def test_no_check_at_all_is_unknown() -> None:
@@ -161,7 +163,7 @@ def test_announcement_needs_maintainer_review() -> None:
     assert state.status is Status.NOT_ANNOUNCED  # unchanged until facts.yaml is edited
     assert state.review_pending and state.suggested_status is Status.ANNOUNCED_DATED
     body = issue_body(state, result)
-    assert "maintainer" in body and "facts.yaml" in body and "rockstargames.com" in body
+    assert "maintainer" in body and "facts.yaml" in body and "take2games.com" in body
     assert ISSUE_TITLE.startswith("PC Watch")
 
 

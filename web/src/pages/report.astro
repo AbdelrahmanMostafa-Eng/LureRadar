@@ -4,10 +4,10 @@ import PageHeader from "../components/PageHeader.astro";
 import { issueUrl, href } from "../lib/site";
 ---
 <Base title="Report a lure or dispute a listing" description="Seen a fake GTA 6 download, key giveaway or phishing link? Report it to LureRadar, or dispute a listing you think is wrong. Defanged, public, no personal data." og="report">
-  <PageHeader eyebrow="Contribute" index="RPT" title="Seen a lure?" em="Report it.">
+  <PageHeader eyebrow="Contribute" title="Seen a lure?" em="Report it.">
     <p>Reports become public GitHub issues and, after validation, small pull requests into <code>data/reports/</code>. A report never bypasses scoring: it adds a candidate that the pipeline scores like any other.</p>
   </PageHeader>
-  <div class="wrap narrow">
+  <div class="wrap">
     <div class="grid grid-2">
       <div class="card">
         <h2>Report a lure</h2>
@@ -29,4 +29,6 @@ import { issueUrl, href } from "../lib/site";
     </ul>
   </div>
 </Base>
-<style>.narrow { max-width: 1040px; } .card { display: grid; gap: 14px; align-content: start; } .card h2 { margin: 0; } .card p { color: var(--text-2); margin: 0; } .card .btn { justify-self: start; margin-top: 8px; } ul { color: var(--text-2); padding-left: 1.2em; } li { margin: 8px 0; }</style>
+<style>
+  .wrap > p, .wrap > ul, .wrap > pre { max-width: 74ch; }
+.card { display: flex; flex-direction: column; gap: 14px; } .card h2 { margin: 0; } .card p { color: var(--text-2); margin: 0; } .card .btn { align-self: flex-start; margin-top: auto; } ul { color: var(--text-2); padding-left: 1.2em; } li { margin: 8px 0; }</style>

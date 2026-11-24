@@ -27,22 +27,48 @@ facts:
     pc: {status: unreleased, fact: pc_release, terms: [pc, windows, steam]}`;
 ---
 <Base title="Campaign packs: add a launch in 20 lines" description="LureRadar campaign packs describe one hyped launch in YAML: keywords, intents, brands, allowlist and dated facts. GTA 6 ships first; add your own launch in about 20 lines." og="packs">
-  <PageHeader eyebrow="Campaign packs" index="PCK" title="One engine," em="many launches.">
+  <PageHeader eyebrow="Campaign packs" title="One engine," em="many launches.">
     <p>LureRadar is a generic launch-lure engine. Everything campaign-specific lives in a pack: keywords, lure intents, brands that scammers impersonate (names only, never logos), legitimate outlets, and dated, sourced facts that drive rules such as “there is no PC version yet”.</p>
   </PageHeader>
   <div class="wrap">
     {packs.length ? packs.map((p) => (
-      <article class="card pack" data-reveal>
-        <h2>{p.name} <span class="pill">{p.id} · v{p.version} · as of {p.as_of}</span></h2>
-        <p class="muted">{p.description}</p>
-        <div class="grid grid-2">
-          <div><h3>Keywords</h3><p class="mono tags">{p.keywords.join(" · ")}</p></div>
-          <div><h3>Impersonated brands</h3><ul>{p.brands.map((b: any) => <li>{b.name} <span class="muted mono">({b.official.join(", ")})</span></li>)}</ul></div>
-          <div><h3>Platforms</h3><ul>{Object.entries(p.platforms).map(([k, v]: [string, any]) => <li>{v.label}: <span class={v.status === "unreleased" ? "warn" : "okc"}>{v.status}</span></li>)}</ul></div>
-          <div><h3>Allowlist</h3><p>{p.allowlist_outlets} outlets (hard clear), {p.allowlist_platforms} user-content platforms (capped)</p></div>
+      <article class="pack frame" data-reveal>
+        <header class="pack-head">
+          <p class="label-caps">Pack · <span class="mono">{p.id}</span> · v{p.version} · facts as of {p.as_of}</p>
+          <h2>{p.name}</h2>
+          <p class="pack-desc">{p.description}</p>
+        </header>
+        <div class="spec">
+          <section>
+            <h3 class="label-caps">Keywords</h3>
+            <ul class="chips">{p.keywords.map((k: string) => <li>{k}</li>)}</ul>
+          </section>
+          <section>
+            <h3 class="label-caps">Platforms</h3>
+            <ul class="plat">{Object.entries(p.platforms).map(([, v]: [string, any]) => <li><span class={`lamp ${v.status === "unreleased" ? "amber" : ""}`} aria-hidden="true"></span><span>{v.label}</span><span class={`mono st ${v.status === "unreleased" ? "warn" : "okc"}`}>{v.status}</span></li>)}</ul>
+          </section>
+          <section>
+            <h3 class="label-caps">Impersonated brands</h3>
+            <ul class="brands">{p.brands.map((b: any) => <li><span>{b.name}</span><span class="mono muted">{b.official.join(" · ")}</span></li>)}</ul>
+          </section>
+          <section>
+            <h3 class="label-caps">Allowlist</h3>
+            <div class="allow">
+              <div><span class="big">{p.allowlist_outlets}</span><span class="muted small">outlets, always CLEAR</span></div>
+              <div><span class="big">{p.allowlist_platforms}</span><span class="muted small">user-content platforms, capped at SUSPICIOUS</span></div>
+            </div>
+          </section>
         </div>
-        <h3>Facts on record</h3>
-        <ul class="facts">{p.facts.map((f: any) => <li><strong>{f.id}</strong> <span class="pill">{f.status}</span> <span class="muted">as of {f.as_of}</span><br />{f.claim} {f.sources.map((s: any) => <a href={s.url}>[{s.publisher ?? "source"}]</a>)}</li>)}</ul>
+        <section class="facts-wrap">
+          <h3 class="label-caps">Facts on record</h3>
+          <ol class="facts">{p.facts.map((f: any) => (
+            <li>
+              <div class="f-meta"><span class="mono">{f.id}</span><span class={`fstat fs-${f.status}`}>{String(f.status).replaceAll("_", " ")}</span><span class="mono muted">as of {f.as_of}</span></div>
+              <p>{f.claim}</p>
+              <p class="src">{f.sources.map((s: any, i: number) => <>{i ? " · " : ""}<a href={s.url}>{s.publisher ?? s.title ?? "source"}</a></>)}</p>
+            </li>
+          ))}</ol>
+        </section>
       </article>
     )) : <div class="empty"><strong>No packs loaded</strong>Pack data appears after <code>build_site_data.py</code> runs.</div>}
     <h2>Add a launch in about 20 lines</h2>
@@ -51,10 +77,36 @@ facts:
   </div>
 </Base>
 <style>
-  .pack { margin-top: 20px; }
-  .pack h2 { margin-top: 0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-  .tags { overflow-wrap: anywhere; }
-  .warn { color: var(--amber); font-family: var(--font-mono); }
-  .okc { color: var(--radar); font-family: var(--font-mono); }
-  .facts { padding-left: 1.1em; display: grid; gap: 10px; }
+  .pack { margin: 8px 0 72px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+  .pack-head { padding: clamp(22px, 3vw, 36px); border-bottom: 1px solid var(--border); }
+  .pack-head h2 { margin: 10px 0 14px; font-size: clamp(2.2rem, 4vw, 3.2rem); }
+  .pack-desc { color: var(--text-2); max-width: 70ch; margin: 0; }
+  .spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .spec > section { margin: 0; padding: clamp(18px, 2.4vw, 28px); border-right: 1px solid var(--border); }
+  .spec > section:last-child { border-right: 0; }
+  .spec h3, .facts-wrap h3 { margin: 0 0 14px; }
+  @media (max-width: 1000px) { .spec { grid-template-columns: 1fr 1fr; } .spec > section:nth-child(2) { border-right: 0; } .spec > section:nth-child(n + 3) { border-top: 1px solid var(--border); } }
+  @media (max-width: 600px) { .spec { grid-template-columns: 1fr; } .spec > section { border-right: 0; } .spec > section + section { border-top: 1px solid var(--border); } }
+  .chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips li { font: 400 0.76rem/1 var(--font-mono); padding: 6px 8px; border: 1px solid var(--border-strong); border-radius: 6px; color: var(--text-2); }
+  .plat, .brands { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: 0.9rem; }
+  .plat li { display: grid; grid-template-columns: 14px 1fr auto; gap: 10px; align-items: center; }
+  .plat .st { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; }
+  .brands li { display: grid; gap: 2px; }
+  .brands .mono { font-size: 0.72rem; overflow-wrap: anywhere; }
+  .allow { display: grid; gap: 16px; }
+  .allow > div { display: grid; gap: 4px; }
+  .big { font: 650 3rem/0.9 var(--font-display); font-stretch: 66%; }
+  .warn { color: var(--amber); }
+  .okc { color: var(--radar); }
+  .facts-wrap { margin: 0; padding: clamp(18px, 2.4vw, 28px); border-top: 1px solid var(--border); }
+  .facts { list-style: none; margin: 0; padding: 0; }
+  .facts li { padding: 16px 0; border-top: 1px solid var(--border); }
+  .facts li p { margin: 8px 0 0; color: var(--text-2); max-width: 90ch; }
+  .f-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 0.82rem; }
+  .fstat { --c: var(--muted); font: 500 0.66rem/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); background: color-mix(in srgb, var(--c) 9%, transparent); }
+  .fs-confirmed { --c: var(--radar); }
+  .fs-not_announced { --c: var(--amber); }
+  .src { font-size: 0.82rem; }
+  .src a { color: var(--muted); }
 </style>

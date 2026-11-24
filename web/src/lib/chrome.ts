@@ -76,9 +76,15 @@ function initFreshness(): void {
 function initHeader(): void {
   const header = document.querySelector<HTMLElement>(".site-header");
   if (!header) return;
+  // The page has no visible scrollbar; this hairline shows reading progress.
+  const bar = header.querySelector<HTMLElement>(".scroll-progress > span");
   const update = () => {
     if (window.scrollY > 8) header.dataset.elevated = "";
     else delete header.dataset.elevated;
+    if (bar) {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
+    }
   };
   update();
   let ticking = false;
@@ -90,6 +96,7 @@ function initHeader(): void {
       ticking = false;
     });
   }, { passive: true });
+  window.addEventListener("resize", update, { passive: true });
 }
 
 function countUp(el: HTMLElement): void {

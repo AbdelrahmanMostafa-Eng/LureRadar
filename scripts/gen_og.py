@@ -10,7 +10,8 @@ Outputs:
 * ``web/public/og/*.png`` - per-page Open Graph cards (1200x630), including a
   daily stats card and a PC Watch card built from real (or labelled demo) data.
 
-Fonts: Inter and JetBrains Mono (SIL OFL 1.1) TTFs from the npm packages
+Fonts: Saira Condensed (headlines, matching the site), Inter and JetBrains Mono
+(SIL OFL 1.1) TTFs from the npm packages ``@expo-google-fonts/saira-condensed``,
 ``@expo-google-fonts/inter`` and ``@expo-google-fonts/jetbrains-mono``
 (``cd web && npm ci``). If those are missing, system Inter/DejaVu fonts are
 used, so output may differ slightly.
@@ -47,6 +48,7 @@ TIER = {
 def font_files() -> list[str]:
     npm = WEB / "node_modules" / "@expo-google-fonts"
     wanted = [
+        npm / "saira-condensed" / "700Bold" / "SairaCondensed_700Bold.ttf",
         npm / "inter" / "400Regular" / "Inter_400Regular.ttf",
         npm / "inter" / "500Medium" / "Inter_500Medium.ttf",
         npm / "inter" / "600SemiBold" / "Inter_600SemiBold.ttf",
@@ -223,16 +225,19 @@ def page_card(out: Path, title: str, subtitle: str, *, badge: str | None = None,
     W, H = 1200, 630
     from lureradar.config import base_url
 
-    lines = wrap(title, 26)[:3]
+    lines = wrap(title.upper(), 26)[:3]
     title_svg = "".join(
-        f'<text x="72" y="{250 + i * 76}" font-family="Inter" font-weight="700" font-size="66" '
-        f'letter-spacing="-1" fill="{T["text"]}">{escape(line)}</text>'
+        f'<text x="72" y="{262 + i * 80}" font-family="Saira Condensed" font-weight="700" font-size="88" '
+        f'fill="{T["text"]}">{escape(line)}</text>'
         for i, line in enumerate(lines)
     )
-    sub_y = 250 + len(lines) * 76 + 18
+    sub_y = 262 + len(lines) * 80 + 14
+    sub_lines = wrap(subtitle, 58)
+    if len(sub_lines) > 2:  # never cut mid-sentence without saying so
+        sub_lines = [sub_lines[0], sub_lines[1].rstrip(" ,.;:(") + "…"]
     sub_svg = "".join(
         f'<text x="74" y="{sub_y + i * 38}" font-family="Inter" font-size="28" fill="{T["muted"]}">{escape(line)}</text>'
-        for i, line in enumerate(wrap(subtitle, 58)[:2])
+        for i, line in enumerate(sub_lines)
     )
     badge_svg = ""
     if badge:
@@ -245,7 +250,7 @@ def page_card(out: Path, title: str, subtitle: str, *, badge: str | None = None,
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">
     {radar_backdrop(W, H, 1020, 300, 260)}
     {mark(70, 50, 0.85)}
-    <text x="134" y="92" font-family="Inter" font-weight="700" font-size="34" letter-spacing="-.5" fill="{T["text"]}">Lure<tspan fill="{T["radar"]}">Radar</tspan></text>
+    <text x="134" y="92" font-family="Saira Condensed" font-weight="700" font-size="40" letter-spacing="2" fill="{T["text"]}">LURE<tspan fill="{T["radar"]}">RADAR</tspan></text>
     {badge_svg}{title_svg}{sub_svg}
     <text x="74" y="{H - 44}" font-family="JetBrains Mono" font-size="20" fill="{T["muted"]}">{escape(footer or base_url())}</text>
     <rect x="0" y="{H - 8}" width="{W}" height="8" fill="{accent}"/>

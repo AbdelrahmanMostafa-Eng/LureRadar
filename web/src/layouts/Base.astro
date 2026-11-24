@@ -1,6 +1,6 @@
 ---
-import "@fontsource/instrument-serif/latin-400.css";
-import "@fontsource/instrument-serif/latin-400-italic.css";
+import "@fontsource-variable/saira/wdth.css";
+import sairaLatin from "@fontsource-variable/saira/files/saira-latin-wdth-normal.woff2?url";
 import "@fontsource-variable/geist/wght.css";
 import "@fontsource-variable/geist-mono/wght.css";
 import "../styles/global.css";
@@ -36,10 +36,11 @@ const year = new Date(updated ?? Date.now()).getUTCFullYear();
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <link rel="preload" href={sairaLatin} as="font" type="font/woff2" crossorigin />
     {noindex && <meta name="robots" content="noindex" />}
     <meta name="color-scheme" content="dark light" />
-    <meta name="theme-color" content="#0A0B0A" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#F3F1EA" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#080A09" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#EEF0EA" media="(prefers-color-scheme: light)" />
     <link rel="icon" href={href("favicon.svg")} type="image/svg+xml" />
     <link rel="icon" href={href("favicon-32.png")} sizes="32x32" type="image/png" />
     <link rel="apple-touch-icon" href={href("apple-touch-icon.png")} />
@@ -70,14 +71,14 @@ const year = new Date(updated ?? Date.now()).getUTCFullYear();
     <a class="skip" href="#main">Skip to content</a>
     <div class="freshness">
       <div class="wrap">
-        <span><span class="dot" id="fresh-dot" aria-hidden="true"></span>Feed updated <time id="fresh-time" datetime={updated ?? ""}>{fmtUtc(updated)}</time> <span id="fresh-age" class="rail-age"></span></span>
+        <span><span class="lamp live" id="fresh-dot" aria-hidden="true"></span>Feed updated <time id="fresh-time" datetime={updated ?? ""}>{fmtUtc(updated)}</time> <span id="fresh-age" class="rail-age"></span></span>
         {meta.demo && <><span class="sep" aria-hidden="true"></span><span class="rail-demo">Demo data<span class="rail-long"> · synthetic fixtures on reserved .test domains</span></span></>}
         <span class="rail-right">Refreshed daily · PC Watch every 4 h</span>
       </div>
     </div>
     <header class="site-header">
       <div class="wrap header-inner">
-        <a class="brand" href={href("")} aria-label="LureRadar home"><Logo /><span>Lure<b>Radar</b></span></a>
+        <a class="brand" href={href("")} aria-label="LureRadar home"><Logo /><span class="word">Lure<b>Radar</b></span></a>
         <nav class="nav" aria-label="Main">
           {PRIMARY_NAV.map((n) => <a href={href(n.path)} aria-current={current(n.path) ? "page" : undefined}>{n.label}</a>)}
         </nav>
@@ -104,6 +105,7 @@ const year = new Date(updated ?? Date.now()).getUTCFullYear();
           </details>
         </div>
       </div>
+      <div class="scroll-progress" aria-hidden="true"><span></span></div>
     </header>
     <main id="main" tabindex="-1">
       <slot />
@@ -119,7 +121,7 @@ const year = new Date(updated ?? Date.now()).getUTCFullYear();
         </div>
         <div class="footer-cols">
           <div>
-            <a class="brand" href={href("")} aria-label="LureRadar home"><Logo size={26} /><span>Lure<b>Radar</b></span></a>
+            <a class="brand" href={href("")} aria-label="LureRadar home"><Logo size={26} /><span class="word">Lure<b>Radar</b></span></a>
             <p style="margin-top:16px;max-width:30ch">An open, explainable threat radar for hyped-launch scams. Built in public, for players and the people who protect them.</p>
           </div>
           <div>
@@ -154,8 +156,8 @@ const year = new Date(updated ?? Date.now()).getUTCFullYear();
           <div>
             <h2>Status</h2>
             <dl class="footer-status">
-              <div><dt>Feed</dt><dd>{fmtUtc(updated)}{meta.demo ? " · demo" : ""}</dd></div>
-              <div><dt>PC Watch</dt><dd>{pcStatus}</dd></div>
+              <div><dt>Feed</dt><dd><span class={`lamp ${meta.demo ? "amber" : ""}`} aria-hidden="true"></span>{fmtUtc(updated)}{meta.demo ? " · demo" : ""}</dd></div>
+              <div><dt>PC Watch</dt><dd><span class={`lamp ${pcStatus === "NOT ANNOUNCED" ? "" : pcStatus === "UNKNOWN" ? "off" : "amber"}`} aria-hidden="true"></span>{pcStatus}</dd></div>
               <div><dt>Release</dt><dd>v{meta.version} · MIT · data CC0-1.0</dd></div>
             </dl>
           </div>
@@ -168,7 +170,7 @@ const year = new Date(updated ?? Date.now()).getUTCFullYear();
           <a class="to-top" href="#main">Back to top <span aria-hidden="true">↑</span></a>
         </div>
       </div>
-      <p class="wordmark" aria-hidden="true">Lure<em>Radar</em></p>
+      <p class="wordmark" aria-hidden="true"><span>Lure</span><em>Radar</em></p>
       <p class="visually-hidden">© {year} LureRadar contributors.</p>
     </footer>
     <script>

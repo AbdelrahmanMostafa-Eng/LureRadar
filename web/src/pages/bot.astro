@@ -4,10 +4,10 @@ import PageHeader from "../components/PageHeader.astro";
 import { abs, issueUrl, meta } from "../lib/site";
 ---
 <Base title="LureRadar crawler (bot) information" description="What the LureRadar fetcher does, how it identifies itself, the limits it respects, and how site owners can opt out." og="about">
-  <PageHeader eyebrow="For site owners" index="BOT" title="The LureRadar" em="fetcher.">
+  <PageHeader eyebrow="For site owners" title="The LureRadar" em="fetcher.">
     <p>You are probably here because you saw this User-Agent in your logs:</p>
   </PageHeader>
-  <div class="wrap narrow">
+  <div class="wrap">
     <pre tabindex="0"><code>LureRadar/{meta.version} (+{abs("bot/")})</code></pre>
     <h2>What it does</h2>
     <p>LureRadar looks at newly registered domains whose names suggest a hyped-launch scam (for example a “GTA 6 PC download” site). For each one it may fetch <strong>one page</strong> to look for lure patterns such as fake download buttons or survey gates.</p>
@@ -23,4 +23,6 @@ import { abs, issueUrl, meta } from "../lib/site";
     <p class="muted">The fetcher never submits forms, never logs in, and never attempts to bypass access controls.</p>
   </div>
 </Base>
-<style>.narrow { max-width: 900px; } pre { margin-bottom: 8px; } ul { color: var(--text-2); padding-left: 1.2em; } li { margin: 8px 0; } p { color: var(--text-2); }</style>
+<style>
+  .wrap > p, .wrap > ul, .wrap > pre { max-width: 74ch; }
+pre { margin-bottom: 8px; } ul { color: var(--text-2); padding-left: 1.2em; } li { margin: 8px 0; } p { color: var(--text-2); }</style>

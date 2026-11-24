@@ -6,7 +6,7 @@ const gta = packs.find((p) => p.id === "gta6");
 const pcFact = gta?.facts?.find((f: any) => f.id === "pc_release");
 ---
 <Base title="Check a link, domain or message" description="Is this GTA 6 download, key or giveaway a scam? Check any link, domain or message in your browser. Explainable verdict, nothing sent to any server." og="check">
-  <PageHeader eyebrow="Client-side checker" index="CHK" title="Is this" em="a lure?">
+  <PageHeader eyebrow="Client-side checker" title="Is this" em="a lure?">
     <p>
       Paste a URL, a domain (defanged is fine: <code>hxxps://evil[.]test</code>) or a whole message.
       The same offline rules as the <code>lureradar check</code> CLI run <strong>entirely in your browser</strong>:
@@ -70,7 +70,7 @@ const pcFact = gta?.facts?.find((f: any) => f.id === "pc_release");
   #result :global(.gauge .arc) { stroke: var(--tone); transition: stroke-dashoffset 1.3s var(--ease-out); }
   #result :global(.gauge .num) { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; font: 400 2.3rem/1 var(--font-mono); letter-spacing: -0.04em; color: var(--text); }
   #result :global(.gauge .num small) { display: block; font-size: 0.7rem; letter-spacing: 0.1em; color: var(--muted); margin-top: 6px; }
-  #result :global(.v-headline) { font: 400 clamp(1.6rem, 2.6vw, 2.2rem)/1.1 var(--font-display); margin: 12px 0 10px; color: var(--text); }
+  #result :global(.v-headline) { font: 650 clamp(1.7rem, 2.6vw, 2.3rem)/1.05 var(--font-display); font-stretch: 74%; margin: 12px 0 10px; color: var(--text); }
   #result :global(.v-target) { font-family: var(--font-mono); font-size: 0.85rem; overflow-wrap: anywhere; margin: 0; color: var(--muted); }
   #result :global(.v-body) { padding: clamp(22px, 3vw, 32px); display: grid; gap: 26px; }
   #result :global(h3) { margin: 0 0 10px; font: 500 0.68rem/1.3 var(--font-mono); text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted); }

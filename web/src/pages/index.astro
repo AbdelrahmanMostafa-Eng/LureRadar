@@ -3,6 +3,7 @@ import Base from "../layouts/Base.astro";
 import Radar from "../components/Radar.astro";
 import TierBadge from "../components/TierBadge.astro";
 import CopyBlock from "../components/CopyBlock.astro";
+import DemoNotice from "../components/DemoNotice.astro";
 import { abs, href, latest, stats, pcwatch, meta, defang, fmtUtc, fmtDate, REPO_URL, TIER_COLOR } from "../lib/site";
 
 const recent = [...latest.indicators].sort((a, b) => b.first_seen.localeCompare(a.first_seen)).slice(0, 6);
@@ -40,10 +41,11 @@ const jsonld = {
   <div class="hero-bg" aria-hidden="true"></div>
   <div class="wrap hero">
     <div class="hero-copy">
-      <p class="eyebrow intro">Open threat radar · hyped-launch scams</p>
+      <p class="eyebrow intro">Threat radar · hyped-launch scams</p>
       <h1 class="hero-title lines">
         <span class="line"><span style="--i:0">See the lure</span></span>
-        <span class="line"><span style="--i:1">before you <em>bite.</em></span></span>
+        <span class="line"><span style="--i:1">before you</span></span>
+        <span class="line"><span style="--i:2"><em class="warn">bite.</em></span></span>
       </h1>
       <p class="lede intro" style="--i:2">
         LureRadar spots <strong>fake GTA 6 PC downloads</strong>, key-generator traps and phishing lures around big releases,
@@ -53,7 +55,7 @@ const jsonld = {
         <label for="home-q" class="visually-hidden">Link, domain or message to check</label>
         <div class="command">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4" /><path d="M12 12 18 6" /></svg>
-          <input id="home-q" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a link, domain or message" />
+          <input id="home-q" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a link or a message" />
           <button class="btn primary" type="submit">Check <span class="arr" aria-hidden="true">→</span></button>
         </div>
         <p class="hint">
@@ -93,7 +95,7 @@ const jsonld = {
       </div>
     </div>
     <div class="share-row" data-reveal>
-      {meta.demo && <span class="pill demo">Demo data: synthetic fixtures, reserved .test domains</span>}
+      <DemoNotice />
       <button type="button" class="btn small" id="share" data-text={shareText} data-url={abs("")}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" /></svg>
         Share these stats
@@ -127,7 +129,7 @@ const jsonld = {
     </div>
     <aside class="bulletin card" aria-labelledby="pc-h" data-reveal style="--i:2">
       <p class="label-caps" id="pc-h">PC Watch · official sources only</p>
-      <p class="pc-word" style={`--tone:${pcTone}`}><span class="pc-dot" aria-hidden="true"></span>{pcWord}</p>
+      <p class="pc-word" style={`--tone:${pcTone}`}><span class="lamp live" aria-hidden="true"></span>{pcWord}</p>
       <p class="pc-text">{pcStatus === "UNKNOWN"
         ? `No successful automated check in the last 36 hours, so we won't repeat an old answer. Maintainer-confirmed status: ${confirmed} (as of ${pcwatch.confirmed_as_of ?? "?"}).`
         : (pcwatch.answer ?? "Official sources only.")}</p>
@@ -227,15 +229,16 @@ const jsonld = {
 <style>
   .hero-bg {
     position: absolute; inset: -120px 0 -80px 0; pointer-events: none; z-index: -1;
+    /* plotting grid, like the chart a radar operator works on */
     background:
-      radial-gradient(ellipse 60% 50% at 78% 30%, color-mix(in srgb, var(--radar) 7%, transparent), transparent 70%),
-      repeating-radial-gradient(circle at 78% 34%, transparent 0 79px, color-mix(in srgb, var(--border) 55%, transparent) 79px 80px);
-    mask-image: radial-gradient(ellipse 70% 60% at 70% 30%, #000 20%, transparent 75%);
+      radial-gradient(ellipse 50% 46% at 76% 40%, color-mix(in srgb, var(--radar) 8%, transparent), transparent 70%),
+      linear-gradient(to right, var(--grid) 1px, transparent 1px) 0 0 / 64px 64px,
+      linear-gradient(to bottom, var(--grid) 1px, transparent 1px) 0 0 / 64px 64px;
+    mask-image: radial-gradient(ellipse 80% 70% at 60% 35%, #000 25%, transparent 78%);
   }
   .hero-shell { position: relative; isolation: isolate; }
   .hero { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr); gap: clamp(32px, 5vw, 72px); align-items: center; padding-top: clamp(40px, 6vw, 88px); }
-  .hero-title { font-size: clamp(3.3rem, 8.2vw, 7.4rem); line-height: 0.93; letter-spacing: -0.025em; margin: 0 0 30px; }
-  .hero-title em { color: var(--radar); padding-right: 0.06em; }
+  .hero-title { font-size: clamp(3.9rem, 8.4vw, 7.8rem); font-stretch: 62%; line-height: 0.84; letter-spacing: 0.005em; margin: 0 0 30px; white-space: nowrap; }
   .hero-form { margin: 34px 0 0; max-width: 620px; }
   .hint { display: flex; align-items: center; gap: 8px; margin: 12px 2px 0; color: var(--muted); font-size: 0.84rem; }
   .hint svg { width: 14px; height: 14px; flex-shrink: 0; }
@@ -246,7 +249,7 @@ const jsonld = {
     .hero-radar { max-width: 440px; width: 100%; margin: 8px auto 0; }
   }
 
-  .share-row { display: flex; gap: 12px; align-items: center; margin-top: 18px; flex-wrap: wrap; }
+  .share-row { display: flex; gap: 12px 24px; align-items: center; justify-content: space-between; margin-top: 18px; flex-wrap: wrap; }
 
   .dispatch-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
   @media (max-width: 960px) { .dispatch-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -271,8 +274,8 @@ const jsonld = {
   }
   .bulletin { display: grid; gap: 14px; align-content: start; margin-top: 8px; background: linear-gradient(180deg, var(--surface), var(--bg-2)); }
   .bulletin p { margin: 0; }
-  .pc-word { display: flex; align-items: center; gap: 14px; font: 400 clamp(2.4rem, 4vw, 3.3rem)/1 var(--font-display); color: var(--tone); text-transform: capitalize; margin: 6px 0 2px !important; }
-  .pc-dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 5px color-mix(in srgb, currentColor 15%, transparent); flex-shrink: 0; }
+  .pc-word { display: flex; align-items: center; gap: 16px; font: 700 clamp(2.8rem, 4.6vw, 3.8rem)/0.9 var(--font-display); font-stretch: 64%; color: var(--tone); text-transform: uppercase; margin: 6px 0 2px !important; }
+  .pc-word .lamp { --c: var(--tone); width: 11px; height: 11px; }
   .pc-text { color: var(--text-2); }
 
   .method { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
@@ -282,8 +285,8 @@ const jsonld = {
   @media (max-width: 960px) { .method { grid-template-columns: minmax(0, 1fr); } .method-head { position: static; } }
   .steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
   .steps li { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 20px; padding: 34px 0 36px; border-bottom: 1px solid var(--border); }
-  .steps .n { font: 400 3.4rem/0.9 var(--font-display); color: var(--muted); font-style: italic; }
-  .steps h3 { margin: 4px 0 10px; font: 400 2rem/1.1 var(--font-display); letter-spacing: -0.01em; }
+  .steps .n { font: 700 3.8rem/0.82 var(--font-display); font-stretch: 62%; color: transparent; -webkit-text-stroke: 1px var(--border-strong); }
+  .steps h3 { margin: 2px 0 12px; font: 700 2.2rem/0.95 var(--font-display); font-stretch: 68%; text-transform: uppercase; letter-spacing: 0.01em; }
   .steps p { color: var(--text-2); margin-bottom: 16px; }
   .artifact { margin: 0 !important; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-2); color: var(--muted) !important; font-size: 0.78rem; line-height: 1.75; }
   .artifact .eq { display: inline-block; margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--border-strong); color: var(--danger); }

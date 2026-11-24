@@ -286,3 +286,22 @@ performance score from 94 to 97-98 on the throttled profile); `prefers-reduced-m
 cross-document view transitions where the browser supports them. The audit
 (`web/scripts/audit.mjs`) waits for finite animations before running axe so
 contrast is measured on the settled page.
+
+## ADR-024: Type and colour follow the subject; no page scrollbar
+
+Second design pass, after review. The display face changed from a fashion-
+editorial serif to Saira (condensed, variable width): an engineered face with
+the look of instrument placards and launch-event signage, which fits a radar
+for game-launch scams better. Headlines are condensed uppercase; Geist stays
+for reading and Geist Mono for every number. The OG cards use Saira Condensed
+too, so link previews match the site. Colour is semantic only and follows the
+cockpit alerting convention, which is also the tier scale: green = clear /
+radar, amber = caution / suspicious, red = warning / lure; surfaces are a
+faintly green "radar scope" dark and a pale "chart paper" light. The page
+scrollbar is hidden (`scrollbar-width: none`, `::-webkit-scrollbar`) while
+wheel, touch and keyboard scrolling are unchanged; a hairline under the
+header shows reading progress, and inner scroll areas (tables, code, drawers)
+keep a slim themed scrollbar so their overflow stays discoverable. The pass
+also fixed horizontal overflow on phones (a closed `<details>` menu panel, an
+invisible radar tooltip, visually-hidden table labels escaping their scroll
+container), now checked at 360/390/768/1024/1440 px on every page.

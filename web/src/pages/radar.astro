@@ -24,7 +24,7 @@ const detail = rows.map((r) => ({
 }));
 ---
 <Base title="Radar: latest launch-lure detections" description="Latest fake GTA 6 download, key-generator and phishing domains detected by LureRadar, with the exact signals and evidence behind every score. All indicators defanged." og="radar">
-  <PageHeader eyebrow="Radar" index="RDR" title="Latest" em="detections.">
+  <PageHeader eyebrow="Radar" title="Latest" em="detections.">
     <p>Every indicator with the signals that scored it. Blocklists include LIKELY and CONFIRMED only; SUSPICIOUS stays on watch. Domains are defanged (<code>[.]</code>) so nothing here is clickable.</p>
     <Fragment slot="meta"><DemoNotice /></Fragment>
   </PageHeader>
@@ -85,7 +85,7 @@ const detail = rows.map((r) => ({
   .sigs { display: grid; gap: 3px; font-size: 0.8rem; }
   td.mono { white-space: nowrap; }
   .d-close { position: sticky; top: 0; display: flex; justify-content: flex-end; margin-bottom: 4px; }
-  #d-body :global(h2) { margin: 0 0 6px; font: 400 1.6rem/1.2 var(--font-display); overflow-wrap: anywhere; }
+  #d-body :global(h2) { margin: 0 0 10px; font: 500 1.3rem/1.3 var(--font-mono); text-transform: none; letter-spacing: -0.01em; overflow-wrap: anywhere; }
   #d-body :global(.d-tier) { margin-bottom: 22px; }
   #d-body :global(dl) { display: grid; grid-template-columns: max-content 1fr; gap: 10px 18px; font-size: 0.88rem; padding: 18px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 0 0 24px; }
   #d-body :global(dt) { color: var(--muted); font: 500 0.68rem/1.9 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; }

@@ -42,7 +42,7 @@ const pt = (deg: number, rr: number) => {
 };
 ---
 <figure class="radar" aria-labelledby="radar-cap">
-  <div class="scope" style={`--period:${PERIOD}s`}>
+  <div class="scope frame" style={`--period:${PERIOD}s`}>
     <div class="glass" aria-hidden="true"></div>
     <div class="sweep" aria-hidden="true"></div>
     <svg viewBox="0 0 440 440" aria-hidden="true">
@@ -80,6 +80,7 @@ const pt = (deg: number, rr: number) => {
           {b.kind === "confirmed" && (
             <svg class="mark" viewBox="-9 -9 18 18"><path d="M-8 -4V-8H-4M4 -8H8V-4M8 4V8H4M-4 8H-8V4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" /></svg>
           )}
+          <b class="tip"><span>{String(b.angle).padStart(3, "0")}°</span>{b.label}<span style={`color:${b.color}`}>{b.score}</span></b>
         </span>
       ))}
     </div>
@@ -120,14 +121,28 @@ const pt = (deg: number, rr: number) => {
   .deg { font: 400 8.5px var(--font-mono); fill: var(--muted); text-anchor: middle; letter-spacing: 0.06em; }
   .ring-label { font: 400 8px var(--font-mono); fill: var(--muted); text-anchor: middle; }
   /* Contacts are HTML so their animations run on the compositor, not the main thread. */
-  .layer { position: absolute; inset: 0; }
-  .c { position: absolute; width: 0; height: 0; color: var(--c); }
+  .layer { position: absolute; inset: 0; pointer-events: none; }
+  .c { position: absolute; width: 0; height: 0; color: var(--c); pointer-events: auto; }
+  .c::before { content: ""; position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; cursor: crosshair; }
   .c > * { position: absolute; display: block; border-radius: 50%; animation-duration: var(--period); animation-timing-function: linear; animation-iteration-count: infinite; animation-delay: var(--d); will-change: transform, opacity; }
   .blip { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; background: currentColor; animation-name: lr-blip; }
   .suspicious .blip { background: var(--bg); box-shadow: inset 0 0 0 1.6px currentColor; }
   .halo { width: 8px; height: 8px; margin: -4px 0 0 -4px; border: 1px solid currentColor; opacity: 0; animation-name: lr-halo; }
   .mark.ring { width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px; border: 1.1px solid currentColor; animation-name: lr-mark; }
   svg.mark { max-width: none; width: 19px; height: 19px; margin: -9.5px 0 0 -9.5px; border-radius: 0; overflow: visible; animation-name: lr-mark; }
+  /* Hover readout: bearing, defanged domain, score. */
+  .c > .tip {
+    right: 16px; top: -13px; border-radius: 6px; animation: none; will-change: auto; z-index: 2;
+    display: flex; gap: 10px; align-items: center; white-space: nowrap; padding: 5px 9px;
+    font: 400 0.72rem/1.2 var(--font-mono); color: var(--text); background: color-mix(in srgb, var(--surface) 94%, transparent);
+    border: 1px solid var(--border-strong); box-shadow: var(--shadow);
+    opacity: 0; transform: translateX(4px); transition: opacity 0.25s, transform 0.35s var(--ease-out); pointer-events: none;
+  }
+  .c > .tip span:first-child { color: var(--muted); }
+  .c:hover { z-index: 3; }
+  .c:hover > .tip { opacity: 1; transform: none; }
+  /* Touch screens cannot hover, and an invisible tip must not widen the page. */
+  @media (hover: none), (max-width: 960px) { .c > .tip { display: none; } .c::before { display: none; } }
   @keyframes lr-sweep { to { transform: rotate(360deg); } }
   @keyframes lr-blip { 0% { opacity: 1; transform: scale(1.7); } 6% { opacity: 1; transform: scale(1); } 65% { opacity: 0.55; } 100% { opacity: 0.4; transform: scale(1); } }
   @keyframes lr-halo { 0% { opacity: 0.9; transform: scale(1); } 20%, 100% { opacity: 0; transform: scale(4); } }
@@ -140,7 +155,7 @@ const pt = (deg: number, rr: number) => {
   .dom { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   @media (prefers-reduced-motion: reduce) {
     .sweep { animation: none; transform: rotate(70deg); }
-    .c > * { animation: none !important; }
+    .c > *:not(.tip) { animation: none !important; }
     .blip, .mark { opacity: 0.9; }
   }
 </style>

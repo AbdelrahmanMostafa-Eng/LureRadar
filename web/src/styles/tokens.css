@@ -1,35 +1,41 @@
 /* LureRadar design tokens.
-   Dark ("ink") is the default; light ("paper") follows the OS or the toggle.
-   The hues match src/lureradar/theme.py and assets/*.svg (phosphor green,
-   amber, red); the web tones are softened for long reading. Every text pair
-   below is >= 4.5:1 against --bg and --surface (checked with axe). */
+   The palette follows the subject. Surfaces are a faintly green "radar scope"
+   dark (default) and a pale "chart paper" light. The three signal colours
+   follow the cockpit alerting convention, which is also our tier scale:
+   green = normal / clear / radar, amber = caution / suspicious,
+   red = warning / lure. Nothing else is coloured.
+   Hues match src/lureradar/theme.py and assets/*.svg. Every text pair here is
+   >= 4.5:1 against --bg and --surface (checked with axe). */
 :root {
-  --bg: #0a0b0a;
-  --bg-2: #0d0f0d;
-  --surface: #111311;
-  --surface-2: #171a17;
-  --border: #222622;
-  --border-strong: #343a34;
-  --text: #edece6;
-  --text-2: #c4c3bb;
-  --muted: #929189;
-  --radar: #5ae6a6;
-  --amber: #f0b44c;
+  --bg: #080a09;
+  --bg-2: #0b0e0c;
+  --surface: #0f1311;
+  --surface-2: #151a17;
+  --border: #1e2420;
+  --border-strong: #2f3732;
+  --text: #e8ebe5;
+  --text-2: #bfc5bd;
+  --muted: #8c948d;
+  --radar: #5be6a7;
+  --amber: #f2b84b;
   --danger: #ff6b5f;
-  --info: #9dbdff;
-  --on-accent: #0a0b0a;
-  --paper: #edece6;
-  --radar-soft: rgb(90 230 166 / 0.1);
-  --amber-soft: rgb(240 180 76 / 0.1);
+  --info: #9cc0ff;
+  --on-accent: #080a09;
+  --paper: #e8ebe5;
+  --radar-soft: rgb(91 230 167 / 0.1);
+  --amber-soft: rgb(242 184 75 / 0.1);
   --danger-soft: rgb(255 107 95 / 0.1);
-  --info-soft: rgb(157 189 255 / 0.1);
-  --focus: #9dbdff;
-  --scrim: rgb(5 6 5 / 0.72);
-  --shadow: 0 1px 0 rgb(255 255 255 / 0.035) inset, 0 24px 48px -24px rgb(0 0 0 / 0.6);
-  --shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 40px 80px -32px rgb(0 0 0 / 0.75);
-  --grain-opacity: 0.045;
+  --info-soft: rgb(156 192 255 / 0.1);
+  --focus: #9cc0ff;
+  --scrim: rgb(4 6 5 / 0.72);
+  --grid: rgb(232 235 229 / 0.045);
+  --shadow: 0 1px 0 rgb(255 255 255 / 0.035) inset, 0 24px 48px -24px rgb(0 0 0 / 0.65);
+  --shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 40px 80px -32px rgb(0 0 0 / 0.8);
+  --grain-opacity: 0.04;
 
-  --font-display: "Instrument Serif", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  /* Saira (condensed, engineered: instrument placards, launch signage) for
+     display; Geist for reading; Geist Mono for every number and indicator. */
+  --font-display: "Saira Variable", "Arial Narrow", "Roboto Condensed", sans-serif;
   --font-ui: "Geist Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
@@ -41,63 +47,64 @@
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --dur: 0.7s;
   color-scheme: dark;
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --bg: #f3f1ea;
-    --bg-2: #efede5;
-    --surface: #fbfaf6;
-    --surface-2: #e9e6dc;
-    --border: #dcd8cb;
-    --border-strong: #c2bdae;
-    --text: #141513;
-    --text-2: #33342f;
-    --muted: #5d5d55;
-    --radar: #0a7550;
-    --amber: #865000;
+    --bg: #eef0ea;
+    --bg-2: #e8ebe4;
+    --surface: #f8f9f5;
+    --surface-2: #e1e5dc;
+    --border: #d3d8cd;
+    --border-strong: #b7beb1;
+    --text: #111512;
+    --text-2: #2e342f;
+    --muted: #565e57;
+    --radar: #087549;
+    --amber: #855000;
     --danger: #b3261e;
     --info: #1f4fae;
-    --on-accent: #fbfaf6;
-    --paper: #141513;
-    --radar-soft: rgb(10 117 80 / 0.09);
-    --amber-soft: rgb(134 80 0 / 0.08);
+    --on-accent: #f8f9f5;
+    --paper: #111512;
+    --radar-soft: rgb(8 117 73 / 0.09);
+    --amber-soft: rgb(133 80 0 / 0.08);
     --danger-soft: rgb(179 38 30 / 0.07);
     --info-soft: rgb(31 79 174 / 0.07);
     --focus: #1f4fae;
-    --scrim: rgb(20 21 19 / 0.4);
-    --shadow: 0 1px 2px rgb(20 21 19 / 0.05), 0 18px 40px -24px rgb(20 21 19 / 0.18);
-    --shadow-lg: 0 1px 2px rgb(20 21 19 / 0.06), 0 32px 64px -28px rgb(20 21 19 / 0.28);
-    --grain-opacity: 0.06;
+    --scrim: rgb(17 21 18 / 0.4);
+    --grid: rgb(17 21 18 / 0.06);
+    --shadow: 0 1px 2px rgb(17 21 18 / 0.05), 0 18px 40px -24px rgb(17 21 18 / 0.2);
+    --shadow-lg: 0 1px 2px rgb(17 21 18 / 0.06), 0 32px 64px -28px rgb(17 21 18 / 0.3);
+    --grain-opacity: 0.05;
     color-scheme: light;
   }
 }
 :root[data-theme="light"] {
-  --bg: #f3f1ea;
-  --bg-2: #efede5;
-  --surface: #fbfaf6;
-  --surface-2: #e9e6dc;
-  --border: #dcd8cb;
-  --border-strong: #c2bdae;
-  --text: #141513;
-  --text-2: #33342f;
-  --muted: #5d5d55;
-  --radar: #0a7550;
-  --amber: #865000;
+  --bg: #eef0ea;
+  --bg-2: #e8ebe4;
+  --surface: #f8f9f5;
+  --surface-2: #e1e5dc;
+  --border: #d3d8cd;
+  --border-strong: #b7beb1;
+  --text: #111512;
+  --text-2: #2e342f;
+  --muted: #565e57;
+  --radar: #087549;
+  --amber: #855000;
   --danger: #b3261e;
   --info: #1f4fae;
-  --on-accent: #fbfaf6;
-  --paper: #141513;
-  --radar-soft: rgb(10 117 80 / 0.09);
-  --amber-soft: rgb(134 80 0 / 0.08);
+  --on-accent: #f8f9f5;
+  --paper: #111512;
+  --radar-soft: rgb(8 117 73 / 0.09);
+  --amber-soft: rgb(133 80 0 / 0.08);
   --danger-soft: rgb(179 38 30 / 0.07);
   --info-soft: rgb(31 79 174 / 0.07);
   --focus: #1f4fae;
-  --scrim: rgb(20 21 19 / 0.4);
-  --shadow: 0 1px 2px rgb(20 21 19 / 0.05), 0 18px 40px -24px rgb(20 21 19 / 0.18);
-  --shadow-lg: 0 1px 2px rgb(20 21 19 / 0.06), 0 32px 64px -28px rgb(20 21 19 / 0.28);
-  --grain-opacity: 0.06;
+  --scrim: rgb(17 21 18 / 0.4);
+  --grid: rgb(17 21 18 / 0.06);
+  --shadow: 0 1px 2px rgb(17 21 18 / 0.05), 0 18px 40px -24px rgb(17 21 18 / 0.2);
+  --shadow-lg: 0 1px 2px rgb(17 21 18 / 0.06), 0 32px 64px -28px rgb(17 21 18 / 0.3);
+  --grain-opacity: 0.05;
   color-scheme: light;
 }

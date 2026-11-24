@@ -1,6 +1,6 @@
 {
   "base": "http://127.0.0.1:4321/",
-  "generated_at": "2026-11-24T11:26:42.359Z",
+  "generated_at": "2026-11-24T12:53:30.501Z",
   "axe": {
     "dark:/": [],
     "dark:radar/": [],
@@ -38,19 +38,19 @@
   "third_party": {},
   "lighthouse": {
     "/": {
-      "performance": 99,
+      "performance": 98,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100
     },
     "radar/": {
-      "performance": 100,
+      "performance": 99,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100
     },
     "check/": {
-      "performance": 100,
+      "performance": 99,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100

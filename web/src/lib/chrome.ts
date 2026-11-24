@@ -114,10 +114,62 @@ function initCopy(): void {
   });
 }
 
+/** The cursor: a radar reticle drawn in the page so its shape can morph
+ *  smoothly between states (native CSS cursors swap instantly). Position
+ *  follows the pointer exactly; only the shape eases. Touch devices,
+ *  forced-colors mode and modal dialogs keep the native cursor. */
+function initCursor(): void {
+  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+  if (window.matchMedia("(forced-colors: active)").matches) return;
+  const root = document.documentElement;
+  const el = document.createElement("div");
+  el.className = "lr-cursor";
+  el.setAttribute("aria-hidden", "true");
+  el.innerHTML =
+    '<svg viewBox="-20 -20 40 40">' +
+    '<circle class="cu-ring" r="6"/>' +
+    // Four unit ticks centred on the hotspot; CSS places and morphs each one.
+    ["n", "e", "s", "w"].map((k) => `<line class="cu-t cu-${k}" x1="0" y1="-2" x2="0" y2="2"/>`).join("") +
+    '<circle class="cu-dot" r="1.7"/>' +
+    "</svg>";
+  document.body.append(el);
+  root.classList.add("cursor-on");
+  const LINK = "a[href], button, summary, label[for], select, [role='tab'], [data-copy]";
+  const TEXT = "input:not([type='button']):not([type='submit']):not([type='checkbox']):not([type='radio']), textarea, [contenteditable='true']";
+  const modalOpen = () => {
+    try { return !!document.querySelector("dialog[open]:modal"); } catch { return !!document.querySelector("dialog[open]"); }
+  };
+  const setState = (target: Element | null) => {
+    const t = target instanceof Element ? target : null;
+    const text = !!t?.closest(TEXT);
+    const scope = !text && !!t?.closest(".radar .scope");
+    const link = !text && !scope && !!t?.closest(LINK) && !t?.closest(":disabled");
+    el.classList.toggle("is-text", text);
+    el.classList.toggle("is-scope", scope);
+    el.classList.toggle("is-link", link);
+  };
+  document.addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "mouse") return;
+    el.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+    const modal = modalOpen();
+    root.classList.toggle("cursor-on", !modal);
+    el.classList.toggle("is-off", modal);
+    el.classList.add("is-ready");
+  }, { passive: true });
+  document.addEventListener("pointerover", (e) => setState(e.target as Element), { passive: true });
+  document.addEventListener("pointerdown", () => el.classList.add("is-down"));
+  const up = () => el.classList.remove("is-down");
+  document.addEventListener("pointerup", up);
+  document.addEventListener("pointercancel", up);
+  document.addEventListener("mouseout", (e) => { if (!e.relatedTarget) el.classList.add("is-off"); });
+  document.addEventListener("mouseover", () => { if (!modalOpen()) el.classList.remove("is-off"); });
+  window.addEventListener("blur", () => el.classList.add("is-off"));
+}
+
 /** Radar lock-on: brackets fly from the pointer and frame the control under it. */
 function initLockOn(): void {
   if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-  const SEL = ".btn, .icon-btn, .nav a, .arrow-link, [role='tab'], .faq summary, .doclist a, .toc a, .doc-nav a, .brand, .site-footer a, .contacts button, .radar .c";
+  const SEL = ".btn, .icon-btn, .nav a, .arrow-link, [role='tab'], .faq summary, .doclist a, .toc a, .doc-nav a, .brand, .site-footer a, .ops-btn:not(:disabled)";
   const box = document.createElement("div");
   box.className = "lockon";
   box.setAttribute("aria-hidden", "true");
@@ -134,8 +186,7 @@ function initLockOn(): void {
   const frame = () => {
     if (!target) return;
     const r = target.getBoundingClientRect();
-    if (target.matches(".radar .c")) place(r.left - 11, r.top - 11, 22, 22, 0);
-    else place(r.left, r.top, r.width, r.height, 5);
+    place(r.left, r.top, r.width, r.height, 5);
   };
   document.addEventListener("pointermove", (e) => { px = e.clientX; py = e.clientY; if (!target) collapse(); }, { passive: true });
   document.addEventListener("pointerover", (e) => {
@@ -297,6 +348,7 @@ export function initChrome(): void {
   initTheme();
   initButtons();
   initCopy();
+  initCursor();
   initLockOn();
   initFreshness();
   initHeader();

@@ -25,8 +25,9 @@ const shots = [
   ["pc-watch.png", "pc-watch/"],
 ];
 // The film grain (body::after) is a live-browser texture; it defeats PNG/GIF
-// compression and is invisible at README sizes, so captures leave it out.
-const NO_GRAIN = "body::after { display: none !important; }";
+// compression and is invisible at README sizes, so captures leave it out, along
+// with the pointer chrome (drawn cursor, lock-on brackets) parked at 0,0.
+const NO_GRAIN = "body::after, .lr-cursor, .lockon { display: none !important; }";
 for (const [name, path] of shots) {
   await page.goto(BASE + path, { waitUntil: "networkidle" });
   await page.addStyleTag({ content: NO_GRAIN });
